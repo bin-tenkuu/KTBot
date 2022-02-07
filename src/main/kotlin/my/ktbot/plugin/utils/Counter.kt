@@ -126,7 +126,7 @@ object Counter {
 		fun flash() {
 			cacheMap.values.removeIf {
 				val g = it.apply { flushChanges() }
-				g.isBaned && System.currentTimeMillis() - g.gmtModified > ttl
+				!g.isBaned && System.currentTimeMillis() - g.gmtModified > ttl
 			}
 		}
 	}

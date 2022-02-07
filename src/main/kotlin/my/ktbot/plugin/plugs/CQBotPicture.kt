@@ -28,6 +28,7 @@ object CQBotPicture : Plug(
 	weight = 5.0,
 	help = "来点色图，可选参数：r18，key".toPlainText(),
 	deleteMSG = 20 * 1000,
+	needAdmin = true,
 	speedLimit = 5000,
 	expPrivate = -8.0,
 	expGroup = -5.0,

@@ -29,6 +29,7 @@ object SeTuCache : Plug(
 	regex = Regex("^[来來发發给給l][张張个個幅点點份d](?<r18>r18的?)?[涩色瑟铯s][图圖t]$", RegexOption.IGNORE_CASE),
 	weight = 5.1,
 	deleteMSG = 20 * 1000,
+	needAdmin = true,
 	speedLimit = 500,
 	expPrivate = -5.0,
 	expGroup = -3.0,
