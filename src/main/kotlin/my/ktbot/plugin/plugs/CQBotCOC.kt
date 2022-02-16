@@ -20,10 +20,11 @@ object CQBotCOC : Plug(
 ) {
 	@JvmStatic
 	val cache = CacheMap<Long, DiceResult>()
+
 	@JvmStatic
 	var cheater: Boolean = false
 	override suspend fun invoke(event: MessageEvent, result: MatchResult): Message? {
-		val times: Int = result["times"]?.run{ value.trim().toIntOrNull() } ?: 1
+		val times: Int = result["times"]?.run { value.trim().toIntOrNull() } ?: 1
 		val dice: String = result["dice"]?.value ?: return null
 
 		val regex = Regex("[^+\\-*d0-9#]", IGNORE_CASE)
@@ -66,7 +67,7 @@ object CQBotCOC : Plug(
 	private fun castString(origin: String, cheater: Boolean): Calc {
 		val result = Regex("^(?<op>[+\\-*])?(?<num>\\d+)?(?:d(?<max>\\d+))?$", IGNORE_CASE).matchEntire(origin)
 			?: return Calc(op = Operator.Add, sum = 0, origin = origin, max = 0)
-		val num: Int = result["num"]?.run{ value.toIntOrNull() } ?: 1
+		val num: Int = result["num"]?.run { value.toIntOrNull() } ?: 1
 		val op = when (result["op"]?.value) {
 			"+" -> Operator.Add
 			"-" -> Operator.Sub
@@ -79,10 +80,7 @@ object CQBotCOC : Plug(
 			true -> DiceResult(num.toLong(), IntArray(num) { 1 }, max)
 			false -> DiceResult.dice(num, max)
 		}
-		return Calc(
-			op = op, sum = dices.sum, list = dices.list, max = dices.max,
-			origin = "${dices.list.size}d${dices.max}",
-		)
+		return Calc(op = op, sum = dices.sum, list = dices.list, max = dices.max, origin = dices.origin)
 	}
 
 	class Calc(

@@ -8,7 +8,7 @@ class DiceResult(
 	/**最大值*/
 	val max: Int,
 ) {
-	val origin get() = "${sum}d${max}"
+	val origin get() = "${list.size}d${max}"
 	operator fun plus(dice: DiceResult): DiceResult {
 		return DiceResult(
 			sum = sum + dice.sum,
