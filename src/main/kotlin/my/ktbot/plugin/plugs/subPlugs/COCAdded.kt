@@ -28,6 +28,6 @@ object COCAdded : Plug(
 		}
 		cache += dice
 		CQBotCOC.cache[event.sender.id] = cache
-		return "${dice.origin}：[${dice.list}]=${dice.sum}\n[${cache.list}]".toPlainText()
+		return "${dice.origin}：[${dice.list}]=${dice.sum}\n[${cache.list.joinToString(", ")}]".toPlainText()
 	}
 }
