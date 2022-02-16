@@ -75,7 +75,7 @@ abstract class Plug(
 
 	private fun get(event: MessageEvent): MatchResult? {
 		if (isOpen != true) return null
-		if (event.message.contentToString() !in msgLength) return null
+		if (event.message.contentToString().length !in msgLength) return null
 		if (needAdmin && !PlugConfig.isAdmin(event)) return null
 		if (Counter.members[event.sender.id].isBaned) return null
 		return regex.find(event.message.contentToString())
@@ -112,10 +112,6 @@ abstract class Plug(
 
 	final override fun compareTo(other: Plug): Int {
 		return weight.compareTo(other = other.weight)
-	}
-
-	private operator fun IntRange.contains(str: String): Boolean {
-		return str.length in first..last
 	}
 
 	private fun lock(): Boolean {
