@@ -63,17 +63,17 @@ object CQBotCOC : Plug(
 	}
 
 	@JvmStatic
-	private fun castString(value: String, cheater: Boolean): Calc {
-		val result = Regex("^(?<op>[+\\-*])?(?<num>\\d+)?(?:d(?<max>\\d+))?$", IGNORE_CASE).matchEntire(value)
-			?: return Calc(op = Operator.Add, sum = 0, origin = value, max = 0)
-		val num: Int = result["num"]?.run{ value.trim().toIntOrNull() } ?: 1
+	private fun castString(origin: String, cheater: Boolean): Calc {
+		val result = Regex("^(?<op>[+\\-*])?(?<num>\\d+)?(?:d(?<max>\\d+))?$", IGNORE_CASE).matchEntire(origin)
+			?: return Calc(op = Operator.Add, sum = 0, origin = origin, max = 0)
+		val num: Int = result["num"]?.run{ value.toIntOrNull() } ?: 1
 		val op = when (result["op"]?.value) {
 			"+" -> Operator.Add
 			"-" -> Operator.Sub
 			"*" -> Operator.Mul
 			else -> Operator.Add
 		}
-		val max = result["max"]?.value?.toIntOrNull()
+		val max = result["max"]?.run { value.toIntOrNull() }
 			?: return Calc(op = op, sum = num.toLong(), origin = num.toString(), max = 0)
 		val dices: DiceResult = when (cheater) {
 			true -> DiceResult(num.toLong(), IntArray(num) { 1 }, max)
