@@ -4,9 +4,7 @@ import kotlinx.coroutines.*
 import my.ktbot.plugin.annotation.Plug
 import my.ktbot.plugin.plugs.*
 import my.ktbot.plugin.plugs.subPlugs.*
-import my.ktbot.plugin.utils.Counter
-import my.ktbot.plugin.utils.sendAdmin
-import my.ktbot.plugin.utils.update
+import my.ktbot.plugin.utils.*
 import net.mamoe.mirai.Bot
 import net.mamoe.mirai.console.extension.PluginComponentStorage
 import net.mamoe.mirai.console.plugin.jvm.JvmPlugin
@@ -30,7 +28,7 @@ object PluginMain : KotlinPlugin(
 		info("这是一个测试插件,在这里描述插件的功能和用法等.")
 	}
 ), JvmPlugin {
-//	private var inviteCount = CacheMap<Long, Unit>(Duration.ofHours(12).toMillis())
+	private var inviteCount = CacheMap<Long, Unit>(Duration.ofHours(12).toMillis())
 
 	@JvmStatic
 	private val eventChannel: EventChannel<Event> by lazy {
@@ -122,12 +120,12 @@ object PluginMain : KotlinPlugin(
 			}）来自群 ${fromGroup?.name ?: ""}（${
 				fromGroupId
 			}）请求添加好友消息：\n${message}")
-//			if (inviteCount.size <= 10) {
-//				inviteCount[fromId] = Unit
-//				//自动同意好友申请
-//				accept()
-//			}
-//			else reject()
+			if (inviteCount.size <= 10) {
+				inviteCount[fromId] = Unit
+				//自动同意好友申请
+				accept()
+			}
+			else reject()
 		}
 		subscribeAlways<BotInvitedJoinGroupRequestEvent> {
 			sendAdmin("${invitorNick}（${invitorId}）邀请加入群 ${groupName}（${groupId}）")
