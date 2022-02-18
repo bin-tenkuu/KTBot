@@ -28,11 +28,11 @@ object CQBotPicture : Plug(
 	weight = 5.0,
 	help = "来点色图，可选参数：r18，key".toPlainText(),
 	deleteMSG = 20 * 1000,
-	needAdmin = true,
 	speedLimit = 5000,
 	expPrivate = -8.0,
 	expGroup = -5.0,
-	msgLength = 4..20
+	msgLength = 4..20,
+	canGroup = false,
 ) {
 	@JvmStatic
 	val setuSet = mutableSetOf<String>()
@@ -80,7 +80,7 @@ object CQBotPicture : Plug(
 				size = listOf("regular", "small")
 			))
 			val lolicon = response.data.firstOrNull() ?: return "找不到符合关键字的色图".toPlainText()
-			runCatching{ savePic(lolicon) }
+			runCatching { savePic(lolicon) }
 			val image = KtorUtils.httpClient.get<ByteArray>(
 				lolicon.urls.values.firstOrNull() ?: return "未找到图片链接".toPlainText()
 			).toExternalResource().toAutoCloseable().uploadAsImage(contact)
