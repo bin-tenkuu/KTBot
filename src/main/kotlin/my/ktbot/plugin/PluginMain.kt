@@ -70,7 +70,6 @@ object PluginMain : KotlinPlugin(
 			logger.info("${
 				Duration.ofMillis(System.currentTimeMillis() - millis)
 			}:${plug.name}\t来源:${sender.group.id}.${sender.id}")
-			System.gc()
 		}
 		subscribeAlways<FriendMessageEvent> {
 			val millis = System.currentTimeMillis()
@@ -79,7 +78,6 @@ object PluginMain : KotlinPlugin(
 			logger.info("${
 				Duration.ofMillis(System.currentTimeMillis() - millis)
 			}:${plug.name}\t来源:${sender.id}")
-			System.gc()
 		}
 		subEvents()
 	}

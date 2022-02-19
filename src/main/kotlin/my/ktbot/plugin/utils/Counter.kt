@@ -60,6 +60,7 @@ object Counter {
 				} catch (e: Exception) {
 					Plug.logger.error(e)
 				}
+				System.gc()
 				delay(Duration.ofHours(6).toMillis())
 			}
 		}
