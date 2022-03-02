@@ -8,7 +8,7 @@ import org.ktorm.schema.varchar
  * @since 2022/1/7
  * @author bin
  */
-object TCQCShortKey : Table<COCShortKey>("COCShortKey") {
+object TCOCShortKey : Table<COCShortKey>("COCShortKey") {
 	val key = varchar("key").primaryKey().bindTo { it.key }
 	val value = varchar("value").bindTo { it.value }
 }
@@ -19,3 +19,7 @@ interface COCShortKey : Entity<COCShortKey> {
 
 	companion object : Entity.Factory<COCShortKey>()
 }
+
+operator fun COCShortKey.component1() = key
+operator fun COCShortKey.component2() = value
+

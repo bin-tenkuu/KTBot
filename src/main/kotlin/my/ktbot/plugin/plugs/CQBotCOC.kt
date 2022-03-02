@@ -1,7 +1,9 @@
 package my.ktbot.plugin.plugs
 
 import my.ktbot.plugin.annotation.Plug
-import my.ktbot.plugin.database.TCQCShortKey
+import my.ktbot.plugin.database.TCOCShortKey
+import my.ktbot.plugin.database.component1
+import my.ktbot.plugin.database.component2
 import my.ktbot.plugin.utils.*
 import net.mamoe.mirai.event.events.MessageEvent
 import net.mamoe.mirai.message.data.Message
@@ -28,8 +30,8 @@ object CQBotCOC : Plug(
 		val times: Int = result["times"]?.run { value.trim().toIntOrNull() } ?: 1
 		var dice: String = result["dice"]?.value ?: return null
 
-		for (sk in Sqlite[TCQCShortKey]) {
-			dice = dice.replace(sk.key, sk.value, true)
+		for ((k, v) in Sqlite[TCOCShortKey]) {
+			dice = dice.replace(k, v, true)
 		}
 
 		val regex = Regex("[^+\\-*d0-9#]", IGNORE_CASE)

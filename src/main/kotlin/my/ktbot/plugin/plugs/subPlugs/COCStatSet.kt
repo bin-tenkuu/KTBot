@@ -2,7 +2,7 @@ package my.ktbot.plugin.plugs.subPlugs
 
 import my.ktbot.plugin.annotation.Plug
 import my.ktbot.plugin.database.COCShortKey
-import my.ktbot.plugin.database.TCQCShortKey
+import my.ktbot.plugin.database.TCOCShortKey
 import my.ktbot.plugin.utils.Sqlite
 import net.mamoe.mirai.event.events.MessageEvent
 import net.mamoe.mirai.message.data.Message
@@ -29,7 +29,7 @@ object COCStatSet : Plug(
 		if (key === null || key.length > 5) {
 			return "key格式错误或长度大于5".toPlainText()
 		}
-		val shortKey = Sqlite[TCQCShortKey]
+		val shortKey = Sqlite[TCOCShortKey]
 		if (value === null) {
 			shortKey.removeIf { it.key eq key }
 			return "删除key:${key}".toPlainText()

@@ -1,7 +1,9 @@
 package my.ktbot.plugin.plugs.subPlugs
 
 import my.ktbot.plugin.annotation.Plug
-import my.ktbot.plugin.database.TCQCShortKey
+import my.ktbot.plugin.database.TCOCShortKey
+import my.ktbot.plugin.database.component1
+import my.ktbot.plugin.database.component2
 import my.ktbot.plugin.utils.Sqlite
 import net.mamoe.mirai.event.events.MessageEvent
 import net.mamoe.mirai.message.data.Message
@@ -21,7 +23,7 @@ object COCStat : Plug(
 	msgLength = 5..7,
 ) {
 	override suspend fun invoke(event: MessageEvent, result: MatchResult): Message {
-		val list = Sqlite[TCQCShortKey].toList()
+		val list = Sqlite[TCOCShortKey].toList()
 		return (if (list.isEmpty()) "空"
 		else list.joinToString("\n") { (k, v) ->
 			"${k}=${v}"
