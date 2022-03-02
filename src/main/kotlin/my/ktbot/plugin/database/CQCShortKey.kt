@@ -16,8 +16,6 @@ object TCQCShortKey : Table<COCShortKey>("COCShortKey") {
 interface COCShortKey : Entity<COCShortKey> {
 	var key: String
 	var value: String
-	operator fun component1() = key
-	operator fun component2() = value
 
 	companion object : Entity.Factory<COCShortKey>()
 }

@@ -1,6 +1,7 @@
 package my.ktbot.plugin.plugs
 
 import my.ktbot.plugin.annotation.Plug
+import my.ktbot.plugin.database.TCQCShortKey
 import my.ktbot.plugin.utils.*
 import net.mamoe.mirai.event.events.MessageEvent
 import net.mamoe.mirai.message.data.Message
@@ -25,7 +26,11 @@ object CQBotCOC : Plug(
 	var cheater: Boolean = false
 	override suspend fun invoke(event: MessageEvent, result: MatchResult): Message? {
 		val times: Int = result["times"]?.run { value.trim().toIntOrNull() } ?: 1
-		val dice: String = result["dice"]?.value ?: return null
+		var dice: String = result["dice"]?.value ?: return null
+
+		for (sk in Sqlite[TCQCShortKey]) {
+			dice = dice.replace(sk.key, sk.value, true)
+		}
 
 		val regex = Regex("[^+\\-*d0-9#]", IGNORE_CASE)
 		if (regex.matches(dice)) {
