@@ -167,7 +167,8 @@ abstract class Plug(
 				return null
 			}
 			for (plug in plugs) {
-				@Suppress("DuplicatedCode") val result = plug[event] ?: continue
+				@Suppress("DuplicatedCode")
+				val result = plug[event] ?: continue
 				if (!event.addExp(plug)) continue
 				if (!plug.lock()) continue
 				val msg = plug(event, result)
@@ -200,7 +201,8 @@ abstract class Plug(
 
 		suspend operator fun invoke(event: FriendMessageEvent): Plug? {
 			for (plug in plugs) {
-				@Suppress("DuplicatedCode") val result = plug[event] ?: continue
+				@Suppress("DuplicatedCode")
+				val result = plug[event] ?: continue
 				if (!event.addExp(plug)) continue
 				if (!plug.lock()) continue
 				val msg = plug(event, result)
