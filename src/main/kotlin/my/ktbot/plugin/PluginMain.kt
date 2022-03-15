@@ -51,6 +51,7 @@ object PluginMain : KotlinPlugin(
 		@Suppress("RemoveRedundantSpreadOperator")
 		Plug += mutableListOf(
 			CQBotCOC, *arrayOf(COCCheater, COCStat, COCStatSet, COCAdded, COCSpecial),
+			CQBotSBI, COCSBIAdded,
 			CQBotRepeat, MemeAI, AddExp, MemberExp, CQBotBan, CQBotPixiv,
 			CQBotPicture, *arrayOf(SeTuCache, SeTuSet),
 			*CQBotMSG.list, *CQBotPlugin.list,

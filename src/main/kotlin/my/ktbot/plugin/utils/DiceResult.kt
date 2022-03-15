@@ -8,6 +8,8 @@ class DiceResult(
 	/**最大值*/
 	val max: Int,
 ) {
+	constructor(sum: Int, max: Int) : this(sum.toLong(), IntArray(sum) { 1 }, max.coerceAtLeast(1))
+
 	val origin get() = "${list.size}d${max}"
 	operator fun plus(dice: DiceResult): DiceResult {
 		return DiceResult(

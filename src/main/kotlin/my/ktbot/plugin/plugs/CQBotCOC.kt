@@ -22,6 +22,9 @@ object CQBotCOC : Plug(
 	msgLength = 4..500,
 ) {
 	@JvmStatic
+	private val diceRegex = Regex("[^+\\-*d0-9#]", IGNORE_CASE)
+
+	@JvmStatic
 	val cache = CacheMap<Long, DiceResult>()
 
 	@JvmStatic
@@ -34,8 +37,7 @@ object CQBotCOC : Plug(
 			dice = dice.replace(k, v, true)
 		}
 
-		val regex = Regex("[^+\\-*d0-9#]", IGNORE_CASE)
-		if (regex.matches(dice)) {
+		if (diceRegex.matches(dice)) {
 			return ".d错误参数".toPlainText()
 		}
 		val str = Array(times) { dice(dice, event.sender.id) }.joinToString("\n")
@@ -43,8 +45,11 @@ object CQBotCOC : Plug(
 	}
 
 	@JvmStatic
+	private val splitDiceRegex = Regex("(?=[+\\-*])")
+
+	@JvmStatic
 	private fun dice(str: String, qq: Long): String {
-		val handles = Regex("(?=[+\\-*])").split(str).map {
+		val handles = splitDiceRegex.split(str).map {
 			castString(it, this.cheater)
 		}
 		if (handles.size == 1) {
@@ -71,9 +76,12 @@ object CQBotCOC : Plug(
 	}
 
 	@JvmStatic
+	private val castStringRegex = Regex("^(?<op>[+\\-*])?(?<num>\\d+)?(?:d(?<max>\\d+))?$", IGNORE_CASE)
+
+	@JvmStatic
 	private fun castString(origin: String, cheater: Boolean): Calc {
-		val result = Regex("^(?<op>[+\\-*])?(?<num>\\d+)?(?:d(?<max>\\d+))?$", IGNORE_CASE).matchEntire(origin)
-			?: return Calc(op = Operator.Add, sum = 0, origin = origin, max = 0)
+		val result =
+			castStringRegex.matchEntire(origin) ?: return Calc(op = Operator.Add, sum = 0, origin = origin, max = 0)
 		val num: Int = result["num"]?.run { value.toIntOrNull() } ?: 1
 		val op = when (result["op"]?.value) {
 			"+" -> Operator.Add
@@ -81,10 +89,12 @@ object CQBotCOC : Plug(
 			"*" -> Operator.Mul
 			else -> Operator.Add
 		}
-		val max = result["max"]?.run { value.toIntOrNull() }
-			?: return Calc(op = op, sum = num.toLong(), origin = num.toString(), max = 0)
+		val max = result["max"]?.run { value.toIntOrNull() } ?: return Calc(op = op,
+			sum = num.toLong(),
+			origin = num.toString(),
+			max = 0)
 		val dices: DiceResult = when (cheater) {
-			true -> DiceResult(num.toLong(), IntArray(num) { 1 }, max)
+			true -> DiceResult(num, max)
 			false -> DiceResult.dice(num, max)
 		}
 		return Calc(op = op, sum = dices.sum, list = dices.list, max = dices.max, origin = dices.origin)
