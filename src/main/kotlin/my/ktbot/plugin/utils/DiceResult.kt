@@ -15,9 +15,7 @@ class DiceResult(
 		return DiceResult(
 			sum = sum + dice.sum,
 			max = max.coerceAtLeast(dice.max),
-			list = list.toMutableList().also {
-				it.addAll(dice.list.toList())
-			}.toIntArray()
+			list = intArrayOf(*list, *dice.list)
 		)
 	}
 
