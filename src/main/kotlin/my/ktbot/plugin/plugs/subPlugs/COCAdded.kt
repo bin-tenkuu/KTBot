@@ -14,7 +14,7 @@ import net.mamoe.mirai.message.data.toPlainText
  */
 object COCAdded : Plug(
 	name = "骰子：加骰",
-	regex = Regex("^[.．。]dp(?<num> ?\\d*)$", RegexOption.IGNORE_CASE),
+	regex = Regex("^[.．。]dp(?<num> ?\\d*)", RegexOption.IGNORE_CASE),
 	weight = 1.13,
 	help = "10分钟之内加投骰".toPlainText(),
 	msgLength = 3..10
