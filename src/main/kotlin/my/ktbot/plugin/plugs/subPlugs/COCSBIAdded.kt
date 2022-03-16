@@ -16,7 +16,7 @@ object COCSBIAdded : Plug(
 	regex = Regex("^[.．。]sp", RegexOption.IGNORE_CASE),
 	weight = 1.13,
 	help = "10分钟之内加投骰".toPlainText(),
-	msgLength = 3..10
+	msgLength = 3..500
 ) {
 	private const val num = 1
 	override suspend fun invoke(event: MessageEvent, result: MatchResult): Message {

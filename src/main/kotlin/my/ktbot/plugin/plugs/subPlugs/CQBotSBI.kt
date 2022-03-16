@@ -24,7 +24,7 @@ object CQBotSBI : Plug(
 		get() = CQBotCOC.cheater
 
 	override suspend fun invoke(event: MessageEvent, result: MatchResult): Message? {
-		val num = result["num"]?.value?.toIntOrNull() ?: return null
+		val num = (result["num"]?.value?.toIntOrNull() ?: return null).coerceAtLeast(3)
 		val max = result["max"]?.value?.toIntOrNull() ?: return null
 		val diceResult = when (cheater) {
 			true -> DiceResult(num, max)
@@ -42,7 +42,7 @@ object CQBotSBI : Plug(
 			return "大成功，成功度${list.count(1::equals)}"
 		}
 		val arr = intArrayOf(-2, 0)
-		for (i in list.toMutableSet().toIntArray().apply { sort() }) {
+		for (i in list.toMutableSet().toIntArray().apply(IntArray::sort)) {
 			if (i - arr[0] == 1) {
 				if (arr[1] == 1) return "成功，成功度${list.count(1::equals)}"
 				else arr[1] = 1

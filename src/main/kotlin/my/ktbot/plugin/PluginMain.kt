@@ -14,6 +14,7 @@ import net.mamoe.mirai.contact.nameCardOrNick
 import net.mamoe.mirai.event.*
 import net.mamoe.mirai.event.events.*
 import net.mamoe.mirai.message.data.PlainText
+import net.mamoe.mirai.message.data.isContentEmpty
 import java.time.Duration
 
 /**
@@ -32,9 +33,7 @@ object PluginMain : KotlinPlugin(
 
 	@JvmStatic
 	private val eventChannel: EventChannel<Event> by lazy {
-		GlobalEventChannel.parentScope(this).exceptionHandler {
-			logger.error(it)
-		}
+		GlobalEventChannel.parentScope(this).exceptionHandler(logger::error)
 	}
 
 	@JvmStatic
@@ -195,7 +194,11 @@ object PluginMain : KotlinPlugin(
 			delay(Duration.ofHours(1).toMillis())
 			while (bot.isOnline) {
 				val group = PlugConfig.getAdminGroup(bot)
-				group.sendMessage(Counter.state(group))
+				Counter.state(group).let {
+					if (!it.isContentEmpty()) {
+						group.sendMessage(it)
+					}
+				}
 				Counter.clear()
 				delay(Duration.ofHours(2).toMillis())
 			}

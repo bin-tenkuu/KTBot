@@ -24,7 +24,7 @@ class DiceResult(
 		fun dice(times: Int, max: Int): DiceResult {
 			val size = (1..99).between(times)
 			val range = 1..when {
-				max < 1 -> return DiceResult(size.toLong(), IntArray(size) { 1 }, 1)
+				max < 1 -> return DiceResult(size, 1)
 				max > 999_999_999 -> 999_999_999
 				else -> max
 			}

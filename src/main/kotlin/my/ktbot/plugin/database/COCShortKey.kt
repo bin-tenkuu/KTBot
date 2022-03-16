@@ -20,6 +20,3 @@ interface COCShortKey : Entity<COCShortKey> {
 	companion object : Entity.Factory<COCShortKey>()
 }
 
-operator fun COCShortKey.component1() = key
-operator fun COCShortKey.component2() = value
-

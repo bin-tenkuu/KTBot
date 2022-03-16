@@ -44,9 +44,9 @@ object CQBotPlugin {
 					}
 				}.toPlainText()
 				"ban" -> return StringBuilder("群：\n").also { b ->
-					Sqlite[TGroup].filter { it.isBaned eq true }.joinTo(b, "\n") { "${it.id}" }
+					Sqlite[TGroup].filter { it.isBaned eq true }.joinTo(b, "\n") { it.id.toString() }
 				}.append("\n人：\n").also { b ->
-					Sqlite[TMembers].filter { it.isBaned eq true }.joinTo(b, "\n") { "${it.id}" }
+					Sqlite[TMembers].filter { it.isBaned eq true }.joinTo(b, "\n") { it.id.toString() }
 				}.toString().toPlainText()
 				else -> return null
 			}

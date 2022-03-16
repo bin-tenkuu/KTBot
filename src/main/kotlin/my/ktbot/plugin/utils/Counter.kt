@@ -6,12 +6,9 @@ import my.ktbot.plugin.PluginMain
 import my.ktbot.plugin.annotation.Plug
 import my.ktbot.plugin.database.*
 import net.mamoe.mirai.contact.Contact
-import net.mamoe.mirai.contact.UserOrBot
 import net.mamoe.mirai.event.events.GroupEvent
 import net.mamoe.mirai.event.events.MessageEvent
-import net.mamoe.mirai.message.data.ForwardMessageBuilder
-import net.mamoe.mirai.message.data.Message
-import net.mamoe.mirai.message.data.toPlainText
+import net.mamoe.mirai.message.data.*
 import org.ktorm.dsl.eq
 import java.time.Duration
 
@@ -82,18 +79,27 @@ object Counter {
 
 	@JvmStatic
 	fun log(event: MessageEvent, plug: Plug) {
-		plugMap.members.getOrPut(event.sender.id) { PlugMap() } += plug
+		plugMap.members.getOrPut(event.sender.id, ::PlugMap) += plug
 		if (event is GroupEvent) {
-			plugMap.groups.getOrPut(event.group.id) { PlugMap() } += plug
+			plugMap.groups.getOrPut(event.group.id, ::PlugMap) += plug
 		}
 	}
 
 	@JvmStatic
 	fun state(context: Contact): Message {
+		val groups = toMSG(plugMap.groups)
+		val members = toMSG(plugMap.members)
+		if (groups.isEmpty() && members.isEmpty()) {
+			return EmptyMessageChain
+		}
 		return ForwardMessageBuilder(context, 2).apply {
 			val bot = context.bot
-			toMSG(plugMap.groups, "群", bot)
-			toMSG(plugMap.members, "人", bot)
+			for ((id, num) in groups) {
+				bot says "群：${id}：\n${num}次".toPlainText()
+			}
+			for ((id, num) in members) {
+				bot says "人：${id}：\n${num}次".toPlainText()
+			}
 		}.build()
 	}
 
@@ -103,11 +109,10 @@ object Counter {
 		plugMap.members.clear()
 	}
 
-	private fun ForwardMessageBuilder.toMSG(plugMap: Map<Long, PlugMap>, string: String, contact: UserOrBot) {
-		if (plugMap.isNotEmpty()) for ((id, num) in plugMap.map {
+	private fun toMSG(plugMap: Map<Long, PlugMap>): List<Pair<Long, Int>> {
+		return plugMap.map {
 			it.key to it.value.values.sum()
-		}.sortedByDescending { it.second }) contact says "${string}：${id}：\n${num}次".toPlainText()
-		else contact says "${string}：无".toPlainText()
+		}.sortedByDescending(Pair<Long, Int>::second)
 	}
 
 	class CacheSql<E : Gmt<E>, T : TGmt<E>>(private val table: T) {
