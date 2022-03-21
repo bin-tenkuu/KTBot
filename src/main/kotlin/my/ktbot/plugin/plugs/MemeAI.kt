@@ -20,13 +20,14 @@ object MemeAI : Plug(
 
 	@JvmStatic
 	private val memeList = arrayOf(
-		Regex("(?<!\\\\)不") to "\\很",
-		Regex("(?<!\\\\)你") to "\\我",
-		Regex("(?<!\\\\)我") to "\\你",
-		Regex("(?<![没\\\\])有") to "\\没有",
-		Regex("(?<!\\\\)没有") to "\\有",
+		Regex("(?<!\\\\)不") to "\\\\很",
+		Regex("(?<!\\\\)你") to "\\\\我",
+		Regex("(?<!\\\\)我") to "\\\\你",
+		Regex("(?<![没\\\\])有") to "\\\\没有",
+		Regex("(?<!\\\\)没有") to "\\\\有",
 		Regex("[？?]") to "!",
 		Regex("[\\\\吗]") to "",
+		Regex("\\\\") to "",
 	)
 
 	override suspend fun invoke(event: GroupMessageEvent, result: MatchResult): Message? {
