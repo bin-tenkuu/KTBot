@@ -80,9 +80,9 @@ object Counter {
 
 	@JvmStatic
 	fun log(event: MessageEvent, plug: Plug) {
-		plugMap.members.getOrPut(event.sender.id) { PlugMap() } += plug
+		plugMap.members.getOrPut(event.sender.id, ::PlugMap) += plug
 		if (event is GroupEvent) {
-			plugMap.groups.getOrPut(event.group.id) { PlugMap() } += plug
+			plugMap.groups.getOrPut(event.group.id, ::PlugMap) += plug
 		}
 	}
 

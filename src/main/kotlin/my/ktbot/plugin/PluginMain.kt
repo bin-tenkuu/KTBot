@@ -14,6 +14,7 @@ import net.mamoe.mirai.contact.nameCardOrNick
 import net.mamoe.mirai.event.*
 import net.mamoe.mirai.event.events.*
 import net.mamoe.mirai.message.data.PlainText
+import net.mamoe.mirai.message.data.isContentEmpty
 import java.time.Duration
 
 /**
@@ -33,9 +34,7 @@ object PluginMain : KotlinPlugin(
 
 	@JvmStatic
 	private val eventChannel: EventChannel<Event> by lazy {
-		GlobalEventChannel.parentScope(this).exceptionHandler {
-			logger.error(it)
-		}
+		GlobalEventChannel.parentScope(this).exceptionHandler(logger::error)
 	}
 
 	@JvmStatic
@@ -52,6 +51,7 @@ object PluginMain : KotlinPlugin(
 		@Suppress("RemoveRedundantSpreadOperator")
 		Plug += mutableListOf(
 			CQBotCOC, *arrayOf(COCCheater, COCStat, COCStatSet, COCAdded, COCSpecial),
+			CQBotSBI, COCSBIAdded,
 			CQBotRepeat, MemeAI, AddExp, MemberExp, CQBotBan, CQBotPixiv,
 			CQBotPicture, *arrayOf(SeTuCache, SeTuSet),
 			*CQBotMSG.list, *CQBotPlugin.list,

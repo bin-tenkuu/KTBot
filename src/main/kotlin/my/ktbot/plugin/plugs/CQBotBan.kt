@@ -28,9 +28,7 @@ object CQBotBan : Plug(
 
 		/**true为ban，false为unban*/
 		val type = result["type"] === null
-		val ids = (result["other"] ?: return null).value.split(empty).mapNotNull {
-			it.toLongOrNull()
-		}
+		val ids = (result["other"] ?: return null).value.split(empty).mapNotNull(String::toLongOrNull)
 		buildMessageChain {
 			+"已"
 			if (type) +"un"

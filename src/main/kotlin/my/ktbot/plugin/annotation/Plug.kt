@@ -167,7 +167,8 @@ abstract class Plug(
 				return null
 			}
 			for (plug in plugs) {
-				@Suppress("DuplicatedCode") val result = plug[event] ?: continue
+				@Suppress("DuplicatedCode")
+				val result = plug[event] ?: continue
 				if (!event.addExp(plug)) continue
 				if (!plug.lock()) continue
 				val msg = plug(event, result)
@@ -200,7 +201,8 @@ abstract class Plug(
 
 		suspend operator fun invoke(event: FriendMessageEvent): Plug? {
 			for (plug in plugs) {
-				@Suppress("DuplicatedCode") val result = plug[event] ?: continue
+				@Suppress("DuplicatedCode")
+				val result = plug[event] ?: continue
 				if (!event.addExp(plug)) continue
 				if (!plug.lock()) continue
 				val msg = plug(event, result)
@@ -222,11 +224,12 @@ abstract class Plug(
 			return null
 		}
 
-		private fun GroupMessageEvent.addExp(p: Plug): Boolean =
-			abs(p.expGroup) < 0.001 || Counter.groups[group.id].add(p.expGroup) || Counter.members[sender.id].add(p.expGroup)
+		private fun GroupMessageEvent.addExp(p: Plug): Boolean = abs(p.expGroup) < 0.001
+			|| Counter.groups[group.id].add(p.expGroup)
+			|| Counter.members[sender.id].add(p.expGroup)
 
-		private fun MessageEvent.addExp(p: Plug): Boolean =
-			abs(p.expPrivate) < 0.001 || Counter.members[sender.id].add(p.expPrivate)
+		private fun MessageEvent.addExp(p: Plug): Boolean = abs(p.expPrivate) < 0.001
+			|| Counter.members[sender.id].add(p.expPrivate)
 
 		// endregion
 

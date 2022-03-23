@@ -40,7 +40,7 @@ object CQBotRepeat : Plug(
 
 	@JvmStatic
 	private fun String.shuffle(): String {
-		return String(toCharArray().apply { shuffle() })
+		return String(toCharArray().apply(CharArray::shuffle))
 	}
 
 	private class RepeatCache(val msg: String) {
