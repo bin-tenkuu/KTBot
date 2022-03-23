@@ -117,7 +117,7 @@ object Counter {
 				if (sb.isNotEmpty()) sb.saysTo(this)
 			}
 			bot.says("群聊：", groups)
-			bot.says("群聊：", members)
+			bot.says("私聊：", members)
 		}.build()
 	}
 
