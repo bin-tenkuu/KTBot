@@ -29,6 +29,7 @@ object PluginMain : KotlinPlugin(
 	}
 ), JvmPlugin {
 	private var inviteCount = CacheMap<Long, Unit>(Duration.ofHours(12).toMillis())
+	private val bots = HashMap<Long, Bot>()
 
 	@JvmStatic
 	private val eventChannel: EventChannel<Event> by lazy {
@@ -100,16 +101,18 @@ object PluginMain : KotlinPlugin(
 
 	private fun subEvents() {
 		subscribeAlways<BotOnlineEvent> {
-			bot.startCounter()
+			bots[bot.id] = bot
+			startCounter()
 			logger.info("${bot.nameCardOrNick} 已上线")
 		}
 		subscribeAlways<BotOfflineEvent> {
-			tasker?.cancel()
-			tasker = null
+			bots -= bot.id
+			startCounter()
 			logger.info("${bot.nameCardOrNick} 已下线")
 		}
 		subscribeAlways<BotReloginEvent> {
-			bot.startCounter()
+			bots[bot.id] = bot
+			startCounter()
 			logger.info("${bot.nameCardOrNick} 已重新登录")
 		}
 		subscribeAlways<NewFriendRequestEvent> {
@@ -187,18 +190,26 @@ object PluginMain : KotlinPlugin(
 	}
 
 	@JvmStatic
-	private fun Bot.startCounter() {
+	private fun startCounter() {
 		tasker?.cancel()
+		if (bots.isEmpty()) {
+			tasker = null
+			return
+		}
 		tasker = launch(coroutineContext, CoroutineStart.UNDISPATCHED) {
 			logger.warning("携程启动")
-			delay(Duration.ofHours(1).toMillis())
-			while (bot.isOnline) {
-				val group = PlugConfig.getAdminGroup(bot)
-				group.sendMessage(Counter.state(group))
-				Counter.clear()
-				delay(Duration.ofHours(2).toMillis())
+			while (true) {
+				val bot = bots.values.firstOrNull() ?: break
+				delay(Duration.ofHours(1).toMillis())
+				while (bot.isOnline) {
+					val group = PlugConfig.getAdminGroup(bot)
+					group.sendMessage(Counter.state(group))
+					Counter.clear()
+					delay(Duration.ofHours(2).toMillis())
+				}
+				delay(Duration.ofHours(1).toMillis())
 			}
-			logger.warning("bot下线")
+			logger.warning("全部可用bot下线")
 			tasker = null
 		}
 	}

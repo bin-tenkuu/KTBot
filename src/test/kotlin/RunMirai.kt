@@ -1,5 +1,3 @@
-@file:Suppress("EXPERIMENTAL_IS_NOT_ENABLED", "unused")
-
 package org.example.mirai.plugin
 
 import net.mamoe.mirai.console.MiraiConsole

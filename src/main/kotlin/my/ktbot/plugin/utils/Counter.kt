@@ -5,13 +5,11 @@ import kotlinx.coroutines.launch
 import my.ktbot.plugin.PluginMain
 import my.ktbot.plugin.annotation.Plug
 import my.ktbot.plugin.database.*
+import net.mamoe.mirai.Bot
 import net.mamoe.mirai.contact.Contact
-import net.mamoe.mirai.contact.UserOrBot
 import net.mamoe.mirai.event.events.GroupEvent
 import net.mamoe.mirai.event.events.MessageEvent
-import net.mamoe.mirai.message.data.ForwardMessageBuilder
-import net.mamoe.mirai.message.data.Message
-import net.mamoe.mirai.message.data.toPlainText
+import net.mamoe.mirai.message.data.*
 import org.ktorm.dsl.eq
 import java.time.Duration
 
@@ -90,10 +88,36 @@ object Counter {
 
 	@JvmStatic
 	fun state(context: Contact): Message {
+		val groups = plugMap.groups.toMSG()
+		val members = plugMap.members.toMSG()
+		if (groups.isEmpty() && members.isEmpty()) {
+			return """群：无
+				|人：无
+			""".trimMargin().toPlainText()
+		}
 		return ForwardMessageBuilder(context, 2).apply {
 			val bot = context.bot
-			toMSG(plugMap.groups, "群", bot)
-			toMSG(plugMap.members, "人", bot)
+			fun StringBuilder.saysTo(bot: Bot) {
+				bot.says(toString())
+				clear()
+			}
+
+			fun Bot.says(pre: String, list: List<String>) {
+				says(pre)
+				val sb = StringBuilder()
+				var i = 0
+				for (msg in list) {
+					i++
+					sb.appendLine(msg)
+					if (i >= 10) {
+						i = 0
+						sb.saysTo(this)
+					}
+				}
+				if (sb.isNotEmpty()) sb.saysTo(this)
+			}
+			bot.says("群聊：", groups)
+			bot.says("群聊：", members)
 		}.build()
 	}
 
@@ -103,11 +127,12 @@ object Counter {
 		plugMap.members.clear()
 	}
 
-	private fun ForwardMessageBuilder.toMSG(plugMap: Map<Long, PlugMap>, string: String, contact: UserOrBot) {
-		if (plugMap.isNotEmpty()) for ((id, num) in plugMap.map {
+	private fun Map<Long, PlugMap>.toMSG(): List<String> {
+		return map {
 			it.key to it.value.values.sum()
-		}.sortedByDescending { it.second }) contact says "${string}：${id}：\n${num}次".toPlainText()
-		else contact says "${string}：无".toPlainText()
+		}.sortedByDescending(Pair<Long, Int>::second).map { (id, num) ->
+			"${id}：\n${num}次"
+		}
 	}
 
 	class CacheSql<E : Gmt<E>, T : TGmt<E>>(private val table: T) {

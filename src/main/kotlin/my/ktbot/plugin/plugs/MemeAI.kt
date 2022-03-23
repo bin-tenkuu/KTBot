@@ -17,7 +17,6 @@ object MemeAI : Plug(
 	msgLength = 0..50,
 	canPrivate = false,
 ) {
-
 	@JvmStatic
 	private val memeList = arrayOf(
 		Regex("(?<!\\\\)不") to "\\\\很",
@@ -27,14 +26,12 @@ object MemeAI : Plug(
 		Regex("(?<!\\\\)没有") to "\\\\有",
 		Regex("[？?]") to "!",
 		Regex("[\\\\吗]") to "",
-		Regex("\\\\") to "",
 	)
 
 	override suspend fun invoke(event: GroupMessageEvent, result: MatchResult): Message? {
 		if (!event.message.contains(At(event.bot.id))) return null
-		val msg: String = memeList.fold(event.message.filterIsInstance<PlainText>().joinToString("") {
-			it.contentToString()
-		}) { str, (r, s) ->
+		val msg: String = memeList.fold(event.message.filterIsInstance<PlainText>()
+			.joinToString("", transform = PlainText::contentToString)) { str, (r, s) ->
 			r.replace(str, s)
 		}
 		return buildMessageChain {
