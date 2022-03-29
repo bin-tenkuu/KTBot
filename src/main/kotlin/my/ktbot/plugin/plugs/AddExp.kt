@@ -1,6 +1,6 @@
 package my.ktbot.plugin.plugs
 
-import my.ktbot.plugin.annotation.Plug
+import my.ktbot.plugin.annotation.*
 import my.ktbot.plugin.database.add
 import my.ktbot.plugin.utils.Counter
 import net.mamoe.mirai.event.events.FriendMessageEvent

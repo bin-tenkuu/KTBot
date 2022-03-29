@@ -4,8 +4,7 @@ import my.ktbot.plugin.PlugConfig
 import my.ktbot.plugin.PluginMain
 import my.ktbot.plugin.database.Gmt
 import net.mamoe.mirai.event.events.BotEvent
-import net.mamoe.mirai.message.data.Message
-import net.mamoe.mirai.message.data.toPlainText
+import net.mamoe.mirai.message.data.*
 import net.mamoe.mirai.utils.error
 import org.ktorm.entity.*
 import org.ktorm.schema.ColumnDeclaring
@@ -49,3 +48,14 @@ suspend fun BotEvent.sendAdmin(msg: Message) {
 	}
 }
 
+fun <T : Any?> T.toMassage(): Message? {
+	return when (this) {
+		null -> null
+		is Message -> this
+		is Array<*> -> buildMessageChain {
+			for (any in this@toMassage) any.toMassage()?.unaryPlus()
+		}
+		is String -> PlainText(this)
+		else -> PlainText(toString())
+	}
+}

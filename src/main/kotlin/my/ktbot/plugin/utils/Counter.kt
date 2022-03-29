@@ -131,7 +131,7 @@ object Counter {
 		return map {
 			it.key to it.value.values.sum()
 		}.sortedByDescending(Pair<Long, Int>::second).map { (id, num) ->
-			"${id}：\n${num}次"
+			"${id}：${num}次"
 		}
 	}
 
