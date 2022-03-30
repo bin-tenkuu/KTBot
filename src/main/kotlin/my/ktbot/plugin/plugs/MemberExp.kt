@@ -19,7 +19,7 @@ object MemberExp : Plug(
 	regex = Regex("^[.．。]state(?<qq> ?\\d{5,12})?$", RegexOption.IGNORE_CASE),
 	weight = 6.0,
 	help = "查看自己/<qq>的信息,群聊限时1次/分钟".toPlainText(),
-	hidden = true
+	hidden = true,
 ) {
 	@JvmStatic
 	private val cache = CacheMap<Long, MutableSet<Long>>(Duration.ofMinutes(1).toMillis())

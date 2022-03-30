@@ -53,12 +53,6 @@ abstract class Plug(
 
 	/**是否启用，当为空时表示报错*/
 	var isOpen: Boolean? = true
-	var error: Any? = null
-		set(e) {
-			field = e
-			isOpen = null
-		}
-
 	protected open suspend operator fun invoke(event: MessageEvent, result: MatchResult): Message? {
 		return null
 	}
@@ -69,25 +63,6 @@ abstract class Plug(
 
 	protected open suspend operator fun invoke(event: FriendMessageEvent, result: MatchResult): Message? {
 		return invoke(event as MessageEvent, result)
-	}
-
-	private fun get(event: MessageEvent): MatchResult? {
-		if (isOpen != true) return null
-		if (event.message.contentToString().length !in msgLength) return null
-		if (needAdmin && !PlugConfig.isAdmin(event)) return null
-		if (Counter.members[event.sender.id].isBaned) return null
-		return regex.find(event.message.contentToString())
-	}
-
-	private operator fun get(event: GroupMessageEvent): MatchResult? {
-		if (!canGroup) return null
-		if (Counter.groups[event.group.id].isBaned) return null
-		return get(event as MessageEvent)
-	}
-
-	private operator fun get(event: FriendMessageEvent): MatchResult? {
-		if (!canPrivate) return null
-		return get(event as MessageEvent)
 	}
 
 	final override fun equals(other: Any?): Boolean {
@@ -129,11 +104,6 @@ abstract class Plug(
 		}
 	}
 
-	private fun laterOpen() {
-		if (speedLimit <= 0) unlock()
-		else timer.schedule(speedLimit) { unlock() }
-	}
-
 	protected operator fun MatchResult.get(key: String): MatchGroup? {
 		return groups[key]
 	}
@@ -149,11 +119,19 @@ abstract class Plug(
 		private val cacheMap = CacheMap<Long, Unit>(Duration.ofMinutes(1).toMillis())
 
 		// region plugs
-
 		@JvmStatic
 		val plugs: MutableList<Plug> = mutableListOf()
-		operator fun plusAssign(list: List<Plug>) {
-			plugs += list
+
+		@JvmStatic
+		private fun addAll(list: List<*>) {
+			for (plug in list) {
+				if (plug is Plug) plugs.add(plug)
+				if (plug is SubPlugs) addAll(plug.subPlugs)
+			}
+		}
+
+		operator fun plusAssign(list: List<*>) {
+			addAll(list)
 			plugs.sort()
 		}
 
@@ -183,7 +161,7 @@ abstract class Plug(
 						return@recoverCatching null
 					}
 					it.printStackTrace()
-					plug.error = it
+					logger.error(it)
 					event.sendAdmin("${plug.name}调用失败:\n消息${it.message}")
 					event.group.sendMessage("群聊消息发送失败：${plug.name}")
 					return@recoverCatching null
@@ -212,6 +190,7 @@ abstract class Plug(
 					if (!msg.isContentBlank()) event.sender.sendMessage(msg)
 				}.recoverCatching {
 					it.printStackTrace()
+					logger.error(it)
 					event.sendAdmin("${plug.name}调用失败:\n消息${it.message}")
 					event.sender.sendMessage("好友消息发送失败：${plug.name}")
 				}
@@ -222,12 +201,39 @@ abstract class Plug(
 			return null
 		}
 
+		// endregion
+
+		// region addExp, get, laterOpen
 		private fun GroupMessageEvent.addExp(p: Plug): Boolean = abs(p.expGroup) < 0.001
 			|| Counter.groups[group.id].add(p.expGroup)
 			|| Counter.members[sender.id].add(p.expGroup)
 
 		private fun MessageEvent.addExp(p: Plug): Boolean = abs(p.expPrivate) < 0.001
 			|| Counter.members[sender.id].add(p.expPrivate)
+
+		private fun Plug.get(event: MessageEvent): MatchResult? {
+			if (isOpen != true) return null
+			if (event.message.contentToString().length !in msgLength) return null
+			if (needAdmin && !PlugConfig.isAdmin(event)) return null
+			if (Counter.members[event.sender.id].isBaned) return null
+			return regex.find(event.message.contentToString())
+		}
+
+		private operator fun Plug.get(event: GroupMessageEvent): MatchResult? {
+			if (!canGroup) return null
+			if (Counter.groups[event.group.id].isBaned) return null
+			return get(event as MessageEvent)
+		}
+
+		private operator fun Plug.get(event: FriendMessageEvent): MatchResult? {
+			if (!canPrivate) return null
+			return get(event as MessageEvent)
+		}
+
+		private fun Plug.laterOpen() {
+			if (speedLimit <= 0) unlock()
+			else timer.schedule(speedLimit) { unlock() }
+		}
 
 		// endregion
 

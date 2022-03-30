@@ -1,13 +1,14 @@
 package my.ktbot.plugin.plugs
 
 import my.ktbot.plugin.annotation.Plug
+import my.ktbot.plugin.annotation.SubPlugs
 import my.ktbot.plugin.database.TGroup
 import my.ktbot.plugin.database.TMembers
+import my.ktbot.plugin.utils.Calculator
+import my.ktbot.plugin.utils.Counter
 import my.ktbot.plugin.utils.Sqlite
 import net.mamoe.mirai.event.events.MessageEvent
-import net.mamoe.mirai.message.data.Message
-import net.mamoe.mirai.message.data.buildMessageChain
-import net.mamoe.mirai.message.data.toPlainText
+import net.mamoe.mirai.message.data.*
 import org.ktorm.dsl.eq
 import org.ktorm.entity.filter
 import org.ktorm.entity.joinTo
@@ -18,10 +19,9 @@ import org.ktorm.entity.joinTo
  * @since 1.0
  * @date 2022/1/13
  */
-object CQBotPlugin {
-	@JvmStatic
-	val list = arrayOf(
-		CQBotListGet, PluginInfo, PluginStatus
+object CQBotPlugin : SubPlugs {
+	override val subPlugs = listOf(
+		CQBotListGet, PluginInfo, PluginStatus, CQBotCounter, CQBotCalculate
 	)
 
 	private object CQBotListGet : Plug(
@@ -114,4 +114,41 @@ object CQBotPlugin {
 		}
 	}
 
+	/**
+	 *
+	 * @author bin
+	 * @since 1.0
+	 * @date 2022/1/13
+	 */
+	object CQBotCounter : Plug(
+		name = "日志",
+		regex = Regex("^[.．。]日志$"),
+		weight = 10.0,
+		needAdmin = true,
+	) {
+		override suspend fun invoke(event: MessageEvent, result: MatchResult): Message {
+			return Counter.state(event.subject)
+		}
+	}
+
+	/**
+	 *  @Date:2022/2/3
+	 *  @author bin
+	 *  @version 1.0.0
+	 */
+	object CQBotCalculate : Plug(
+		name = "简易计算器",
+		regex = Regex("^[.．。]calc (?<calc>[^ ]+)"),
+		weight = 10.0,
+		help = "表达式间不允许出现空格".toPlainText()
+	) {
+		override suspend fun invoke(event: MessageEvent, result: MatchResult): Message {
+			val calc = result["calc"]?.value ?: return EmptyMessageChain
+			return try {
+				"结果为${Calculator(calc).v}".toPlainText()
+			} catch (e: Exception) {
+				e.toString().toPlainText()
+			}
+		}
+	}
 }

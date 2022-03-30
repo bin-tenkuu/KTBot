@@ -3,7 +3,6 @@ package my.ktbot.plugin
 import kotlinx.coroutines.*
 import my.ktbot.plugin.annotation.Plug
 import my.ktbot.plugin.plugs.*
-import my.ktbot.plugin.plugs.subPlugs.*
 import my.ktbot.plugin.utils.*
 import net.mamoe.mirai.Bot
 import net.mamoe.mirai.console.extension.PluginComponentStorage
@@ -47,14 +46,12 @@ object PluginMain : KotlinPlugin(
 		PlugConfig.reload()
 		logger.warning("管理员QQ：${PlugConfig.adminId}")
 		logger.warning("管理员QQ群：${PlugConfig.adminGroup}")
-		@Suppress("RemoveRedundantSpreadOperator")
-		Plug += mutableListOf(
-			CQBotCOC, *arrayOf(COCCheater, COCStat, COCStatSet, COCAdded, COCSpecial),
-			CQBotSBI, COCSBIAdded,
-			CQBotRepeat, MemeAI, AddExp, MemberExp, CQBotBan, CQBotPixiv,
-			CQBotPicture, *arrayOf(SeTuCache, SeTuSet),
-			*CQBotMSG.list, *CQBotPlugin.list,
-			CQBotCounter, CQBotHelper, CQBotCalculate
+		Plug += listOf(
+			CQBotCOC, CQBotSBI,
+			CQBotRepeat, AddExp, MemberExp, CQBotBan,
+			CQBotPixiv, CQBotPicture,
+			CQBotMSG, CQBotPlugin,
+			CQBotHelper
 		)
 	}
 

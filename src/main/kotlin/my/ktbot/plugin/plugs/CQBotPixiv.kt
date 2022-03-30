@@ -27,7 +27,7 @@ object CQBotPixiv : Plug(
 	speedLimit = 2000,
 	expPrivate = -8.0,
 	expGroup = -5.0,
-	msgLength = 5..20
+	msgLength = 5..20,
 ) {
 	override suspend fun invoke(event: GroupMessageEvent, result: MatchResult): Message {
 		val pid: Int = result["pid"]?.run { value.trim().toIntOrNull() } ?: return "pid获取失败".toPlainText()

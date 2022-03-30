@@ -16,7 +16,7 @@ object CQBotRepeat : Plug(
 	weight = 90.0,
 	msgLength = 0..50,
 	hidden = true,
-	canPrivate = false
+	canPrivate = false,
 ) {
 
 	@JvmStatic

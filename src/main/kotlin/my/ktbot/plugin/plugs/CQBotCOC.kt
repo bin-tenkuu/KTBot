@@ -1,11 +1,17 @@
 package my.ktbot.plugin.plugs
 
 import my.ktbot.plugin.annotation.Plug
+import my.ktbot.plugin.annotation.SubPlugs
+import my.ktbot.plugin.database.COCShortKey
 import my.ktbot.plugin.database.TCOCShortKey
 import my.ktbot.plugin.utils.*
 import net.mamoe.mirai.event.events.MessageEvent
 import net.mamoe.mirai.message.data.Message
 import net.mamoe.mirai.message.data.toPlainText
+import org.ktorm.dsl.eq
+import org.ktorm.entity.add
+import org.ktorm.entity.removeIf
+import org.ktorm.entity.toList
 import kotlin.text.RegexOption.IGNORE_CASE
 
 /**
@@ -18,7 +24,7 @@ object CQBotCOC : Plug(
 	weight = 1.1,
 	help = "骰子主功能，附带简单表达式计算".toPlainText(),
 	msgLength = 4..500,
-) {
+), SubPlugs {
 	@JvmStatic
 	private val diceRegex = Regex("[^+\\-*d0-9#]", IGNORE_CASE)
 
@@ -154,5 +160,133 @@ object CQBotCOC : Plug(
 		;
 
 		operator fun invoke(calc: Calc) = func(calc)
+	}
+
+	override val subPlugs: List<Plug> = listOf(COCCheater, COCStat, COCStatSet, COCAdded, COCSpecial)
+
+	/**
+	 *
+	 * @author bin
+	 * @since 2022/1/7
+	 */
+	object COCCheater : Plug(
+		name = "骰子:打开全1模式",
+		regex = Regex("^[.．。]dall1$", IGNORE_CASE),
+		weight = 1.11,
+		msgLength = 5..10,
+	) {
+		override suspend fun invoke(event: MessageEvent, result: MatchResult): Message {
+			cheater = !cheater
+			return ("全1" + (if (cheater) "开" else "关")).toPlainText()
+		}
+	}
+
+	/**
+	 *
+	 * @author bin
+	 * @since 2022/1/7
+	 */
+	object COCStat : Plug(
+		name = "骰子：简写",
+		regex = Regex("^[.．。]dstat$", IGNORE_CASE),
+		weight = 1.01,
+		help = "查看全部简写".toPlainText(),
+		msgLength = 5..7,
+	) {
+		override suspend fun invoke(event: MessageEvent, result: MatchResult): Message {
+			val list = Sqlite[TCOCShortKey].toList()
+			return (if (list.isEmpty()) "空"
+			else list.joinToString("\n") { sk ->
+				"${sk.key}=${sk.value}"
+			}).toPlainText()
+		}
+	}
+
+	/**
+	 *
+	 * @author bin
+	 * @since 2022/1/7
+	 */
+	object COCStatSet : Plug(
+		name = "骰子：删除[设置]简写",
+		regex = Regex("^[.．。]dset +(?<key>\\w[\\w\\d]+)(?:=(?<value>[+\\-*d0-9#]+))?", IGNORE_CASE),
+		weight = 1.02,
+		help = "删除[设置]简写".toPlainText(),
+		msgLength = 5..100,
+	) {
+		override suspend fun invoke(event: MessageEvent, result: MatchResult): Message {
+			val key = result["key"]?.value
+			val value = result["value"]?.value
+			if (key === null || key.length > 5) {
+				return "key格式错误或长度大于5".toPlainText()
+			}
+			val shortKey = Sqlite[TCOCShortKey]
+			if (value === null) {
+				shortKey.removeIf { it.key eq key }
+				return "删除key:${key}".toPlainText()
+			}
+			if (value.length > 10) {
+				return "value长度不大于10".toPlainText()
+			}
+			shortKey.add(COCShortKey {
+				this.key = key
+				this.value = value
+			})
+			return "添加key:${key}=${value}".toPlainText()
+		}
+	}
+
+	/**
+	 *
+	 * @author bin
+	 * @since 2022/1/7
+	 */
+	object COCAdded : Plug(
+		name = "骰子：加骰",
+		regex = Regex("^[.．。]dp(?<num> ?\\d*)", IGNORE_CASE),
+		weight = 1.13,
+		help = "10分钟之内加投骰".toPlainText(),
+		msgLength = 3..10
+	) {
+		override suspend fun invoke(event: MessageEvent, result: MatchResult): Message {
+			val num = result["num"]?.run { value.trim().toIntOrNull() } ?: 1
+			var cache: DiceResult = CQBotCOC.cache[event.sender.id] ?: return "10分钟之内没有投任何骰子".toPlainText()
+			val dice: DiceResult = when (cheater) {
+				true -> DiceResult(num, cache.max)
+				false -> DiceResult.dice(num, cache.max)
+			}
+			cache += dice
+			CQBotCOC.cache[event.sender.id] = cache
+			return """${dice.origin}：[${dice.list.joinToString(", ")}]=${dice.sum}
+			|[${cache.list.joinToString(", ")}]
+		""".trimMargin().toPlainText()
+		}
+	}
+
+	/**
+	 *
+	 * @author bin
+	 * @since 2022/1/7
+	 */
+	object COCSpecial : Plug(
+		name = "骰子：特殊模式",
+		regex = Regex("^[.．。]d(?<operator>bug|(?:wr|cb|aj)f?)$", IGNORE_CASE),
+		weight = 1.12,
+		help = "打开/关闭特殊模式".toPlainText(),
+		msgLength = 2..10,
+	) {
+		override suspend fun invoke(event: MessageEvent, result: MatchResult): Message? {
+			val operator = result["operator"]?.value ?: return null
+			if (operator == "bug") {
+				specialEffects = Effects.bug
+				return "进入默认状态".toPlainText()
+			}
+			return try {
+				specialEffects = Effects.valueOf(operator)
+				"进入${specialEffects.state}状态".toPlainText()
+			} catch (e: Exception) {
+				"未知状态".toPlainText()
+			}
+		}
 	}
 }
