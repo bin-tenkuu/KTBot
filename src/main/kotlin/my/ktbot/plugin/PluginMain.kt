@@ -13,7 +13,6 @@ import net.mamoe.mirai.contact.nameCardOrNick
 import net.mamoe.mirai.event.*
 import net.mamoe.mirai.event.events.*
 import net.mamoe.mirai.message.data.PlainText
-import net.mamoe.mirai.message.data.isContentBlank
 import net.mamoe.mirai.message.data.isContentEmpty
 import java.time.Duration
 
