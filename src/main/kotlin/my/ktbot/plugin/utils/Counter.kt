@@ -91,9 +91,7 @@ object Counter {
 		val groups = plugMap.groups.toMSG()
 		val members = plugMap.members.toMSG()
 		if (groups.isEmpty() && members.isEmpty()) {
-			return """群：无
-				|人：无
-			""".trimMargin().toPlainText()
+			return EmptyMessageChain
 		}
 		return ForwardMessageBuilder(context, 2).apply {
 			val bot = context.bot

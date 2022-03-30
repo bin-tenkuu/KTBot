@@ -13,6 +13,8 @@ import net.mamoe.mirai.contact.nameCardOrNick
 import net.mamoe.mirai.event.*
 import net.mamoe.mirai.event.events.*
 import net.mamoe.mirai.message.data.PlainText
+import net.mamoe.mirai.message.data.isContentBlank
+import net.mamoe.mirai.message.data.isContentEmpty
 import java.time.Duration
 
 /**
@@ -199,7 +201,9 @@ object PluginMain : KotlinPlugin(
 				delay(Duration.ofHours(1).toMillis())
 				while (bot.isOnline) {
 					val group = PlugConfig.getAdminGroup(bot)
-					group.sendMessage(Counter.state(group))
+					Counter.state(group).also {
+						if (!it.isContentEmpty()) group.sendMessage(it)
+					}
 					Counter.clear()
 					delay(Duration.ofHours(2).toMillis())
 				}
