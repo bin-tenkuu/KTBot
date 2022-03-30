@@ -67,7 +67,7 @@ class SQLiteFormatterCostom(
 	private fun visitInsertOrUpdate(expr: InsertOrUpdateExpression): InsertOrUpdateExpression {
 		writeKeyword("insert into ")
 		visitTable(expr.table)
-		writeInsertColumnNames(expr.assignments.map { it.column })
+		writeInsertColumnNames(expr.assignments.map(ColumnAssignmentExpression<*>::column))
 		writeKeyword("values ")
 		writeInsertValues(expr.assignments)
 		if (expr.conflictColumns.isNotEmpty()) {
@@ -149,7 +149,7 @@ private fun <T : BaseTable<*>> buildInsertOrUpdateExpression(
 	table: T, block: InsertOrUpdateStatementBuilder.(T) -> Unit,
 ): InsertOrUpdateExpression {
 	val builder = InsertOrUpdateStatementBuilder().apply { block(table) }
-	val conflictColumns = builder.conflictColumns.ifEmpty { table.primaryKeys }
+	val conflictColumns = builder.conflictColumns.ifEmpty(table::primaryKeys)
 	if (conflictColumns.isEmpty()) {
 		val msg = "Table '$table' doesn't have a primary key, " +
 				"you must specify the conflict columns when calling onConflict(col) { .. }"
@@ -163,7 +163,7 @@ private fun <T : BaseTable<*>> buildInsertOrUpdateExpression(
 	return InsertOrUpdateExpression(
 		table.asExpression(),
 		builder.assignments,
-		conflictColumns.map { it.asExpression() },
+		conflictColumns.map(Column<*>::asExpression),
 		if (builder.doNothing) emptyList() else builder.updateAssignments
 	)
 }
