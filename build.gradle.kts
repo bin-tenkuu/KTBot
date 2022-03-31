@@ -61,12 +61,13 @@ tasks.create("build2Jar") {
 		}
 	}
 	group = "mirai"
-	dependsOn += "buildPlugin"
+	dependsOn += "buildPluginLegacy"
 	doLast {
 		copy {
 			println("Copy File:${pluginPath}")
 			from("${buildDir}/mirai")
 			into(pluginPath)
+			rename { "${project.group}-${project.version}.jar" }
 		}
 	}
 }
