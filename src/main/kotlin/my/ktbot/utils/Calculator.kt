@@ -23,7 +23,7 @@ object Calculator {
 
 	/**二元运算符*/
 	@JvmStatic
-	private val operatorMap = mutableMapOf<String, Pair<Int, (IValue, IValue) -> IValue>>(
+	private val operatorMap = mutableMapOf<String, Pair<Int, IOperator2>>(
 		"d" to (20 to { l, r -> DiceNode(DiceResult.dice(l.v.toInt(), r.v.toInt())) }),
 		"**" to (16 to { l, r -> NumberNode(l.v.toDouble().pow(r.v.toDouble())) }),
 		"*" to (15 to { l, r -> NumberNode(l.v.toDouble() * r.v.toDouble()) }),
@@ -40,7 +40,7 @@ object Calculator {
 
 	/**一元运算符*/
 	@JvmStatic
-	private val operatorMapSingle = mutableMapOf<String, Pair<Int, (IValue) -> IValue>>(
+	private val operatorMapSingle = mutableMapOf<String, Pair<Int, IOperator1>>(
 		"+" to (15 to { l -> l }),
 		"-" to (15 to { l -> NumberNode(-l.v.toDouble()) }),
 		"~" to (15 to { l -> NumberNode(l.v.toLong().inv()) }),
@@ -192,13 +192,13 @@ internal class StringNode(val s: List<String>) : Node
 internal class Operator2(
 	override val op: String,
 	override val priority: Int,
-	val v: (IValue, IValue) -> IValue,
+	val v: IOperator2,
 ) : Operator
 
 internal class Operator1(
 	override val op: String,
 	override val priority: Int,
-	val v: (IValue) -> IValue,
+	val v: IOperator1,
 ) : Operator
 
 interface Node
@@ -211,3 +211,5 @@ interface Operator : Node {
 interface IValue {
 	val v: Number
 }
+typealias IOperator1 = (IValue) -> IValue
+typealias IOperator2 = (IValue, IValue) -> IValue
