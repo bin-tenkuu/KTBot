@@ -47,12 +47,8 @@ mirai {
 		}
 	}
 }
-kotlin {
-	sourceSets {
-		all {
-			languageSettings.optIn("kotlin.RequiresOptIn")
-		}
-	}
+kotlin.sourceSets.all {
+	languageSettings.optIn("kotlin.RequiresOptIn")
 }
 tasks.create("build2Jar") {
 	val pluginPath = "${rootDir}/plugins/"
