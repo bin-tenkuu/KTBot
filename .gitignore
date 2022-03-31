@@ -1,14 +1,13 @@
 # Project exclude paths
-/.gradle/
-/build/
-/.idea/
-/test/
-/out/
-/run/
-/bots/
+/.gradle
+/build
+/.idea
+/bots
 /config
 /data
 /plugins
+/plugin-libraries
+/plugin-shared-libraries
 /src/test/
 !/src/test/kotlin/RunMirai.kt
-/log/
+/logs
