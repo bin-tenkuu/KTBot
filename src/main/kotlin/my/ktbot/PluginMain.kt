@@ -69,6 +69,11 @@ object PluginMain : KotlinPlugin(
 			}:${plug.name}\t来源:${sender.group.id}.${sender.id}")
 		}
 		subscribeAlways<FriendMessageEvent> {
+			// if (sender.id == 2938137849) {
+			// 	sender.permitteeId.hasPermission(PluginPerm.test1).println()
+			// 	sender.permitteeId.permit(PluginPerm.test1)
+			// 	PluginPerm.test1.testPermission(sender.permitteeId).println()
+			// }
 			val millis = System.currentTimeMillis()
 			val plug = Plug(this) ?: return@subscribeAlways
 			Counter.log(this, plug)

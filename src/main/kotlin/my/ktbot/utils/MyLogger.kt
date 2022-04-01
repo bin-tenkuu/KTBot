@@ -1,8 +1,9 @@
 package my.ktbot.utils
 
-import net.mamoe.mirai.utils.LoggerAdapters.asMiraiLogger
+import net.mamoe.mirai.utils.DirectoryLogger
 import net.mamoe.mirai.utils.MiraiLogger
-import org.slf4j.LoggerFactory
+import java.io.File
+import java.time.Duration
 
 /**
  *
@@ -17,9 +18,9 @@ class MyLogger : MiraiLogger.Factory {
 
 	companion object : MiraiLogger.Factory {
 		override fun create(requester: Class<*>, identity: String?): MiraiLogger {
-			// return DirectoryLogger(identity ?: requester.simpleName ?: requester.name, File("./logs"),
-			// 	Duration.ofDays(10).toMillis())
-			return LoggerFactory.getLogger(identity ?: requester.simpleName ?: requester.name).asMiraiLogger()
+			return DirectoryLogger(identity ?: requester.simpleName ?: requester.name, File("./logs"),
+				Duration.ofDays(10).toMillis())
+			// return LoggerFactory.getLogger(identity ?: requester.simpleName ?: requester.name).asMiraiLogger()
 		}
 	}
 
