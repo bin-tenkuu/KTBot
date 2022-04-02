@@ -1,0 +1,10 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="RunMiraiKt" type="JetRunConfigurationType" nameIsGenerated="true">
+    <option name="MAIN_CLASS_NAME" value="org.example.mirai.plugin.RunMiraiKt" />
+    <module name="plugin-binbot.test" />
+    <shortenClasspath name="NONE" />
+    <method v="2">
+      <option name="RunConfigurationTask" enabled="true" run_configuration_name="KTBot [build2Jar]" run_configuration_type="GradleRunConfiguration" />
+    </method>
+  </configuration>
+</component>
