@@ -1,9 +1,9 @@
 plugins {
-	val kotlinVersion = "1.6.10"
+	val kotlinVersion = "1.6.20"
 	kotlin("jvm") version kotlinVersion
 	kotlin("plugin.serialization") version kotlinVersion
 
-	id("net.mamoe.mirai-console") version "2.11.0-M2"
+	id("net.mamoe.mirai-console") version "2.11.0-M1"
 }
 
 group = "my.ktbot"
@@ -51,23 +51,19 @@ kotlin.sourceSets.all {
 	languageSettings.optIn("kotlin.RequiresOptIn")
 }
 tasks.create("build2Jar") {
-	val pluginPath = "${rootDir}/plugins/"
-	doFirst {
+	group = "mirai"
+	dependsOn += "buildPluginLegacy"
+	doLast {
+		val pluginPath = "${rootDir}/plugins/"
 		File(pluginPath).listFiles()?.forEach {
 			if (it.isFile) {
 				println("Delete File:${it.name}")
 				it.delete()
 			}
 		}
-	}
-	group = "mirai"
-	dependsOn += "buildPluginLegacy"
-	doLast {
 		copy {
-			println("Copy File:${pluginPath}")
 			from("${buildDir}/mirai")
 			into(pluginPath)
-			rename { "${project.group}-${project.version}.jar" }
 		}
 	}
 }

@@ -17,22 +17,20 @@ object PluginPerm {
 
 	operator fun PermitteeId.minusAssign(permission: Permission) {
 		if (permission.testPermission(this)) {
-			cancel(this, permission)
+			instance.cancel(this, permission, false)
 		}
 	}
 
 	operator fun PermitteeId.plusAssign(permission: Permission) {
-		if (!permission.testPermission(this)) {
-			instance.permit(this, permission)
-		}
+		instance.permit(this, permission)
 	}
 
 	operator fun PermitteeId.contains(permission: Permission): Boolean {
-		return permission.testPermission(this)
+		return instance.testPermission(this, permission)
 	}
 
 	operator fun Permission.contains(permission: PermitteeId): Boolean {
-		return testPermission(permission)
+		return instance.testPermission(permission, this)
 	}
 
 }
