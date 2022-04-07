@@ -1,15 +1,11 @@
 package my.ktbot
 
 import kotlinx.coroutines.*
-import my.ktbot.PluginPerm.contains
-import my.ktbot.PluginPerm.minusAssign
-import my.ktbot.PluginPerm.plusAssign
 import my.ktbot.annotation.Plug
 import my.ktbot.plugs.*
 import my.ktbot.utils.*
 import net.mamoe.mirai.Bot
 import net.mamoe.mirai.console.extension.PluginComponentStorage
-import net.mamoe.mirai.console.permission.AbstractPermitteeId
 import net.mamoe.mirai.console.plugin.jvm.JvmPlugin
 import net.mamoe.mirai.console.plugin.jvm.JvmPluginDescription
 import net.mamoe.mirai.console.plugin.jvm.KotlinPlugin
@@ -18,7 +14,6 @@ import net.mamoe.mirai.event.*
 import net.mamoe.mirai.event.events.*
 import net.mamoe.mirai.message.data.PlainText
 import net.mamoe.mirai.message.data.isContentEmpty
-import net.mamoe.mirai.message.data.sendTo
 import java.time.Duration
 
 /**
@@ -55,7 +50,7 @@ object PluginMain : KotlinPlugin(
 			CQBotCOC, CQBotSBI,
 			CQBotRepeat, AddExp, MemberExp, CQBotBan,
 			CQBotPixiv, CQBotPicture,
-			CQBotMSG, CQBotPlugin,
+			CQBotMSG, CQBotPlugin, CQBotPerm,
 			CQBotHelper
 		)
 	}
@@ -74,23 +69,6 @@ object PluginMain : KotlinPlugin(
 			}:${plug.name}\t来源:${sender.group.id}.${sender.id}")
 		}
 		subscribeAlways<FriendMessageEvent> {
-			if (sender.id == 2938137849) {
-				val permitteeId = AbstractPermitteeId.ExactUser(sender.id)
-				when (message.contentToString()) {
-					"0" -> {
-						permitteeId -= PluginPerm.test1
-						"已取消授权".toMassage()!!.sendTo(sender)
-					}
-					"1" -> {
-						permitteeId += PluginPerm.test1
-						"已授权".toMassage()!!.sendTo(sender)
-					}
-					"test" -> {
-						(PluginPerm.test1 in permitteeId).toMassage()!!.sendTo(sender)
-					}
-				}
-				return@subscribeAlways
-			}
 			val millis = System.currentTimeMillis()
 			val plug = Plug(this) ?: return@subscribeAlways
 			Counter.log(this, plug)

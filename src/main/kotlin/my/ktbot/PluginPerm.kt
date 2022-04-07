@@ -9,7 +9,7 @@ object PluginPerm {
 	@Suppress("UNCHECKED_CAST")
 	val instance: PermissionService<Permission> = PermissionService.INSTANCE as PermissionService<Permission>
 	val root: Permission = instance.rootPermission
-	val test1: Permission = instance.register(PluginMain.permissionId("1"), "test1")
+	val setu: Permission = instance.register(PluginMain.permissionId("setu"), "色图调用权限")
 
 	fun cancel(permitteeId: PermitteeId, permission: Permission, recursive: Boolean = false) {
 		instance.cancel(permitteeId, permission, recursive)

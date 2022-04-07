@@ -1,6 +1,8 @@
 package my.ktbot.plugs
 
 import io.ktor.client.request.*
+import my.ktbot.PluginPerm
+import my.ktbot.PluginPerm.contains
 import my.ktbot.annotation.Plug
 import my.ktbot.annotation.SubPlugs
 import my.ktbot.dao.Lolicon
@@ -10,6 +12,7 @@ import my.ktbot.database.TPixivPic
 import my.ktbot.utils.KtorUtils
 import my.ktbot.utils.Sqlite
 import my.ktbot.utils.insertOrUpdate
+import net.mamoe.mirai.console.permission.AbstractPermitteeId
 import net.mamoe.mirai.contact.Contact
 import net.mamoe.mirai.event.events.FriendMessageEvent
 import net.mamoe.mirai.event.events.GroupMessageEvent
@@ -34,13 +37,14 @@ object CQBotPicture : Plug(
 	name = "来点[<r18>][<key>]色图",
 	regex = Regex("^[来來发發给給l][张張个個幅点點份d](?<r18>r18的?)?(?<keyword>.*)?[涩色瑟铯s][图圖t]$"),
 	weight = 5.0,
-	help = "来点色图，可选参数：r18，key".toPlainText(),
+	help = """来点色图，需获取对应权限
+		|可选参数：r18，key
+	""".trimMargin().toPlainText(),
 	deleteMSG = 20 * 1000,
 	speedLimit = 5000,
 	expPrivate = -8.0,
 	expGroup = -5.0,
 	msgLength = 4..20,
-	canGroup = false,
 ), SubPlugs {
 
 	@JvmStatic
@@ -67,11 +71,20 @@ object CQBotPicture : Plug(
 	}
 
 	override suspend fun invoke(event: FriendMessageEvent, result: MatchResult): Message {
-		return message(result, event.sender)
+		val sender = event.sender
+		if (AbstractPermitteeId.ExactUser(sender.id) in PluginPerm.setu) {
+			return message(result, sender)
+		}
+		return EmptyMessageChain
 	}
 
 	override suspend fun invoke(event: GroupMessageEvent, result: MatchResult): Message {
-		return message(result, event.group)
+		if (AbstractPermitteeId.ExactGroup(event.group.id) in PluginPerm.setu
+			|| AbstractPermitteeId.ExactUser(event.sender.id) in PluginPerm.setu
+		) {
+			return message(result, event.group)
+		}
+		return EmptyMessageChain
 	}
 
 	@JvmStatic
@@ -79,7 +92,7 @@ object CQBotPicture : Plug(
 		val r18 = result["r18"] !== null
 		val keyword = result["keyword"]?.value ?: ""
 		if (setuSet.contains(keyword)) {
-			return "没有，爬".toPlainText()
+			return "找不到符合关键字的色图".toPlainText()
 		}
 		try {
 			logger.info("开始色图")
@@ -97,7 +110,7 @@ object CQBotPicture : Plug(
 			return image
 		} catch (e: Exception) {
 			logger.error(e)
-			return "网络请求失败".toPlainText()
+			return "<WARN>:网络请求失败".toPlainText()
 		}
 	}
 
