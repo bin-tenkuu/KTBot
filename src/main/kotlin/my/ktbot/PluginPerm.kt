@@ -2,7 +2,6 @@ package my.ktbot
 
 import net.mamoe.mirai.console.permission.Permission
 import net.mamoe.mirai.console.permission.PermissionService
-import net.mamoe.mirai.console.permission.PermissionService.Companion.testPermission
 import net.mamoe.mirai.console.permission.PermitteeId
 
 object PluginPerm {
@@ -12,11 +11,13 @@ object PluginPerm {
 	val setu: Permission = instance.register(PluginMain.permissionId("setu"), "色图调用权限")
 
 	fun cancel(permitteeId: PermitteeId, permission: Permission, recursive: Boolean = false) {
-		instance.cancel(permitteeId, permission, recursive)
+		if (permission in permitteeId) {
+			instance.cancel(permitteeId, permission, recursive)
+		}
 	}
 
 	operator fun PermitteeId.minusAssign(permission: Permission) {
-		if (permission.testPermission(this)) {
+		if (permission in this) {
 			instance.cancel(this, permission, false)
 		}
 	}

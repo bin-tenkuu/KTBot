@@ -57,9 +57,8 @@ object PluginMain : KotlinPlugin(
 
 	override fun onEnable() {
 		logger.warning("Plugin loaded")
-		Counter.members[2938137849].run {
-			logger.warning(toString())
-		}
+		logger.warning(Counter.members[2938137849].toString())
+
 		subscribeAlways<GroupMessageEvent> {
 			val millis = System.currentTimeMillis()
 			val plug = Plug(this) ?: return@subscribeAlways
@@ -189,6 +188,7 @@ object PluginMain : KotlinPlugin(
 	private fun startCounter() {
 		tasker?.cancel()
 		if (bots.isEmpty()) {
+			logger.error("无可用bot")
 			tasker = null
 			return
 		}
@@ -207,7 +207,7 @@ object PluginMain : KotlinPlugin(
 				}
 				delay(Duration.ofHours(1).toMillis())
 			}
-			logger.warning("全部可用bot下线")
+			logger.error("全部可用bot下线")
 			tasker = null
 		}
 	}
