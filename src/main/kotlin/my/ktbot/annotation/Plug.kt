@@ -68,14 +68,14 @@ abstract class Plug(
 	}
 
 	final override fun equals(other: Any?): Boolean {
-		if (this === other) return true
-		if (other !is Plug) return false
-
-		if (name != other.name) return false
-		if (regex != other.regex) return false
-		if (weight != other.weight) return false
-
-		return true
+		return when {
+			this === other -> true
+			other !is Plug -> false
+			name != other.name -> false
+			regex != other.regex -> false
+			weight != other.weight -> false
+			else -> true
+		}
 	}
 
 	final override fun hashCode(): Int {
@@ -91,9 +91,11 @@ abstract class Plug(
 
 	private fun lock(): Boolean {
 		if (speedLimit > 0) {
-			if (isOpen != true) return false
-			if (!lock.tryLock(this)) return false
-			if (isOpen != true) return false
+			when {
+				isOpen != true -> return false
+				!lock.tryLock(this) -> return false
+				isOpen != true -> return false
+			}
 			isOpen = false
 		}
 		return true
@@ -214,27 +216,35 @@ abstract class Plug(
 			|| Counter.members[sender.id].add(p.expPrivate)
 
 		private fun Plug.get(event: MessageEvent): MatchResult? {
-			if (isOpen != true) return null
-			if (event.message.contentToString().length !in msgLength) return null
-			if (needAdmin && !PlugConfig.isAdmin(event)) return null
-			if (Counter.members[event.sender.id].isBaned) return null
-			return regex.find(event.message.contentToString())
+			return when {
+				isOpen != true -> null
+				event.message.contentToString().length !in msgLength -> null
+				needAdmin && !PlugConfig.isAdmin(event) -> null
+				Counter.members[event.sender.id].isBaned -> null
+				else -> regex.find(event.message.contentToString())
+			}
 		}
 
 		private operator fun Plug.get(event: GroupMessageEvent): MatchResult? {
-			if (!canGroup) return null
-			if (Counter.groups[event.group.id].isBaned) return null
-			return get(event as MessageEvent)
+			return when {
+				!canGroup -> null
+				Counter.groups[event.group.id].isBaned -> null
+				else -> get(event as MessageEvent)
+			}
 		}
 
 		private operator fun Plug.get(event: FriendMessageEvent): MatchResult? {
-			if (!canPrivate) return null
-			return get(event as MessageEvent)
+			return when {
+				!canPrivate -> null
+				else -> get(event as MessageEvent)
+			}
 		}
 
 		private fun Plug.laterOpen() {
-			if (speedLimit <= 0) unlock()
-			else timer.schedule(speedLimit) { unlock() }
+			when {
+				speedLimit <= 0 -> unlock()
+				else -> timer.schedule(speedLimit) { unlock() }
+			}
 		}
 
 		// endregion
