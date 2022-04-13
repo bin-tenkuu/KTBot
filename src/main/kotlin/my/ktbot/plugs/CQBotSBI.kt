@@ -38,7 +38,7 @@ object CQBotSBI : Plug(
 		if (list[0] == list[1] && list[0] == list[2]) {
 			return "大失败"
 		}
-		if (list[0] + list[1] + list[2] == 6) {
+		if (setOf(list[0], list[1], list[2]).sum() == 6) {
 			return "大成功，成功度${list.count(1::equals)}"
 		}
 		val arr = intArrayOf(-2, 0)
