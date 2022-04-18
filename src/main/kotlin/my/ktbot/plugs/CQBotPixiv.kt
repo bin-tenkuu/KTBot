@@ -1,6 +1,5 @@
 package my.ktbot.plugs
 
-import io.ktor.client.request.*
 import my.ktbot.annotation.Plug
 import my.ktbot.utils.KtorUtils
 import net.mamoe.mirai.contact.Contact
@@ -49,12 +48,12 @@ object CQBotPixiv : Plug(
 			}
 			if (cat.multiple && cat.originalUrlsProxy !== null) {
 				return Array(cat.originalUrlsProxy.size) {
-					KtorUtils.httpClient.get<ByteArray>(cat.originalUrlsProxy[it])
+					KtorUtils.get(cat.originalUrlsProxy[it]).receive<ByteArray>()
 						.toExternalResource().toAutoCloseable().uploadAsImage(contact)
 				}.toMessageChain()
 			}
 			else if (cat.originalUrlProxy !== null) {
-				return KtorUtils.httpClient.get<ByteArray>(cat.originalUrlProxy)
+				return KtorUtils.get(cat.originalUrlProxy).receive<ByteArray>()
 					.toExternalResource().toAutoCloseable().uploadAsImage(contact)
 			}
 			return "pid错误".toPlainText()

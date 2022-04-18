@@ -5,9 +5,7 @@
 /bots
 /config
 /data
-/plugins
-/plugin-libraries
-/plugin-shared-libraries
+/plugin*
 /src/test/
 !/src/test/kotlin/RunMirai.kt
 /logs

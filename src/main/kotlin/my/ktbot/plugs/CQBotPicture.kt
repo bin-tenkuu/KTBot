@@ -1,6 +1,5 @@
 package my.ktbot.plugs
 
-import io.ktor.client.request.*
 import my.ktbot.PluginPerm
 import my.ktbot.PluginPerm.contains
 import my.ktbot.annotation.Plug
@@ -52,12 +51,13 @@ object CQBotPicture : Plug(
 
 	@JvmStatic
 	private fun savePic(d: Lolicon) {
+		val url = d.urls.values.firstOrNull() ?: return
 		Sqlite[TPixivPic].insertOrUpdate {
 			set(it.pid, d.pid)
 			set(it.p, d.p)
 			set(it.uid, d.uid)
 			set(it.r18, d.r18)
-			set(it.url, d.urls.values.firstOrNull() ?: "")
+			set(it.url, url)
 			set(it.author, d.author)
 			set(it.title, d.title)
 			onConflict(it.pid, it.p) {
@@ -103,9 +103,9 @@ object CQBotPicture : Plug(
 			))
 			val lolicon = response.data.firstOrNull() ?: return "找不到符合关键字的色图".toPlainText()
 			runCatching { savePic(lolicon) }
-			val image = KtorUtils.httpClient.get<ByteArray>(
+			val image = KtorUtils.get(
 				lolicon.urls.values.firstOrNull() ?: return "未找到图片链接".toPlainText()
-			).toExternalResource().toAutoCloseable().uploadAsImage(contact)
+			).receive<ByteArray>().toExternalResource().toAutoCloseable().uploadAsImage(contact)
 			contact.sendMessage("作者：${lolicon.uid}\n原图p${lolicon.p}：${lolicon.pid}")
 			return image
 		} catch (e: Exception) {
@@ -158,9 +158,9 @@ object CQBotPicture : Plug(
 		): CodableMessage {
 			val r18 = result["r18"] !== null
 			val pic = getRandomPic(if (r18) 1 else 0) ?: return EmptyMessageChain
-			val image = KtorUtils.httpClient.get<ByteArray>(pic.url) {
+			val image = KtorUtils.get(pic.url) {
 				headers.append("referer", "https://www.pixiv.net/")
-			}.toExternalResource().toAutoCloseable().uploadAsImage(contact)
+			}.receive<ByteArray>().toExternalResource().toAutoCloseable().uploadAsImage(contact)
 			contact.sendMessage("作者：${pic.uid}\n原图p${pic.p}：${pic.pid}")
 			return image
 		}

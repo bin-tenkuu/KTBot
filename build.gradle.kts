@@ -21,7 +21,6 @@ dependencies {
 	implementation("org.ktorm:ktorm-support-sqlite:3.4.1")
 	implementation("org.jetbrains.kotlin:kotlin-reflect:1.4.0")
 	implementation("io.ktor:ktor-client-serialization-jvm:1.6.8")
-	implementation("io.ktor:ktor-client-json:1.6.8")
 	compileOnly("org.jetbrains:annotations:23.0.0")
 	// implementation("ch.qos.logback:logback-classic:1.2.11")
 	// implementation("org.fusesource.jansi:jansi:2.4.0")
@@ -39,11 +38,8 @@ mirai {
 	jvmTarget = JavaVersion.VERSION_17
 	configureShadow {
 		dependencyFilter.include {
-			println(it.name)
-			it.moduleGroup == "io.ktor" && it.moduleName in arrayOf(
-				"ktor-client-serialization-jvm",
-				"ktor-client-json"
-			)
+			println("include: ${it.name}")
+			it.moduleGroup == "io.ktor"
 		}
 	}
 }
@@ -58,7 +54,9 @@ tasks.create("build2Jar") {
 		File(pluginPath).listFiles()?.forEach {
 			if (it.isFile) {
 				println("Delete File:${it.name}")
-				it.delete()
+				if (!it.delete()) {
+					println("Cannot Delete File:${it.name}")
+				}
 			}
 		}
 		copy {
