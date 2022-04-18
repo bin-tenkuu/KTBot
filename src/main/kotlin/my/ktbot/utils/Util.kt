@@ -16,7 +16,7 @@ fun <T> T.println(): T {
 }
 
 @Suppress("UNCHECKED_CAST")
-inline fun <E : Entity<E>, T : Table<E>> EntitySequence<E, T>.findOrAdd(
+fun <E : Entity<E>, T : Table<E>> EntitySequence<E, T>.findOrAdd(
 	predicate: (T) -> ColumnDeclaring<Boolean>,
 	block: E.() -> Unit,
 ): E {
@@ -26,7 +26,7 @@ inline fun <E : Entity<E>, T : Table<E>> EntitySequence<E, T>.findOrAdd(
 	}
 }
 
-inline fun <T : Gmt<T>> T.update(block: (T.() -> Unit) = {}) {
+fun <T : Gmt<T>> T.update(block: (T.() -> Unit) = {}) {
 	block()
 	gmtModified = System.currentTimeMillis()
 	flushChanges()

@@ -51,7 +51,7 @@ class CacheMap<K, V>(
 		return node.v
 	}
 
-	inline fun getOrInit(key: K, block: () -> V): V {
+	fun getOrInit(key: K, block: () -> V): V {
 		return get(key) ?: block().also { set(key, it) }
 	}
 
