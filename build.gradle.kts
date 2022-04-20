@@ -3,7 +3,7 @@ plugins {
 	kotlin("jvm") version kotlinVersion
 	kotlin("plugin.serialization") version kotlinVersion
 
-	id("net.mamoe.mirai-console") version "2.11.0-M1"
+	id("net.mamoe.mirai-console") version "2.10.1"
 }
 
 group = "my.ktbot"
@@ -48,7 +48,7 @@ kotlin.sourceSets.all {
 }
 tasks.create("build2Jar") {
 	group = "mirai"
-	dependsOn += "buildPluginLegacy"
+	dependsOn += "buildPlugin"
 	doLast {
 		val pluginPath = "${rootDir}/plugins/"
 		File(pluginPath).listFiles()?.forEach {

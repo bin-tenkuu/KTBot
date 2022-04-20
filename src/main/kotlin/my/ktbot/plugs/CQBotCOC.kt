@@ -24,9 +24,10 @@ object CQBotCOC : Plug(
 	weight = 1.1,
 	help = "骰子主功能，附带简单表达式计算".toPlainText(),
 	msgLength = 4..500,
+	needAdmin = true
 ), SubPlugs {
 	@JvmStatic
-	private val diceRegex = Regex("[^+\\-*d0-9#]", IGNORE_CASE)
+	private val diceRegex = Regex("[^+\\-*d\\d#]", IGNORE_CASE)
 
 	@JvmStatic
 	val cache = CacheMap<Long, DiceResult>()
