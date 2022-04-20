@@ -23,8 +23,7 @@ object CQBotCOC : Plug(
 	regex = Regex("^[.．。]d +(?:(?<times>\\d)#)?(?<dice>[^ ]+)", IGNORE_CASE),
 	weight = 1.1,
 	help = "骰子主功能，附带简单表达式计算".toPlainText(),
-	msgLength = 4..500,
-	needAdmin = true
+	msgLength = 4..500
 ), SubPlugs {
 	@JvmStatic
 	private val diceRegex = Regex("[^+\\-*d\\d#]", IGNORE_CASE)
@@ -210,7 +209,7 @@ object CQBotCOC : Plug(
 	 */
 	object COCStatSet : Plug(
 		name = "骰子：删除[设置]简写",
-		regex = Regex("^[.．。]dset +(?<key>\\w[\\w\\d]+)(?:=(?<value>[+\\-*d0-9#]+))?", IGNORE_CASE),
+		regex = Regex("^[.．。]dset +(?<key>\\w[\\w\\d]+)(?:=(?<value>[+\\-*d\\d#]+))?", IGNORE_CASE),
 		weight = 1.02,
 		help = "删除[设置]简写".toPlainText(),
 		msgLength = 5..100,
