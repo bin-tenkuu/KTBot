@@ -35,10 +35,11 @@ object CQBotSBI : Plug(
 	}
 
 	fun getRes(list: IntArray): String {
-		if (list[0] == list[1] && list[0] == list[2]) {
+		val third = setOf(list[0], list[1], list[2]).sorted()
+		if (third.size == 1) {
 			return "大失败"
 		}
-		if (setOf(list[0], list[1], list[2]).sum() == 6) {
+		if (third.size == 3 && third[0] == 1 && third[1] == 2 && third[2] == 3) {
 			return "大成功，成功度${list.count(1::equals)}"
 		}
 		val arr = intArrayOf(-2, 0)
