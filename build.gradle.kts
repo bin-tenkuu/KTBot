@@ -22,7 +22,7 @@ dependencies {
 	implementation("org.jetbrains.kotlin:kotlin-reflect:1.4.0")
 	implementation("io.ktor:ktor-client-serialization-jvm:1.6.8")
 	compileOnly("org.jetbrains:annotations:23.0.0")
-	// implementation("ch.qos.logback:logback-classic:1.2.11")
+	implementation("ch.qos.logback:logback-classic:1.2.11")
 	// implementation("org.fusesource.jansi:jansi:2.4.0")
 	// implementation("org.apache.logging.log4j:log4j-api:2.17.1")
 	// implementation("org.apache.logging.log4j:log4j-core:2.17.1")
@@ -60,7 +60,7 @@ tasks.create("build2Jar") {
 			}
 		}
 		copy {
-			from("${buildDir}/mirai")
+			from("${buildDir}/mirai/plugin-binbot-1.0.legacy.mirai.jar")
 			into(pluginPath)
 		}
 	}
