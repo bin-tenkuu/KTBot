@@ -53,7 +53,7 @@ tasks.create("build2Jar") {
 		val pluginPath = "${rootDir}/plugins/"
 		File(pluginPath).listFiles()?.forEach {
 			if (it.isFile) {
-				println("Delete File:${it.name}")
+				println("Delete File: ${it.name}")
 				if (!it.delete()) {
 					println("Cannot Delete File:${it.name}")
 				}
@@ -62,6 +62,7 @@ tasks.create("build2Jar") {
 		copy {
 			from("${buildDir}/mirai/plugin-binbot-1.0.legacy.mirai.jar")
 			into(pluginPath)
+			eachFile { println("Copy File: ${name}") }
 		}
 	}
 }
