@@ -1,6 +1,6 @@
 package my.ktbot.plugs
 
-import my.ktbot.annotation.Plug
+import my.ktbot.interfaces.Plug
 import net.mamoe.mirai.event.events.MessageEvent
 import net.mamoe.mirai.message.data.Message
 import net.mamoe.mirai.message.data.toPlainText

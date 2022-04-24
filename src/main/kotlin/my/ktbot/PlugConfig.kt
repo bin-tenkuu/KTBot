@@ -25,4 +25,5 @@ object PlugConfig : AutoSavePluginConfig("config") {
 
 	fun isAdmin(e: MessageEvent): Boolean =
 		if (e is GroupEvent && e.group.id == adminGroup) true else e.sender.id == adminId
+
 }

@@ -1,6 +1,6 @@
 package my.ktbot.plugs
 
-import my.ktbot.annotation.Plug
+import my.ktbot.interfaces.Plug
 import my.ktbot.utils.Counter
 import my.ktbot.utils.update
 import net.mamoe.mirai.event.events.MessageEvent

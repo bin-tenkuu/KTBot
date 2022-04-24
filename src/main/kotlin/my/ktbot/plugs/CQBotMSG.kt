@@ -1,7 +1,7 @@
 package my.ktbot.plugs
 
-import my.ktbot.annotation.Plug
-import my.ktbot.annotation.SubPlugs
+import my.ktbot.interfaces.Plug
+import my.ktbot.interfaces.SubPlugs
 import my.ktbot.utils.ReplaceNode
 import my.ktbot.utils.sendAdmin
 import net.mamoe.mirai.event.events.GroupMessageEvent

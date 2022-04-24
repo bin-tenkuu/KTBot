@@ -6,6 +6,4 @@
 /config
 /data
 /plugin*
-/src/test/
-!/src/test/kotlin/RunMirai.kt
 /logs
