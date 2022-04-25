@@ -1,7 +1,7 @@
 package my.ktbot
 
 import kotlinx.coroutines.*
-import my.ktbot.annotation.Plug
+import my.ktbot.interfaces.Plug
 import my.ktbot.plugs.*
 import my.ktbot.utils.*
 import net.mamoe.mirai.Bot

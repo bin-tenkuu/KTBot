@@ -1,10 +1,10 @@
 package my.ktbot.plugs
 
-import my.ktbot.annotation.Plug
-import my.ktbot.annotation.SubPlugs
+import my.ktbot.interfaces.Plug
+import my.ktbot.interfaces.SubPlugs
 import my.ktbot.database.TGroup
 import my.ktbot.database.TMembers
-import my.ktbot.utils.Calculator
+import my.ktbot.utils.calculator.Calculator
 import my.ktbot.utils.Counter
 import my.ktbot.utils.Sqlite
 import net.mamoe.mirai.event.events.MessageEvent

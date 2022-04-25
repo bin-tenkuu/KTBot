@@ -3,7 +3,7 @@ package my.ktbot.plugs
 import my.ktbot.PluginPerm
 import my.ktbot.PluginPerm.minusAssign
 import my.ktbot.PluginPerm.plusAssign
-import my.ktbot.annotation.Plug
+import my.ktbot.interfaces.Plug
 import net.mamoe.mirai.console.permission.AbstractPermitteeId
 import net.mamoe.mirai.event.events.MessageEvent
 import net.mamoe.mirai.message.data.Message

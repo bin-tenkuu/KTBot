@@ -1,6 +1,6 @@
 package my.ktbot.plugs
 
-import my.ktbot.annotation.Plug
+import my.ktbot.interfaces.Plug
 import my.ktbot.utils.KtorUtils
 import net.mamoe.mirai.contact.Contact
 import net.mamoe.mirai.event.events.FriendMessageEvent

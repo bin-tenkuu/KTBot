@@ -3,7 +3,7 @@ package my.ktbot.utils
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import my.ktbot.PluginMain
-import my.ktbot.annotation.Plug
+import my.ktbot.interfaces.Plug
 import my.ktbot.database.*
 import net.mamoe.mirai.Bot
 import net.mamoe.mirai.contact.Contact

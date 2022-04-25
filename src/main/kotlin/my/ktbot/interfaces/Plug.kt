@@ -1,4 +1,4 @@
-package my.ktbot.annotation
+package my.ktbot.interfaces
 
 import kotlinx.coroutines.sync.Mutex
 import my.ktbot.PlugConfig

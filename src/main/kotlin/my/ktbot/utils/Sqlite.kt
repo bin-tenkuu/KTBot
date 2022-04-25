@@ -20,15 +20,16 @@ import kotlin.io.path.div
  */
 object Sqlite {
 	@JvmStatic
-	val database: Database by lazy {
-		Database.connect(
-			url = "jdbc:sqlite:${PluginMain.dataFolderPath / "../db.db"}",
-			driver = "org.sqlite.JDBC",
-			dialect = SQLiteCostom,
-			logger = LoggerBridge(PluginMain.logger),
-			alwaysQuoteIdentifiers = true
-		)
-	}
+	val database: Database = Database.connect(
+		url = "jdbc:sqlite:${PluginMain.dataFolderPath / "../db.db"}",
+		driver = "org.sqlite.JDBC",
+		user = null,
+		password = null,
+		dialect = SQLiteCostom,
+		logger = LoggerBridge(PluginMain.logger),
+		alwaysQuoteIdentifiers = true,
+		generateSqlInUpperCase = true
+	)
 
 	@JvmStatic
 	operator fun <E : Any, T : BaseTable<E>> get(table: T): EntitySequence<E, T> {
@@ -152,12 +153,12 @@ private fun <T : BaseTable<*>> buildInsertOrUpdateExpression(
 	val conflictColumns = builder.conflictColumns.ifEmpty(table::primaryKeys)
 	if (conflictColumns.isEmpty()) {
 		val msg = "Table '$table' doesn't have a primary key, " +
-				"you must specify the conflict columns when calling onConflict(col) { .. }"
+			"you must specify the conflict columns when calling onConflict(col) { .. }"
 		throw IllegalStateException(msg)
 	}
 	if (!builder.doNothing && builder.updateAssignments.isEmpty()) {
 		val msg = "Cannot leave the onConflict clause empty! " +
-				"If you desire no update action at all please explicitly call `doNothing()`"
+			"If you desire no update action at all please explicitly call `doNothing()`"
 		throw IllegalStateException(msg)
 	}
 	return InsertOrUpdateExpression(
@@ -178,7 +179,9 @@ fun <T : BaseTable<*>> Database.insertOrUpdate(
 //	return 1
 }
 
-fun <E : Any, T : BaseTable<E>> EntitySequence<E, T>.insertOrUpdate(block: InsertOrUpdateStatementBuilder.(T) -> Unit): Int {
+fun <E : Any, T : BaseTable<E>> EntitySequence<E, T>.insertOrUpdate(
+	block: InsertOrUpdateStatementBuilder.(T) -> Unit
+): Int {
 	return database.insertOrUpdate(sourceTable, block)
 }
 

@@ -2,8 +2,8 @@ package my.ktbot.plugs
 
 import my.ktbot.PluginPerm
 import my.ktbot.PluginPerm.contains
-import my.ktbot.annotation.Plug
-import my.ktbot.annotation.SubPlugs
+import my.ktbot.interfaces.Plug
+import my.ktbot.interfaces.SubPlugs
 import my.ktbot.dao.Lolicon
 import my.ktbot.dao.LoliconRequest
 import my.ktbot.database.PixivPic
