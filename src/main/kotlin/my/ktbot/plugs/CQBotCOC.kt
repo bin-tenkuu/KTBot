@@ -1,10 +1,12 @@
 package my.ktbot.plugs
 
-import my.ktbot.interfaces.Plug
-import my.ktbot.interfaces.SubPlugs
 import my.ktbot.database.COCShortKey
 import my.ktbot.database.TCOCShortKey
-import my.ktbot.utils.*
+import my.ktbot.interfaces.Plug
+import my.ktbot.interfaces.SubPlugs
+import my.ktbot.utils.CacheMap
+import my.ktbot.utils.DiceResult
+import my.ktbot.utils.Sqlite
 import net.mamoe.mirai.event.events.MessageEvent
 import net.mamoe.mirai.message.data.Message
 import net.mamoe.mirai.message.data.toPlainText
@@ -135,31 +137,44 @@ object CQBotCOC : Plug(
 	var specialEffects: Effects = Effects.bug
 
 	@Suppress("EnumEntryName", "unused")
-	enum class Effects(val state: String, private val func: (Calc) -> Unit) {
-		bug("默认", { }),
-		wrf("温柔f", { c ->
-			c.list?.also {
-				if (it.size > 2 && it[0] == it[1]) {
-					++it[1]
-					c.state = "[温柔]"
+	enum class Effects(val state: String) {
+		bug("默认") {
+			override fun invoke(calc: Calc) {}
+		},
+		wrf("温柔f") {
+			override fun invoke(calc: Calc) {
+				calc.list?.also {
+					if (it.size > 2 && it[0] == it[1]) {
+						++it[1]
+						calc.state = "[温柔]"
+					}
 				}
 			}
-		}),
-		cbf("残暴f", { c ->
-			c.list?.also {
-				if (it.size > 2) {
-					it[1] = it[0]
-					c.state = "[残暴]"
+		},
+		cbf("残暴f") {
+			override fun invoke(calc: Calc) {
+				calc.list?.also {
+					if (it.size > 2) {
+						it[1] = it[0]
+						calc.state = "[残暴]"
+					}
 				}
 			}
-		}),
-		ajf("傲娇f", { if (Math.random() < 0.5) wrf(it) else cbf(it) }),
-		wr("温柔", { if (Math.random() < 0.5) wrf(it) else bug(it) }),
-		cb("残暴", { if (Math.random() < 0.5) cbf(it) else bug(it) }),
-		aj("傲娇", { arrayOf(wrf, cbf, bug).random()(it) }),
+		},
+		ajf("傲娇f") {
+			override fun invoke(calc: Calc) = if (Math.random() < 0.5) wrf(calc) else cbf(calc)
+		},
+		wr("温柔") {
+			override fun invoke(calc: Calc) = if (Math.random() < 0.5) wrf(calc) else bug(calc)
+		},
+		cb("残暴") {
+			override fun invoke(calc: Calc) = if (Math.random() < 0.5) cbf(calc) else bug(calc)
+		},
+		aj("傲娇") {
+			override fun invoke(calc: Calc) = arrayOf(wrf, cbf, bug).random()(calc)
+		},
 		;
-
-		operator fun invoke(calc: Calc) = func(calc)
+		abstract operator fun invoke(calc: Calc)
 	}
 
 	override val subPlugs: List<Plug> = listOf(COCCheater, COCStat, COCStatSet, COCAdded, COCSpecial)
