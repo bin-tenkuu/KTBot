@@ -1,5 +1,6 @@
-package my.ktbot.utils
+package my.ktbot.utils.calculator
 
+import my.ktbot.utils.DiceResult
 import java.util.*
 import kotlin.math.pow
 
@@ -150,66 +151,3 @@ object Calculator {
 	}
 
 }
-
-class Calc : IValue {
-	/**计算结果*/
-	override val v: Number get() = stack[0].v
-	private val stack = Stack<IValue>()
-
-	/**计算中产生的其他数据*/
-	val list = mutableListOf<Any>()
-	internal operator fun plusAssign(it: Operator) = when (it) {
-		is Operator2 -> {
-			val pop = stack.pop()
-			plusAssign(it.v(stack.pop(), pop))
-		}
-		is Operator1 -> plusAssign(it.v(stack.pop()))
-		else -> {
-			it.println()
-			error("未受支持的运算符种类")
-		}
-	}
-
-	operator fun plusAssign(it: IValue) {
-		when (val v = stack.push(it)) {
-			is Calc -> list.addAll(v.list)
-			is DataNode -> list.addAll(v.list)
-			is DiceNode -> list.add(v.d)
-		}
-	}
-
-	internal fun toData() = DataNode(v, list)
-}
-
-internal open class NumberNode(override val v: Number) : Node, IValue {
-	override fun toString(): String = v.toString()
-}
-
-internal class DataNode(v: Number, val list: List<Any>) : NumberNode(v)
-internal class DiceNode(val d: DiceResult) : NumberNode(d.sum)
-
-internal class StringNode(val s: List<String>) : Node
-internal class Operator2(
-	override val op: String,
-	override val priority: Int,
-	val v: IOperator2,
-) : Operator
-
-internal class Operator1(
-	override val op: String,
-	override val priority: Int,
-	val v: IOperator1,
-) : Operator
-
-interface Node
-
-interface Operator : Node {
-	val priority: Int
-	val op: String
-}
-
-interface IValue {
-	val v: Number
-}
-typealias IOperator1 = (IValue) -> IValue
-typealias IOperator2 = (IValue, IValue) -> IValue

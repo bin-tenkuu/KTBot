@@ -4,7 +4,9 @@ import my.ktbot.PlugConfig
 import my.ktbot.PluginMain
 import my.ktbot.database.Gmt
 import net.mamoe.mirai.event.events.BotEvent
-import net.mamoe.mirai.message.data.*
+import net.mamoe.mirai.message.data.Message
+import net.mamoe.mirai.message.data.PlainText
+import net.mamoe.mirai.message.data.buildMessageChain
 import net.mamoe.mirai.utils.error
 import org.ktorm.entity.*
 import org.ktorm.schema.ColumnDeclaring
@@ -35,7 +37,7 @@ fun <T : Gmt<T>> T.update(block: (T.() -> Unit) = {}) {
 /**
  * 给管理员发送消息
  */
-suspend fun BotEvent.sendAdmin(msg: String) = sendAdmin(msg.toPlainText())
+suspend fun BotEvent.sendAdmin(msg: CharSequence) = sendAdmin(PlainText(msg))
 
 /**
  * 给管理员发送消息
@@ -51,11 +53,12 @@ suspend fun BotEvent.sendAdmin(msg: Message) {
 fun <T : Any?> T.toMassage(): Message? {
 	return when (this) {
 		null -> null
+		Unit -> null
 		is Message -> this
 		is Array<*> -> buildMessageChain {
 			for (any in this@toMassage) any.toMassage()?.unaryPlus()
 		}
-		is String -> PlainText(this)
+		is CharSequence -> PlainText(this)
 		else -> PlainText(toString())
 	}
 }
