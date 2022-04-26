@@ -16,7 +16,6 @@ import net.mamoe.mirai.utils.MiraiLogger
 import java.time.Duration
 import java.util.*
 import kotlin.concurrent.schedule
-import kotlin.math.abs
 
 /**
  *  @since:2022/1/2
@@ -208,11 +207,11 @@ abstract class Plug(
 		// endregion
 
 		// region addExp, get, laterOpen
-		private fun GroupMessageEvent.addExp(p: Plug): Boolean = abs(p.expGroup) < 0.001
+		private fun GroupMessageEvent.addExp(p: Plug): Boolean = p.expGroup == 0.0
 			|| Counter.groups[group.id].add(p.expGroup)
 			|| Counter.members[sender.id].add(p.expGroup)
 
-		private fun MessageEvent.addExp(p: Plug): Boolean = abs(p.expPrivate) < 0.001
+		private fun MessageEvent.addExp(p: Plug): Boolean = p.expPrivate == 0.0
 			|| Counter.members[sender.id].add(p.expPrivate)
 
 		private fun Plug.get(event: MessageEvent): MatchResult? {

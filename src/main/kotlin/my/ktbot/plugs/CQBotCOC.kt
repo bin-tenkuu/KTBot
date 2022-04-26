@@ -137,7 +137,7 @@ object CQBotCOC : Plug(
 	var specialEffects: Effects = Effects.bug
 
 	@Suppress("EnumEntryName", "unused")
-	enum class Effects(val state: String) {
+	enum class Effects(val state: String) : (Calc) -> Unit {
 		bug("默认") {
 			override fun invoke(calc: Calc) {}
 		},
@@ -174,7 +174,6 @@ object CQBotCOC : Plug(
 			override fun invoke(calc: Calc) = arrayOf(wrf, cbf, bug).random()(calc)
 		},
 		;
-		abstract operator fun invoke(calc: Calc)
 	}
 
 	override val subPlugs: List<Plug> = listOf(COCCheater, COCStat, COCStatSet, COCAdded, COCSpecial)

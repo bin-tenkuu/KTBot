@@ -20,8 +20,8 @@ interface Gmt<T : Gmt<T>> : Entity<T> {
 }
 
 infix fun <T : Gmt<T>> T.add(exp: Double): Boolean {
+	if (exp < 0 && this.exp < -exp) return false
 	modify()
-	if (this.exp < -exp) return false
 	this.exp = this.exp + exp; return true
 }
 
