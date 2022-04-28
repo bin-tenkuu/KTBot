@@ -1,6 +1,7 @@
 package org.example.mirai.plugin
 
 import my.ktbot.annotation.AutoCall
+import my.ktbot.annotation.RegexAnn
 import my.ktbot.utils.callor.AutoCallor
 import my.ktbot.utils.callor.ObjectMap
 
@@ -19,18 +20,18 @@ suspend fun main() {
 @Suppress("unused", "RedundantSuspendModifier")
 object TestPlug {
 	@JvmStatic
-	@get:AutoCall
+	@get:AutoCall("", RegexAnn(""), 0.0)
 	val valJvmField = "valJvmField"
 
-	@get:AutoCall
+	@get:AutoCall("", RegexAnn(""), 0.0)
 	val valField = "valField"
 
-	@AutoCall
+	@AutoCall("", RegexAnn(""), 0.0)
 	fun function(str: String, int: Int) {
 		println("function,$str,$int")
 	}
 
-	@AutoCall
+	@AutoCall("", RegexAnn(""), 0.0)
 	suspend fun suspendfunction(str: String, int: Int) {
 		println("suspendfunction,$str,$int")
 	}

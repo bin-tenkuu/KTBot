@@ -231,8 +231,8 @@ object CQBotCOC : Plug(
 		override suspend fun invoke(event: MessageEvent, result: MatchResult): Message {
 			val key = result["key"]?.value
 			val value = result["value"]?.value
-			if (key === null || key.length > 5) {
-				return "key格式错误或长度大于5".toPlainText()
+			if (key === null || key.length < 2) {
+				return "key格式错误或长度小于2".toPlainText()
 			}
 			val shortKey = Sqlite[TCOCShortKey]
 			if (value === null) {

@@ -1,10 +1,13 @@
 package my.ktbot.plugs
 
+import my.ktbot.annotation.AutoCall
+import my.ktbot.annotation.RegexAnn
 import my.ktbot.database.add
 import my.ktbot.interfaces.Plug
 import my.ktbot.utils.Counter
 import net.mamoe.mirai.event.events.FriendMessageEvent
 import net.mamoe.mirai.event.events.GroupMessageEvent
+import net.mamoe.mirai.event.events.MessageEvent
 import net.mamoe.mirai.message.data.Message
 
 /**
@@ -21,6 +24,15 @@ object AddExp : Plug(
 	expGroup = 1.0,
 	msgLength = 0..Int.MAX_VALUE
 ) {
+	@AutoCall(
+		"",
+		RegexAnn(""),
+		Double.MAX_VALUE
+	)
+	override suspend fun invoke(event: MessageEvent, result: MatchResult): Message? {
+		return super.invoke(event, result)
+	}
+
 	override suspend fun invoke(event: GroupMessageEvent, result: MatchResult): Message? {
 		Counter.groups[event.group.id].add(expGroup)
 		Counter.members[event.sender.id].add(expGroup)

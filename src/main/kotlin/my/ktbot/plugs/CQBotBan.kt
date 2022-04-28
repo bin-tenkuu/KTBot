@@ -21,6 +21,7 @@ object CQBotBan : Plug(
 	needAdmin = true,
 	help = "设置群聊、私聊的ban状态。格式：.设置[群][un]ban <other>".toPlainText()
 ) {
+	@JvmStatic
 	private val empty = Regex(" +")
 	override suspend fun invoke(event: MessageEvent, result: MatchResult): Message? {
 		/**true为群聊，false为私聊*/

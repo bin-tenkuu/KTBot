@@ -31,23 +31,23 @@ abstract class Plug(
 //	/**是否为合并转发消息*/
 //	val forward: Boolean = false,
 	/**是否需要管理员*/
-	val needAdmin: Boolean = false,
+	open val needAdmin: Boolean = false,
 	/**帮助文本*/
-	val help: Message? = null,
+	open val help: Message? = null,
 	/**存在时延时固定时间撤回，单位ms*/
-	val deleteMSG: Long = 0,
+	open val deleteMSG: Long = 0,
 	/**存在时启用调用限速，单位ms*/
-	val speedLimit: Long = 0,
+	open val speedLimit: Long = 0,
 	/**私聊经验*/
-	val expPrivate: Double = 0.0,
+	open val expPrivate: Double = 0.0,
 	/**群聊经验*/
-	val expGroup: Double = 0.0,
-	val msgLength: IntRange = 0..100,
-	val hidden: Boolean = false,
+	open val expGroup: Double = 0.0,
+	open val msgLength: IntRange = 0..100,
+	open val hidden: Boolean = false,
 	/**群聊可用*/
-	var canGroup: Boolean = true,
+	open var canGroup: Boolean = true,
 	/**私聊可用*/
-	var canPrivate: Boolean = true,
+	open var canPrivate: Boolean = true,
 ) : Comparable<Plug> {
 
 	private val lock = Mutex()
@@ -55,15 +55,19 @@ abstract class Plug(
 	/**是否启用，当为空时表示报错*/
 	var isOpen: Boolean? = true
 	protected open suspend operator fun invoke(event: MessageEvent, result: MatchResult): Message? {
-		return null
+		return when (event) {
+			is FriendMessageEvent -> this(event, result)
+			is GroupMessageEvent -> this(event, result)
+			else -> null
+		}
 	}
 
 	protected open suspend operator fun invoke(event: GroupMessageEvent, result: MatchResult): Message? {
-		return invoke(event as MessageEvent, result)
+		return null
 	}
 
 	protected open suspend operator fun invoke(event: FriendMessageEvent, result: MatchResult): Message? {
-		return invoke(event as MessageEvent, result)
+		return null
 	}
 
 	final override fun equals(other: Any?): Boolean {
@@ -88,6 +92,19 @@ abstract class Plug(
 		return weight.compareTo(other = other.weight)
 	}
 
+	protected operator fun MatchResult.get(key: String): MatchGroup? {
+		return groups[key]
+	}
+
+	protected suspend operator fun invoke(event: MessageEvent): Message? {
+		if (!this.lock()) return null
+		val result = this[event] ?: return null
+		val msg = this(event, result)
+		unlock(msg !== null)
+		return msg
+	}
+
+	// region get,(un)lock
 	private fun lock(): Boolean {
 		if (speedLimit > 0) {
 			when {
@@ -100,19 +117,42 @@ abstract class Plug(
 		return true
 	}
 
-	private fun unlock() {
-		if (speedLimit > 0) {
-			if (isOpen == false) isOpen = true
-			lock.unlock(this)
+	private fun unlock(needDelay: Boolean) {
+		if (speedLimit <= 0) return
+		if (isOpen == false) isOpen = true
+		if (needDelay) timer.schedule(speedLimit) { lock.unlock(this@Plug) }
+		else lock.unlock(this@Plug)
+	}
+
+	private operator fun get(event: MessageEvent): MatchResult? {
+		return when {
+			isOpen != true -> null
+			event.message.contentToString().length !in msgLength -> null
+			needAdmin && !PlugConfig.isAdmin(event) -> null
+			Counter.members[event.sender.id].isBaned -> null
+			event is GroupMessageEvent && get(event) -> regex.find(event.message.contentToString())
+			event is FriendMessageEvent && get(event) -> regex.find(event.message.contentToString())
+			else -> null
 		}
 	}
 
-	protected operator fun MatchResult.get(key: String): MatchGroup? {
-		return groups[key]
+	private fun get(event: GroupMessageEvent): Boolean {
+		return canGroup && !Counter.groups[event.group.id].isBaned && (expGroup == 0.0
+			|| Counter.groups[event.group.id].add(expGroup)
+			|| Counter.members[event.sender.id].add(expGroup)
+			)
 	}
 
+	private fun get(event: FriendMessageEvent): Boolean {
+		return canPrivate && (expPrivate == 0.0
+			|| Counter.members[event.sender.id].add(expPrivate)
+			)
+	}
+
+	// endregion
+
 	companion object {
-		@JvmStatic
+		@JvmField
 		val logger = MiraiLogger.Factory.create(Plug::class, "Plug")
 
 		@JvmStatic
@@ -122,7 +162,7 @@ abstract class Plug(
 		private val cacheMap = CacheMap<Long, Unit>(Duration.ofMinutes(1).toMillis())
 
 		// region plugs
-		@JvmStatic
+		@JvmField
 		val plugs: MutableList<Plug> = mutableListOf()
 
 		@JvmStatic
@@ -133,6 +173,7 @@ abstract class Plug(
 			}
 		}
 
+		@JvmStatic
 		operator fun plusAssign(list: List<*>) {
 			addAll(list)
 			plugs.sort()
@@ -146,15 +187,7 @@ abstract class Plug(
 				return null
 			}
 			for (plug in plugs) {
-				@Suppress("DuplicatedCode")
-				val result = plug[event] ?: continue
-				if (!event.addExp(plug)) continue
-				if (!plug.lock()) continue
-				val msg = plug(event, result)
-				if (msg === null) {
-					plug.unlock()
-					continue
-				}
+				val msg = plug(event) ?: continue
 				runCatching {
 					if (!msg.isContentBlank()) return@runCatching event.group.sendMessage(msg)
 					else return@runCatching null
@@ -171,7 +204,6 @@ abstract class Plug(
 				}.getOrNull()?.apply {
 					if (!PlugConfig.isAdmin(event) && plug.deleteMSG > 0) recallIn(plug.deleteMSG)
 				}
-				plug.laterOpen()
 				if (plug.hidden) return null
 				return plug
 			}
@@ -180,15 +212,7 @@ abstract class Plug(
 
 		suspend operator fun invoke(event: FriendMessageEvent): Plug? {
 			for (plug in plugs) {
-				@Suppress("DuplicatedCode")
-				val result = plug[event] ?: continue
-				if (!event.addExp(plug)) continue
-				if (!plug.lock()) continue
-				val msg = plug(event, result)
-				if (msg === null) {
-					plug.unlock()
-					continue
-				}
+				val msg = plug(event) ?: continue
 				runCatching {
 					if (!msg.isContentBlank()) event.sender.sendMessage(msg)
 				}.recoverCatching {
@@ -197,53 +221,10 @@ abstract class Plug(
 					event.sendAdmin("${plug.name}调用失败:\n消息${it.message}")
 					event.sender.sendMessage("好友消息发送失败：${plug.name}")
 				}
-				plug.laterOpen()
 				if (plug.hidden) return null
 				return plug
 			}
 			return null
-		}
-
-		// endregion
-
-		// region addExp, get, laterOpen
-		private fun GroupMessageEvent.addExp(p: Plug): Boolean = p.expGroup == 0.0
-			|| Counter.groups[group.id].add(p.expGroup)
-			|| Counter.members[sender.id].add(p.expGroup)
-
-		private fun MessageEvent.addExp(p: Plug): Boolean = p.expPrivate == 0.0
-			|| Counter.members[sender.id].add(p.expPrivate)
-
-		private fun Plug.get(event: MessageEvent): MatchResult? {
-			return when {
-				isOpen != true -> null
-				event.message.contentToString().length !in msgLength -> null
-				needAdmin && !PlugConfig.isAdmin(event) -> null
-				Counter.members[event.sender.id].isBaned -> null
-				else -> regex.find(event.message.contentToString())
-			}
-		}
-
-		private operator fun Plug.get(event: GroupMessageEvent): MatchResult? {
-			return when {
-				!canGroup -> null
-				Counter.groups[event.group.id].isBaned -> null
-				else -> get(event as MessageEvent)
-			}
-		}
-
-		private operator fun Plug.get(event: FriendMessageEvent): MatchResult? {
-			return when {
-				!canPrivate -> null
-				else -> get(event as MessageEvent)
-			}
-		}
-
-		private fun Plug.laterOpen() {
-			when {
-				speedLimit <= 0 -> unlock()
-				else -> timer.schedule(speedLimit) { unlock() }
-			}
 		}
 
 		// endregion
@@ -257,33 +238,15 @@ abstract class Plug(
 		regex: Regex,
 		/**权重*/
 		weight: Double,
-		/**是否需要管理员*/
-		needAdmin: Boolean = false,
 		/**帮助文本*/
-		help: Message? = null,
-		deleteMSG: Long = 0,
-		speedLimit: Long = 0,
-		expPrivate: Double = 0.0,
-		expGroup: Double = 0.0,
-		msgLength: IntRange = 0..100,
-		hidden: Boolean = false,
-		canGroup: Boolean = true,
-		canPrivate: Boolean = true,
+		override val help: Message? = null,
+		override val deleteMSG: Long = 0,
+		override val msgLength: IntRange = 0..100,
 		private val msg: Message,
 	) : Plug(
-		name,
-		regex,
-		weight,
-		needAdmin,
-		help,
-		deleteMSG,
-		speedLimit,
-		expPrivate,
-		expGroup,
-		msgLength,
-		hidden,
-		canGroup,
-		canPrivate,
+		name = name,
+		regex = regex,
+		weight = weight,
 	) {
 		override suspend fun invoke(event: MessageEvent, result: MatchResult) = msg
 	}

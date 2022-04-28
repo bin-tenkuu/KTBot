@@ -6,6 +6,11 @@ import kotlin.reflect.KClass
 @Suppress("UNCHECKED_CAST")
 class ObjectMap : Cloneable {
 	private val map = HashMap<Class<*>, PriorityQueue<SortObject<*>>>()
+
+	init {
+		set(ObjectMap::class.java, this, 0)
+	}
+
 	operator fun <T : Any> get(kClass: KClass<T>): T? {
 		return this[kClass.java]
 	}
@@ -34,8 +39,12 @@ class ObjectMap : Cloneable {
 	}
 
 	operator fun <T : Any> set(clazz: Class<T>?, value: T): ObjectMap {
+		return set(clazz, value, 0)
+	}
+
+	fun <T : Any> set(clazz: Class<T>?, value: T, initWeight: Int = 0): ObjectMap {
 		var tmp: Class<*>? = clazz
-		var weight = 0
+		var weight = initWeight
 		while (tmp != null) {
 			get0(tmp).add(SortObject(value, weight))
 			for (iclazz: Class<*> in tmp.interfaces) {
@@ -47,15 +56,18 @@ class ObjectMap : Cloneable {
 		return this
 	}
 
-	override fun clone(): ObjectMap {
+	public override fun clone(): ObjectMap {
 		return ObjectMap().also {
-			it.map.putAll(map)
+			for ((clazz, list) in map) {
+				it.get0(clazz).addAll(list)
+			}
 		}
 	}
 
 	private class SortObject<T>(
 		@JvmField
-		val obj: T, private val weight: Int
+		val obj: T,
+		private val weight: Int,
 	) : Comparable<SortObject<*>> {
 		override operator fun compareTo(other: SortObject<*>) = weight.compareTo(other.weight)
 		override fun hashCode() = obj.hashCode()

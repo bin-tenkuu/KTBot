@@ -48,7 +48,7 @@ class ReplaceNode private constructor(
 					node = value
 					break
 				}
-				if (nodeTmp == null) {
+				if (nodeTmp === null) {
 					sb.append(c)
 					node = this
 					break
