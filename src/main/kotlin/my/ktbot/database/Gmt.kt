@@ -17,15 +17,17 @@ interface Gmt<T : Gmt<T>> : Entity<T> {
 	var gmtCreate: Long
 	var exp: Double
 	var isBaned: Boolean
-}
 
-infix fun <T : Gmt<T>> T.add(exp: Double): Boolean {
-	if (exp < 0 && this.exp < -exp) return false
-	modify()
-	this.exp = this.exp + exp; return true
-}
+	companion object {
+		infix fun <T : Gmt<T>> Gmt<T>.add(exp: Double): Boolean {
+			if (exp < 0 && this.exp < -exp) return false
+			modify()
+			this.exp = this.exp + exp; return true
+		}
 
-fun <T : Gmt<T>> T.modify() {
-	gmtModified = System.currentTimeMillis()
+		fun <T : Gmt<T>> Gmt<T>.modify() {
+			gmtModified = System.currentTimeMillis()
+		}
+	}
 }
 

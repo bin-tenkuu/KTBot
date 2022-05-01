@@ -2,7 +2,7 @@ package my.ktbot.interfaces
 
 import kotlinx.coroutines.sync.Mutex
 import my.ktbot.PlugConfig
-import my.ktbot.database.add
+import my.ktbot.database.Gmt.Companion.add
 import my.ktbot.utils.CacheMap
 import my.ktbot.utils.Counter
 import my.ktbot.utils.sendAdmin
