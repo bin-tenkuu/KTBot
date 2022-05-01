@@ -35,6 +35,7 @@ object CQBotSBI : Plug(
 	}
 
 	fun getRes(list: IntArray): String {
+		if (list.size < 3) return "数量过少"
 		val third = setOf(list[0], list[1], list[2]).sorted()
 		if (third.size == 1) {
 			return "大失败"
