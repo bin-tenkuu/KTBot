@@ -55,10 +55,13 @@ fun <T : Any?> T.toMassage(): Message? {
 		null -> null
 		Unit -> null
 		is Message -> this
+		is CharSequence -> PlainText(this)
 		is Array<*> -> buildMessageChain {
 			for (any in this@toMassage) any.toMassage()?.unaryPlus()
 		}
-		is CharSequence -> PlainText(this)
-		else -> PlainText(toString())
+		is Iterable<*> -> buildMessageChain {
+			for (any in this@toMassage) any.toMassage()?.unaryPlus()
+		}
+		else -> PlainText(this.toString())
 	}
 }

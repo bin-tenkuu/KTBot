@@ -60,7 +60,7 @@ tasks.create("build2Jar") {
 			}
 		}
 		copy {
-			from("${buildDir}/mirai/plugin-binbot-1.0.legacy.mirai.jar")
+			from("${buildDir}/mirai/")
 			into(pluginPath)
 			eachFile { println("Copy File: ${name}") }
 		}

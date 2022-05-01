@@ -50,9 +50,9 @@ object PluginMain : KotlinPlugin(
 			CQBotCOC, CQBotSBI,
 			CQBotRepeat, AddExp, MemberExp, CQBotBan,
 			CQBotPixiv, CQBotPicture,
-			CQBotMSG, CQBotPlugin, CQBotPerm,
-			CQBotHelper
+			CQBotPerm, CQBotHelper
 		)
+		Plug += listOf(CQBotMSG, CQBotPlugin)
 	}
 
 	override fun onEnable() {

@@ -8,16 +8,17 @@ class ObjectMap : Cloneable {
 	private val map = HashMap<Class<*>, PriorityQueue<SortObject<*>>>()
 
 	init {
-		set(ObjectMap::class.java, this, 0)
+		set(ObjectMap::class.java, this)
 	}
 
-	operator fun <T : Any> get(kClass: KClass<T>): T? {
-		return this[kClass.java]
+	operator fun <T : Any> get(kClass: KClass<T>, name: String? = null): T? {
+		return this[kClass.java, name]
 	}
 
-	operator fun <T : Any> get(clazz: Class<T>): T? {
-		val sortObject = get0(clazz).peek() ?: return null
-		return sortObject.obj as T?
+	operator fun <T : Any> get(clazz: Class<T>, name: String? = null): T? {
+		val queue = map[clazz] ?: return null
+		if (name == null) return queue.firstOrNull()?.obj as T?
+		return queue.firstOrNull { name == it.name }?.obj as T?
 	}
 
 	private fun get0(clazz: Class<*>): PriorityQueue<SortObject<*>> {
@@ -33,28 +34,48 @@ class ObjectMap : Cloneable {
 		return this
 	}
 
-	operator fun <T : Any> set(kClass: KClass<T>, value: T): ObjectMap {
-		this[kClass.java] = value
+	operator fun <T : Any> set(name: String?, value: T): ObjectMap {
+		this[value::class.java as Class<T>, name] = value
 		return this
 	}
 
-	operator fun <T : Any> set(clazz: Class<T>?, value: T): ObjectMap {
-		return set(clazz, value, 0)
+	operator fun <T : Any> set(kClass: KClass<T>, value: T): ObjectMap {
+		this[kClass.java, null] = value
+		return this
 	}
 
-	fun <T : Any> set(clazz: Class<T>?, value: T, initWeight: Int = 0): ObjectMap {
+	operator fun <T : Any> set(clazz: Class<T>, value: T): ObjectMap {
+		this[clazz, null] = value
+		return this
+	}
+
+	operator fun <T : Any> set(kClass: KClass<T>, name: String? = null, value: T): ObjectMap {
+		this[kClass.java, name] = value
+		return this
+	}
+
+	operator fun <T : Any> set(clazz: Class<T>, name: String? = null, value: T): ObjectMap {
+		return set(clazz, value, name, 0)
+	}
+
+	fun <T : Any> set(clazz: Class<T>, value: T, name: String?, initWeight: Int = 0): ObjectMap {
+		val set = HashSet<Class<*>>()
 		var tmp: Class<*>? = clazz
 		var weight = initWeight
 		while (tmp != null) {
-			get0(tmp).add(SortObject(value, weight))
+			get0(tmp).add(SortObject(value, weight, name))
 			for (iclazz: Class<*> in tmp.interfaces) {
-				get0(iclazz).add(SortObject(value, weight))
+				if (set.add(iclazz)) {
+					get0(iclazz).add(SortObject(value, weight, name))
+				}
 			}
 			tmp = tmp.superclass
 			weight++
 		}
 		return this
 	}
+
+	fun clear() = map.clear()
 
 	public override fun clone(): ObjectMap {
 		return ObjectMap().also {
@@ -64,10 +85,11 @@ class ObjectMap : Cloneable {
 		}
 	}
 
-	private class SortObject<T>(
+	private inner class SortObject<T>(
 		@JvmField
 		val obj: T,
 		private val weight: Int,
+		val name: String?
 	) : Comparable<SortObject<*>> {
 		override operator fun compareTo(other: SortObject<*>) = weight.compareTo(other.weight)
 		override fun hashCode() = obj.hashCode()
@@ -77,9 +99,13 @@ class ObjectMap : Cloneable {
 			if (other !is SortObject<*>) return false
 
 			if (obj != other.obj) return false
-			if (weight != other.weight) return false
 
 			return true
 		}
+	}
+
+	companion object {
+		val global = ObjectMap()
+		val tmp = ObjectMap()
 	}
 }

@@ -9,8 +9,8 @@ import my.ktbot.database.TPixivPic
 import my.ktbot.interfaces.Plug
 import my.ktbot.interfaces.SubPlugs
 import my.ktbot.utils.KtorUtils
-import my.ktbot.utils.Sqlite
-import my.ktbot.utils.insertOrUpdate
+import my.ktbot.utils.sqlite.Sqlite
+import my.ktbot.utils.sqlite.insertOrUpdate
 import net.mamoe.mirai.console.permission.AbstractPermitteeId
 import net.mamoe.mirai.contact.Contact
 import net.mamoe.mirai.event.events.FriendMessageEvent

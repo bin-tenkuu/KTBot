@@ -1,4 +1,4 @@
-package org.example.mirai.plugin
+package my.ktbot
 
 import net.mamoe.mirai.console.MiraiConsole
 import net.mamoe.mirai.console.terminal.MiraiConsoleTerminalLoader

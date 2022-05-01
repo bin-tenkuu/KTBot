@@ -98,7 +98,10 @@ abstract class Plug(
 
 	protected suspend operator fun invoke(event: MessageEvent): Message? {
 		if (!this.lock()) return null
-		val result = this[event] ?: return null
+		val result = this[event] ?: run {
+			unlock(false)
+			return null
+		}
 		val msg = this(event, result)
 		unlock(msg !== null)
 		return msg
@@ -126,7 +129,6 @@ abstract class Plug(
 
 	private operator fun get(event: MessageEvent): MatchResult? {
 		return when {
-			isOpen != true -> null
 			event.message.contentToString().length !in msgLength -> null
 			needAdmin && !PlugConfig.isAdmin(event) -> null
 			Counter.members[event.sender.id].isBaned -> null
@@ -163,7 +165,7 @@ abstract class Plug(
 
 		// region plugs
 		@JvmField
-		val plugs: MutableList<Plug> = mutableListOf()
+		val plugs: MutableList<Plug> = ArrayList()
 
 		@JvmStatic
 		private fun addAll(list: List<*>) {
@@ -173,8 +175,15 @@ abstract class Plug(
 			}
 		}
 
+		@JvmName("plusAssign1")
 		@JvmStatic
-		operator fun plusAssign(list: List<*>) {
+		operator fun plusAssign(list: List<Plug>) {
+			addAll(list)
+			plugs.sort()
+		}
+
+		@JvmStatic
+		operator fun plusAssign(list: List<SubPlugs>) {
 			addAll(list)
 			plugs.sort()
 		}

@@ -14,7 +14,7 @@ class ReplaceNode private constructor(
 		}.replace = replace
 	}
 
-	fun addAll(map: Map<String, String>): ReplaceNode {
+	private fun addAll(map: Map<String, String>): ReplaceNode {
 		map.forEach(::set)
 		return this
 	}

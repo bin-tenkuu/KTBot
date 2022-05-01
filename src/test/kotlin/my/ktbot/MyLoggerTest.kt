@@ -1,4 +1,4 @@
-package org.example.mirai.plugin
+package my.ktbot
 
 import my.ktbot.utils.MyLogger
 

@@ -19,7 +19,8 @@ class CacheMap<K, V>(
 		timeout: Long = 0,
 	) {
 		var time: Long = timeout + System.currentTimeMillis()
-		fun isBeOverdue(time: Long = System.currentTimeMillis()): Boolean = time >= this.time
+
+		fun isBeOverdue(time: Long = System.currentTimeMillis()) = time >= this.time
 	}
 
 	private val map = HashMap<K, Node>(initialCapacity)
@@ -31,8 +32,8 @@ class CacheMap<K, V>(
 		}
 
 	fun clear() {
-		expungeExpiredEntries()
 		map.clear()
+		nextExpirationTime = Long.MAX_VALUE
 	}
 
 	fun set(key: K, value: V, timeout: Long) {
@@ -63,12 +64,12 @@ class CacheMap<K, V>(
 		return true
 	}
 
-	operator fun minusAssign(key: K) {
-		remove(key)
+	private fun remove(key: K) {
+		map.remove(key)
 	}
 
-	fun remove(key: K) {
-		map.remove(key)
+	operator fun minusAssign(key: K) {
+		remove(key)
 	}
 
 	private fun expungeExpiredEntries() {

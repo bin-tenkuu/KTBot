@@ -1,98 +1,14 @@
-package my.ktbot.utils
+package my.ktbot.utils.sqlite
 
-import my.ktbot.PluginMain
 import org.ktorm.database.Database
 import org.ktorm.dsl.AssignmentsBuilder
 import org.ktorm.dsl.KtormDsl
 import org.ktorm.entity.EntitySequence
-import org.ktorm.entity.sequenceOf
-import org.ktorm.expression.*
-import org.ktorm.schema.*
-import org.ktorm.support.sqlite.SQLiteDialect
-import org.ktorm.support.sqlite.SQLiteFormatter
-import kotlin.io.path.div
-
-/**
- *
- * @author bin
- * @since 1.0
- * @date 2022/1/10
- */
-object Sqlite {
-	@JvmStatic
-	val database: Database = Database.connect(
-		url = "jdbc:sqlite:${PluginMain.dataFolderPath / "../db.db"}",
-		driver = "org.sqlite.JDBC",
-		user = null,
-		password = null,
-		dialect = SQLiteCostom,
-		logger = LoggerBridge(PluginMain.logger),
-		alwaysQuoteIdentifiers = true,
-		generateSqlInUpperCase = true
-	)
-
-	@JvmStatic
-	operator fun <E : Any, T : BaseTable<E>> get(table: T): EntitySequence<E, T> {
-		return database.sequenceOf(table)
-	}
-
-	@JvmStatic
-	val random by lazy { FunctionExpression("random", emptyList(), LongSqlType, true) }
-
-	@JvmStatic
-	operator fun invoke(boolean: Boolean): ArgumentExpression<Boolean> {
-		return ArgumentExpression(boolean, BooleanSqlType)
-	}
-
-}
-// region 自定义sql
-
-object SQLiteCostom : SQLiteDialect() {
-
-	override fun createSqlFormatter(database: Database, beautifySql: Boolean, indentSize: Int): SqlFormatter {
-		return SQLiteFormatterCostom(database, beautifySql, indentSize)
-	}
-
-}
-
-class SQLiteFormatterCostom(
-	database: Database, beautifySql: Boolean, indentSize: Int,
-) : SQLiteFormatter(database, beautifySql, indentSize) {
-	override fun visit(expr: SqlExpression): SqlExpression {
-		return when (expr) {
-			is InsertOrUpdateExpression -> visitInsertOrUpdate(expr)
-			else -> super.visit(expr)
-		}
-	}
-
-	private fun visitInsertOrUpdate(expr: InsertOrUpdateExpression): InsertOrUpdateExpression {
-		writeKeyword("insert into ")
-		visitTable(expr.table)
-		writeInsertColumnNames(expr.assignments.map(ColumnAssignmentExpression<*>::column))
-		writeKeyword("values ")
-		writeInsertValues(expr.assignments)
-		if (expr.conflictColumns.isNotEmpty()) {
-			writeKeyword("on conflict ")
-			writeInsertColumnNames(expr.conflictColumns)
-			if (expr.updateAssignments.isNotEmpty()) {
-				writeKeyword("do update set ")
-				visitColumnAssignments(expr.updateAssignments)
-			}
-			else writeKeyword("do nothing ")
-		}
-		return expr
-	}
-}
-
-data class InsertOrUpdateExpression(
-	val table: TableExpression,
-	val assignments: List<ColumnAssignmentExpression<*>>,
-	val conflictColumns: List<ColumnExpression<*>>,
-	val updateAssignments: List<ColumnAssignmentExpression<*>> = assignments,
-	override val isLeafNode: Boolean = false,
-	override val extraProperties: Map<String, Any> = emptyMap(),
-) : SqlExpression()
-
+import org.ktorm.expression.ColumnAssignmentExpression
+import org.ktorm.expression.ColumnExpression
+import org.ktorm.expression.TableExpression
+import org.ktorm.schema.BaseTable
+import org.ktorm.schema.Column
 
 /**
  * DSL builder for insert or update statements.
@@ -188,4 +104,3 @@ fun <E : Any, T : BaseTable<E>> EntitySequence<E, T>.insertOrUpdate(
 //public fun <T : BaseTable<*>> T.insertOrUpdate(block: InsertOrUpdateStatementBuilder.(T) -> Unit): Int {
 //	return Database.global.insertOrUpdate(this, block)
 //}
-// endregion

@@ -1,6 +1,5 @@
 package my.ktbot.annotation
 
-import org.intellij.lang.annotations.Language
 import kotlin.annotation.AnnotationTarget.FUNCTION
 import kotlin.annotation.AnnotationTarget.PROPERTY_GETTER
 
@@ -28,11 +27,3 @@ annotation class AutoCall(
 	val hidden: Boolean = false,
 )
 
-annotation class RegexAnn(@Language("RegExp") val pattern: String, val option: Array<RegexOption> = [])
-
-annotation class MsgLength(val start: Int, val endInclusive: Int)
-
-// @Target(VALUE_PARAMETER)
-// @Retention
-// @MustBeDocumented
-// annotation class Qualifier(val value: String)

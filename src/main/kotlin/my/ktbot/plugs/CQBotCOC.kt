@@ -6,7 +6,7 @@ import my.ktbot.interfaces.Plug
 import my.ktbot.interfaces.SubPlugs
 import my.ktbot.utils.CacheMap
 import my.ktbot.utils.DiceResult
-import my.ktbot.utils.Sqlite
+import my.ktbot.utils.sqlite.Sqlite
 import net.mamoe.mirai.event.events.MessageEvent
 import net.mamoe.mirai.message.data.Message
 import net.mamoe.mirai.message.data.toPlainText

@@ -3,8 +3,9 @@ package my.ktbot.utils
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import my.ktbot.PluginMain
-import my.ktbot.interfaces.Plug
 import my.ktbot.database.*
+import my.ktbot.interfaces.Plug
+import my.ktbot.utils.sqlite.Sqlite
 import net.mamoe.mirai.Bot
 import net.mamoe.mirai.contact.Contact
 import net.mamoe.mirai.event.events.GroupEvent
@@ -74,7 +75,7 @@ object Counter {
 		groups.size.also {
 			Plug.logger.info("保存开始（Groups）：$it")
 			groups.flash()
-			Plug.logger.info("保存结束（Groups）：总数:${groups.size}")
+			Plug.logger.info("保存结束（Groups）：释放数量:${it - groups.size},剩余数量:${groups.size}")
 		}
 	}
 
@@ -114,8 +115,8 @@ object Counter {
 				}
 				if (sb.isNotEmpty()) sb.saysTo(this)
 			}
-			bot.says("群聊：", groups)
-			bot.says("私聊：", members)
+			bot.says("群内：", groups)
+			bot.says("个人：", members)
 		}.build()
 	}
 
