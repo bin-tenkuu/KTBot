@@ -2,11 +2,12 @@ package my.ktbot.utils.callor
 
 import my.ktbot.annotation.AutoCall
 import my.ktbot.interfaces.Plug
+import java.lang.reflect.AnnotatedElement
 import java.util.*
 import kotlin.reflect.KCallable
-import kotlin.reflect.KFunction
 import kotlin.reflect.KProperty
 import kotlin.reflect.full.declaredMembers
+import kotlin.reflect.jvm.javaField
 
 object AutoCallor {
 
@@ -14,10 +15,8 @@ object AutoCallor {
 		val list = PriorityQueue<Plug>()
 		for (obj in objs) {
 			for (member: KCallable<*> in obj::class.declaredMembers) {
-				val autoCall: AutoCall = when (member) {
-					is KFunction<*> -> member.annotations.filterIsInstance<AutoCall>().firstOrNull()
-					is KProperty<*> -> member.getter.annotations.filterIsInstance<AutoCall>().firstOrNull()
-					else -> null
+				val autoCall: AutoCall = member.AutoCall() ?: (member as? KProperty<*>)?.run {
+					getter.AutoCall() ?: member.javaField?.AutoCall()
 				} ?: continue
 				val caller = Caller(obj, member, autoCall)
 				list += caller
@@ -26,4 +25,9 @@ object AutoCallor {
 		}
 		return list
 	}
+
+	private fun KCallable<*>.AutoCall() = annotations.filterIsInstance<AutoCall>().firstOrNull()
+
+	private fun AnnotatedElement.AutoCall() = annotations.filterIsInstance<AutoCall>().firstOrNull()
+
 }

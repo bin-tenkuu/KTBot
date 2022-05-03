@@ -3,8 +3,8 @@ package my.ktbot.plugs
 import my.ktbot.interfaces.Plug
 import my.ktbot.utils.CacheMap
 import my.ktbot.utils.Counter
+import net.mamoe.mirai.event.events.FriendMessageEvent
 import net.mamoe.mirai.event.events.GroupMessageEvent
-import net.mamoe.mirai.event.events.MessageEvent
 import net.mamoe.mirai.message.data.*
 import java.time.Duration
 
@@ -23,7 +23,7 @@ object MemberExp : Plug(
 ) {
 	@JvmStatic
 	private val cache = CacheMap<Long, MutableSet<Long>>(Duration.ofMinutes(1).toMillis())
-	override suspend fun invoke(event: MessageEvent, result: MatchResult): Message {
+	override suspend fun invoke(event: FriendMessageEvent, result: MatchResult): Message {
 		val qq = result["qq"]?.value?.toLongOrNull() ?: event.sender.id
 		cache.getOrInit(event.sender.id) { mutableSetOf(qq) }
 		val exp = Counter.members[qq].exp

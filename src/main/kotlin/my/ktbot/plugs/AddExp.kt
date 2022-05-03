@@ -1,7 +1,5 @@
 package my.ktbot.plugs
 
-import my.ktbot.annotation.AutoCall
-import my.ktbot.annotation.RegexAnn
 import my.ktbot.database.Gmt.Companion.add
 import my.ktbot.interfaces.Plug
 import my.ktbot.utils.Counter
@@ -24,11 +22,6 @@ object AddExp : Plug(
 	expGroup = 1.0,
 	msgLength = 0..Int.MAX_VALUE
 ) {
-	@AutoCall(
-		"",
-		RegexAnn(""),
-		Double.MAX_VALUE
-	)
 	override suspend fun invoke(event: MessageEvent, result: MatchResult): Message? {
 		return super.invoke(event, result)
 	}

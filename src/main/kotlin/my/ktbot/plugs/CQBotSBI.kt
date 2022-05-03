@@ -1,7 +1,9 @@
 package my.ktbot.plugs
 
+import my.ktbot.annotation.AutoCall
+import my.ktbot.annotation.MsgLength
+import my.ktbot.annotation.RegexAnn
 import my.ktbot.interfaces.Plug
-import my.ktbot.interfaces.SubPlugs
 import my.ktbot.utils.CacheMap
 import my.ktbot.utils.DiceResult
 import net.mamoe.mirai.event.events.MessageEvent
@@ -14,14 +16,13 @@ object CQBotSBI : Plug(
 	weight = 1.1,
 	help = "SBI骰子主功能".toPlainText(),
 	msgLength = 4..500,
-), SubPlugs {
+) {
 
 	@JvmStatic
 	val cache = CacheMap<Long, DiceResult>()
 
 	@JvmStatic
-	val cheater: Boolean
-		get() = CQBotCOC.cheater
+	val cheater: Boolean get() = CQBotCOC.cheater
 
 	override suspend fun invoke(event: MessageEvent, result: MatchResult): Message? {
 		val num = (result["num"]?.value?.toIntOrNull() ?: return null).coerceAtLeast(3)
@@ -36,15 +37,17 @@ object CQBotSBI : Plug(
 
 	fun getRes(list: IntArray): String {
 		if (list.size < 3) return "数量过少"
-		val third = setOf(list[0], list[1], list[2]).sorted()
-		if (third.size == 1) {
-			return "大失败"
+		setOf(list[0], list[1], list[2]).sorted().apply {
+			if (size == 1) {
+				return "大失败"
+			}
+			if (size == 3 && sum() == 6) {
+				return "大成功，成功度${list.count(1::equals)}"
+			}
 		}
-		if (third.size == 3 && third[0] == 1 && third[1] == 2 && third[2] == 3) {
-			return "大成功，成功度${list.count(1::equals)}"
-		}
-		val arr = intArrayOf(-2, 0)
-		for (i in list.toMutableSet().toIntArray().apply(IntArray::sort)) {
+		val intArray = list.toSortedSet().toIntArray()
+		val arr = intArrayOf(intArray[0], 0)
+		for (i in intArray) {
 			if (i - arr[0] == 1) {
 				if (arr[1] == 1) return "成功，成功度${list.count(1::equals)}"
 				else arr[1] = 1
@@ -55,32 +58,24 @@ object CQBotSBI : Plug(
 		return "失败"
 	}
 
-	override val subPlugs: List<Plug> = listOf(COCSBIAdded)
-
-	/**
-	 *
-	 * @author bin
-	 * @since 2022/1/7
-	 */
-	object COCSBIAdded : Plug(
+	@AutoCall(
 		name = "骰子：SBI加骰",
-		regex = Regex("^[.．。]sp(?<num> ?\\d*)", RegexOption.IGNORE_CASE),
+		regex = RegexAnn("^[.．。]sp(?<num> ?\\d*)", RegexOption.IGNORE_CASE),
 		weight = 1.13,
-		help = "10分钟之内加投骰".toPlainText(),
-		msgLength = 3..500
-	) {
-		override suspend fun invoke(event: MessageEvent, result: MatchResult): Message {
-			val num = result["num"]?.run { value.trim().toIntOrNull() } ?: 1
-			var diceResult: DiceResult = cache[event.sender.id] ?: return "10分钟之内没有投任何骰子".toPlainText()
-			val dice: DiceResult = when (cheater) {
-				true -> DiceResult(num, diceResult.max)
-				false -> DiceResult.dice(num, diceResult.max)
-			}
-			diceResult += dice
-			cache[event.sender.id] = diceResult
-			return """${dice.origin}：[${dice.list.joinToString(", ")}]=${dice.sum}
+		help = "10分钟之内加投骰",
+		msgLength = MsgLength(3, 500)
+	)
+	private fun addedDice(event: MessageEvent, result: MatchResult): Message {
+		val num = result["num"]?.run { value.trim().toIntOrNull() } ?: 1
+		var diceResult: DiceResult = cache[event.sender.id] ?: return "10分钟之内没有投任何骰子".toPlainText()
+		val dice: DiceResult = when (cheater) {
+			true -> DiceResult(num, diceResult.max)
+			false -> DiceResult.dice(num, diceResult.max)
+		}
+		diceResult += dice
+		cache[event.sender.id] = diceResult
+		return """${dice.origin}：[${dice.list.joinToString(", ")}]=${dice.sum}
 			|[${diceResult.list.joinToString(", ")}]（${getRes(diceResult.list)}）
 		""".trimMargin().toPlainText()
-		}
 	}
 }

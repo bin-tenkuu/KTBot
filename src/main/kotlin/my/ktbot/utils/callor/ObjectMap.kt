@@ -4,11 +4,11 @@ import java.util.*
 import kotlin.reflect.KClass
 
 @Suppress("UNCHECKED_CAST")
-class ObjectMap : Cloneable {
+class ObjectMap(name: String? = null) : Cloneable {
 	private val map = HashMap<Class<*>, PriorityQueue<SortObject<*>>>()
 
 	init {
-		set(ObjectMap::class.java, this)
+		set(name, this)
 	}
 
 	operator fun <T : Any> get(kClass: KClass<T>, name: String? = null): T? {
@@ -105,7 +105,6 @@ class ObjectMap : Cloneable {
 	}
 
 	companion object {
-		val global = ObjectMap()
-		val tmp = ObjectMap()
+		val global = ObjectMap("global")
 	}
 }

@@ -50,7 +50,7 @@ suspend fun BotEvent.sendAdmin(msg: Message) {
 	}
 }
 
-fun <T : Any?> T.toMassage(): Message? {
+fun Any?.toMassage(): Message? {
 	return when (this) {
 		null -> null
 		Unit -> null
@@ -62,6 +62,6 @@ fun <T : Any?> T.toMassage(): Message? {
 		is Iterable<*> -> buildMessageChain {
 			for (any in this@toMassage) any.toMassage()?.unaryPlus()
 		}
-		else -> PlainText(this.toString())
+		else -> PlainText(toString())
 	}
 }

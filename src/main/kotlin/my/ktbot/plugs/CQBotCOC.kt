@@ -1,9 +1,11 @@
 package my.ktbot.plugs
 
+import my.ktbot.annotation.AutoCall
+import my.ktbot.annotation.MsgLength
+import my.ktbot.annotation.RegexAnn
 import my.ktbot.database.COCShortKey
 import my.ktbot.database.TCOCShortKey
 import my.ktbot.interfaces.Plug
-import my.ktbot.interfaces.SubPlugs
 import my.ktbot.utils.CacheMap
 import my.ktbot.utils.DiceResult
 import my.ktbot.utils.sqlite.Sqlite
@@ -26,12 +28,12 @@ object CQBotCOC : Plug(
 	weight = 1.1,
 	help = "骰子主功能，附带简单表达式计算".toPlainText(),
 	msgLength = 4..500
-), SubPlugs {
+) {
 	@JvmStatic
 	private val diceRegex = Regex("[^+\\-*d\\d#]", IGNORE_CASE)
 
 	@JvmStatic
-	val cache = CacheMap<Long, DiceResult>()
+	private val cache = CacheMap<Long, DiceResult>()
 
 	@JvmStatic
 	var cheater: Boolean = false
@@ -78,7 +80,7 @@ object CQBotCOC : Plug(
 
 	@JvmStatic
 	private fun List<Calc>.calculate(): Long {
-		return foldRight(0L to 1L) { c, arr -> c.op.func(arr, c.sum) }.first
+		return foldRight(0L to 1L) { c, arr -> c.op(arr, c.sum) }.first
 	}
 
 	@JvmStatic
@@ -95,10 +97,12 @@ object CQBotCOC : Plug(
 			"*" -> Operator.Mul
 			else -> Operator.Add
 		}
-		val max = result["max"]?.run { value.toIntOrNull() } ?: return Calc(op = op,
+		val max = result["max"]?.run { value.toIntOrNull() } ?: return Calc(
+			op = op,
 			sum = num.toLong(),
 			origin = num.toString(),
-			max = 0)
+			max = 0
+		)
 		val dices: DiceResult = when (cheater) {
 			true -> DiceResult(num, max)
 			false -> DiceResult.dice(num, max)
@@ -106,7 +110,7 @@ object CQBotCOC : Plug(
 		return Calc(op = op, sum = dices.sum, list = dices.list, max = dices.max, origin = dices.origin)
 	}
 
-	class Calc(
+	private class Calc(
 		val op: Operator,
 		val sum: Long,
 		val list: IntArray? = null,
@@ -119,25 +123,27 @@ object CQBotCOC : Plug(
 			}
 	}
 
-	enum class Operator(private val s: String, val func: (Pair<Long, Long>, Long) -> Pair<Long, Long>) {
-		Add("+", { (first, second), num ->
-			(first + num * second) to 1
-		}),
-		Sub("-", { (first, second), num ->
-			(first - num * second) to 1
-		}),
-		Mul("*", { (first, second), num ->
-			first to (second * num)
-		});
+	private enum class Operator(private val s: String) {
+		Add("+") {
+			override fun invoke(sc: Pair<Long, Long>, num: Long): Pair<Long, Long> = (sc.first + num * sc.second) to 1
+		},
+		Sub("-") {
+			override fun invoke(sc: Pair<Long, Long>, num: Long): Pair<Long, Long> = (sc.first - num * sc.second) to 1
+		},
+		Mul("*") {
+			override fun invoke(sc: Pair<Long, Long>, num: Long): Pair<Long, Long> = sc.first to (sc.second * num)
+		},
+		;
 
 		override fun toString(): String = s
+		abstract operator fun invoke(sc: Pair<Long, Long>, num: Long): Pair<Long, Long>
 	}
 
 	@JvmStatic
-	var specialEffects: Effects = Effects.bug
+	private var specialEffects: Effects = Effects.bug
 
 	@Suppress("EnumEntryName", "unused")
-	enum class Effects(val state: String) : (Calc) -> Unit {
+	private enum class Effects(val state: String) {
 		bug("默认") {
 			override fun invoke(calc: Calc) {}
 		},
@@ -174,133 +180,103 @@ object CQBotCOC : Plug(
 			override fun invoke(calc: Calc) = arrayOf(wrf, cbf, bug).random()(calc)
 		},
 		;
+
+		abstract operator fun invoke(calc: Calc)
 	}
 
-	override val subPlugs: List<Plug> = listOf(COCCheater, COCStat, COCStatSet, COCAdded, COCSpecial)
-
-	/**
-	 *
-	 * @author bin
-	 * @since 2022/1/7
-	 */
-	object COCCheater : Plug(
+	@AutoCall(
 		name = "骰子:打开全1模式",
-		regex = Regex("^[.．。]dall1$", IGNORE_CASE),
+		regex = RegexAnn("^[.．。]dall1$", IGNORE_CASE),
 		weight = 1.11,
-		msgLength = 5..10,
-	) {
-		override suspend fun invoke(event: MessageEvent, result: MatchResult): Message {
-			cheater = !cheater
-			return ("全1" + (if (cheater) "开" else "关")).toPlainText()
-		}
+		msgLength = MsgLength(5, 10),
+	)
+	private fun cheaterAllOne(): String {
+		cheater = !cheater
+		return "全1" + if (cheater) "开" else "关"
 	}
 
-	/**
-	 *
-	 * @author bin
-	 * @since 2022/1/7
-	 */
-	object COCStat : Plug(
+	@AutoCall(
 		name = "骰子：简写",
-		regex = Regex("^[.．。]dstat$", IGNORE_CASE),
+		regex = RegexAnn("^[.．。]dstat$", IGNORE_CASE),
 		weight = 1.01,
-		help = "查看全部简写".toPlainText(),
-		msgLength = 5..7,
-	) {
-		override suspend fun invoke(event: MessageEvent, result: MatchResult): Message {
-			val list = Sqlite[TCOCShortKey].toList()
-			return (if (list.isEmpty()) "空"
-			else list.joinToString("\n") { sk ->
-				"${sk.key}=${sk.value}"
-			}).toPlainText()
+		help = "查看全部简写",
+		msgLength = MsgLength(5, 7),
+	)
+	private fun statsMap(): String {
+		val list = Sqlite[TCOCShortKey].toList()
+		return if (list.isEmpty()) "空"
+		else list.joinToString("\n") { sk ->
+			"${sk.key}=${sk.value}"
 		}
 	}
 
-	/**
-	 *
-	 * @author bin
-	 * @since 2022/1/7
-	 */
-	object COCStatSet : Plug(
+	@AutoCall(
 		name = "骰子：删除[设置]简写",
-		regex = Regex("^[.．。]dset +(?<key>\\w[\\w\\d]+)(?:=(?<value>[+\\-*d\\d#]+))?", IGNORE_CASE),
+		regex = RegexAnn("^[.．。]dset +(?<key>\\w[\\w\\d]+)(?:=(?<value>[+\\-*d\\d#]+))?", IGNORE_CASE),
 		weight = 1.02,
-		help = "删除[设置]简写".toPlainText(),
-		msgLength = 5..100,
-	) {
-		override suspend fun invoke(event: MessageEvent, result: MatchResult): Message {
-			val key = result["key"]?.value
-			val value = result["value"]?.value
-			if (key === null || key.length < 2) {
-				return "key格式错误或长度小于2".toPlainText()
-			}
-			val shortKey = Sqlite[TCOCShortKey]
-			if (value === null) {
-				shortKey.removeIf { it.key eq key }
-				return "删除key:${key}".toPlainText()
-			}
-			if (value.length > 10) {
-				return "value长度不大于10".toPlainText()
-			}
-			shortKey.add(COCShortKey {
-				this.key = key
-				this.value = value
-			})
-			return "添加key:${key}=${value}".toPlainText()
+		help = "删除[设置]简写",
+		msgLength = MsgLength(5, 100),
+	)
+	private fun statsSet(result: MatchResult): Message {
+		val key = result["key"]?.value
+		val value = result["value"]?.value
+		if (key === null || key.length < 2) {
+			return "key格式错误或长度小于2".toPlainText()
 		}
+		val shortKey = Sqlite[TCOCShortKey]
+		if (value === null) {
+			shortKey.removeIf { it.key eq key }
+			return "删除key:${key}".toPlainText()
+		}
+		if (value.length > 10) {
+			return "value长度不大于10".toPlainText()
+		}
+		shortKey.add(COCShortKey {
+			this.key = key
+			this.value = value
+		})
+		return "添加key:${key}=${value}".toPlainText()
 	}
 
-	/**
-	 *
-	 * @author bin
-	 * @since 2022/1/7
-	 */
-	object COCAdded : Plug(
+	@AutoCall(
 		name = "骰子：加骰",
-		regex = Regex("^[.．。]dp(?<num> ?\\d*)", IGNORE_CASE),
+		regex = RegexAnn("^[.．。]dp(?<num> ?\\d*)", IGNORE_CASE),
 		weight = 1.13,
-		help = "10分钟之内加投骰".toPlainText(),
-		msgLength = 3..10
-	) {
-		override suspend fun invoke(event: MessageEvent, result: MatchResult): Message {
-			val num = result["num"]?.run { value.trim().toIntOrNull() } ?: 1
-			var cache: DiceResult = CQBotCOC.cache[event.sender.id] ?: return "10分钟之内没有投任何骰子".toPlainText()
-			val dice: DiceResult = when (cheater) {
-				true -> DiceResult(num, cache.max)
-				false -> DiceResult.dice(num, cache.max)
-			}
-			cache += dice
-			CQBotCOC.cache[event.sender.id] = cache
-			return """${dice.origin}：[${dice.list.joinToString(", ")}]=${dice.sum}
-			|[${cache.list.joinToString(", ")}]
-		""".trimMargin().toPlainText()
+		help = "10分钟之内加投骰",
+		msgLength = MsgLength(3, 500)
+	)
+	private fun addedDice(event: MessageEvent, result: MatchResult): String {
+		val num = result["num"]?.run { value.trim().toIntOrNull() } ?: 1
+		var cache: DiceResult = CQBotCOC.cache[event.sender.id] ?: return "10分钟之内没有投任何骰子"
+		val dice: DiceResult = when (cheater) {
+			true -> DiceResult(num, cache.max)
+			false -> DiceResult.dice(num, cache.max)
 		}
+		cache += dice
+		CQBotCOC.cache[event.sender.id] = cache
+		return """${dice.origin}：[${dice.list.joinToString(", ")}]=${dice.sum}
+			|[${cache.list.joinToString(", ")}]
+		""".trimMargin()
 	}
 
-	/**
-	 *
-	 * @author bin
-	 * @since 2022/1/7
-	 */
-	object COCSpecial : Plug(
+	@AutoCall(
 		name = "骰子：特殊模式",
-		regex = Regex("^[.．。]d(?<operator>bug|(?:wr|cb|aj)f?)$", IGNORE_CASE),
+		regex = RegexAnn("^[.．。]d(?<operator>bug|(?:wr|cb|aj)f?)$", IGNORE_CASE),
 		weight = 1.12,
-		help = "打开/关闭特殊模式".toPlainText(),
-		msgLength = 2..10,
-	) {
-		override suspend fun invoke(event: MessageEvent, result: MatchResult): Message? {
-			val operator = result["operator"]?.value ?: return null
-			if (operator == "bug") {
-				specialEffects = Effects.bug
-				return "进入默认状态".toPlainText()
-			}
-			return try {
-				specialEffects = Effects.valueOf(operator)
-				"进入${specialEffects.state}状态".toPlainText()
-			} catch (e: Exception) {
-				"未知状态".toPlainText()
-			}
+		help = "打开/关闭特殊模式",
+		msgLength = MsgLength(2, 10),
+	)
+	private fun setSpecial(event: MessageEvent, result: MatchResult): String? {
+		val operator = result["operator"]?.value ?: return null
+		return if (operator == "bug") {
+			specialEffects = Effects.bug
+			"进入默认状态"
+		}
+		else try {
+			specialEffects = Effects.valueOf(operator)
+			"进入${specialEffects.state}状态"
+		} catch (e: IllegalArgumentException) {
+			"未知状态:$operator"
 		}
 	}
 }

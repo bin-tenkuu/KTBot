@@ -37,7 +37,7 @@ object Sqlite {
 	}
 
 	@JvmStatic
-	val random by lazy { FunctionExpression("random", emptyList(), LongSqlType, true) }
+	val random = FunctionExpression("random", emptyList(), LongSqlType, true)
 
 	@JvmStatic
 	operator fun invoke(boolean: Boolean): ArgumentExpression<Boolean> {

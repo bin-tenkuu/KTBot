@@ -2,12 +2,14 @@ package my.ktbot.plugs
 
 import my.ktbot.PluginPerm
 import my.ktbot.PluginPerm.contains
+import my.ktbot.annotation.AutoCall
+import my.ktbot.annotation.MsgLength
+import my.ktbot.annotation.RegexAnn
 import my.ktbot.dao.Lolicon
 import my.ktbot.dao.LoliconRequest
 import my.ktbot.database.PixivPic
 import my.ktbot.database.TPixivPic
 import my.ktbot.interfaces.Plug
-import my.ktbot.interfaces.SubPlugs
 import my.ktbot.utils.KtorUtils
 import my.ktbot.utils.sqlite.Sqlite
 import my.ktbot.utils.sqlite.insertOrUpdate
@@ -44,7 +46,7 @@ object CQBotPicture : Plug(
 	expPrivate = -8.0,
 	expGroup = -5.0,
 	msgLength = 4..20,
-), SubPlugs {
+) {
 
 	@JvmStatic
 	val setuSet = mutableSetOf<String>()
@@ -72,16 +74,11 @@ object CQBotPicture : Plug(
 
 	override suspend fun invoke(event: FriendMessageEvent, result: MatchResult): Message {
 		val sender = event.sender
-		if (AbstractPermitteeId.ExactUser(sender.id) in PluginPerm.setu) {
-			return message(result, sender)
-		}
-		return EmptyMessageChain
+		return message(result, sender)
 	}
 
 	override suspend fun invoke(event: GroupMessageEvent, result: MatchResult): Message {
-		if (AbstractPermitteeId.ExactGroup(event.group.id) in PluginPerm.setu
-			|| AbstractPermitteeId.ExactUser(event.sender.id) in PluginPerm.setu
-		) {
+		if (AbstractPermitteeId.ExactGroup(event.group.id) in PluginPerm.setu) {
 			return message(result, event.group)
 		}
 		return EmptyMessageChain
@@ -96,11 +93,13 @@ object CQBotPicture : Plug(
 		}
 		try {
 			logger.info("开始色图")
-			val response = KtorUtils.lolicon(LoliconRequest(
-				r18 = if (r18) 1 else 0,
-				keyword = keyword,
-				size = listOf("regular", "small")
-			))
+			val response = KtorUtils.lolicon(
+				LoliconRequest(
+					r18 = if (r18) 1 else 0,
+					keyword = keyword,
+					size = listOf("regular", "small")
+				)
+			)
 			val lolicon = response.data.firstOrNull() ?: return "找不到符合关键字的色图".toPlainText()
 			runCatching { savePic(lolicon) }
 			val image = KtorUtils.get(
@@ -114,72 +113,46 @@ object CQBotPicture : Plug(
 		}
 	}
 
-	override val subPlugs: List<Plug> = listOf(SeTuCache, SeTuSet)
-
-	/**
-	 *
-	 * @author bin
-	 * @since 1.0
-	 * @date 2022/1/12
-	 */
-	object SeTuCache : Plug(
+	@AutoCall(
 		name = "来点[<r18>]色图",
-		regex = Regex("^[来來发發给給l][张張个個幅点點份d](?<r18>r18的?)?[涩色瑟铯s][图圖t]$", RegexOption.IGNORE_CASE),
+		regex = RegexAnn("^[来來发發给給l][张張个個幅点點份d](?<r18>r18的?)?[涩色瑟铯s][图圖t]$", RegexOption.IGNORE_CASE),
 		weight = 5.1,
 		deleteMSG = 20 * 1000,
 		needAdmin = true,
 		speedLimit = 500,
-		msgLength = 4..15,
+		msgLength = MsgLength(4, 15),
 		expPrivate = -5.0,
 		expGroup = -3.0,
-	) {
-		private fun getRandomPic(r18: Int = 0): PixivPic? {
-			return Sqlite[TPixivPic].sortedBy { Sqlite.random }.firstOrNull {
-				when (r18) {
-					0 -> it.r18 eq false
-					1 -> it.r18 eq true
-					else -> Sqlite(true)
-				}
-			}
-		}
-
-		override suspend fun invoke(event: GroupMessageEvent, result: MatchResult): Message {
-			return message(result, event.group)
-		}
-
-		override suspend fun invoke(event: FriendMessageEvent, result: MatchResult): Message {
-			return message(result, event.sender)
-		}
-
-		@JvmStatic
-		private suspend fun message(
-			result: MatchResult,
-			contact: Contact,
-		): CodableMessage {
-			val r18 = result["r18"] !== null
-			val pic = getRandomPic(if (r18) 1 else 0) ?: return EmptyMessageChain
-			val image = KtorUtils.get(pic.url) {
-				headers.append("referer", "https://www.pixiv.net/")
-			}.receive<ByteArray>().toExternalResource().toAutoCloseable().uploadAsImage(contact)
-			contact.sendMessage("作者：${pic.uid}\n原图p${pic.p}：${pic.pid}")
-			return image
-		}
+	)
+	private suspend fun setuCache(event: MessageEvent, result: MatchResult): Message {
+		return messageLocal(result, event.subject)
 	}
 
-	/**
-	 *
-	 * @author bin
-	 * @since 1.0
-	 * @date 2022/1/12
-	 */
-	object SeTuSet : Plug(
+	@JvmStatic
+	private fun getRandomPic(r18: Boolean): PixivPic? {
+		return Sqlite[TPixivPic].sortedBy { Sqlite.random }.firstOrNull { it.r18 eq r18 }
+	}
+
+	@JvmStatic
+	private suspend fun messageLocal(
+		result: MatchResult,
+		contact: Contact,
+	): CodableMessage {
+		val r18 = result["r18"] !== null
+		val pic = getRandomPic(r18) ?: return EmptyMessageChain
+		val image = KtorUtils.get(pic.url) {
+			headers.append("referer", "https://www.pixiv.net/")
+		}.receive<ByteArray>().toExternalResource().toAutoCloseable().uploadAsImage(contact)
+		contact.sendMessage("作者：${pic.uid}\n原图p${pic.p}：${pic.pid}")
+		return image
+	}
+
+	@AutoCall(
 		name = ".色图失败列表",
-		regex = Regex("^[.．。]色图失败列表$"),
+		regex = RegexAnn("^[.．。]色图失败列表$"),
 		weight = 3.0,
 		needAdmin = true
-	) {
-		override suspend fun invoke(event: MessageEvent, result: MatchResult): Message {
-			return setuSet.joinToString().toPlainText()
-		}
-	}
+	)
+	private val failList get() = setuSet.joinToString()
+
 }

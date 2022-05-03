@@ -50,9 +50,8 @@ object PluginMain : KotlinPlugin(
 			CQBotCOC, CQBotSBI,
 			CQBotRepeat, AddExp, MemberExp, CQBotBan,
 			CQBotPixiv, CQBotPicture,
-			CQBotPerm, CQBotHelper
+			CQBotPerm, CQBotHelper, CQBotListGet, CQBotMemeAI
 		)
-		Plug += listOf(CQBotMSG, CQBotPlugin)
 	}
 
 	override fun onEnable() {
@@ -63,17 +62,21 @@ object PluginMain : KotlinPlugin(
 			val millis = System.currentTimeMillis()
 			val plug = Plug(this) ?: return@subscribeAlways
 			Counter.log(this, plug)
-			logger.info("${
-				Duration.ofMillis(System.currentTimeMillis() - millis)
-			}:${plug.name}\t来源:${sender.group.id}.${sender.id}")
+			logger.info(
+				"${
+					Duration.ofMillis(System.currentTimeMillis() - millis)
+				}:${plug.name}\t来源:${sender.group.id}.${sender.id}"
+			)
 		}
 		subscribeAlways<FriendMessageEvent> {
 			val millis = System.currentTimeMillis()
 			val plug = Plug(this) ?: return@subscribeAlways
 			Counter.log(this, plug)
-			logger.info("${
-				Duration.ofMillis(System.currentTimeMillis() - millis)
-			}:${plug.name}\t来源:${sender.id}")
+			logger.info(
+				"${
+					Duration.ofMillis(System.currentTimeMillis() - millis)
+				}:${plug.name}\t来源:${sender.id}"
+			)
 		}
 		subEvents()
 	}
@@ -111,11 +114,13 @@ object PluginMain : KotlinPlugin(
 			logger.info("${bot.nameCardOrNick} 已重新登录")
 		}
 		subscribeAlways<NewFriendRequestEvent> {
-			sendAdmin("${fromNick}（${
-				fromId
-			}）来自群 ${fromGroup?.name ?: ""}（${
-				fromGroupId
-			}）请求添加好友消息：\n${message}")
+			sendAdmin(
+				"${fromNick}（${
+					fromId
+				}）来自群 ${fromGroup?.name ?: ""}（${
+					fromGroupId
+				}）请求添加好友消息：\n${message}"
+			)
 			if (inviteCount.size <= 10) {
 				inviteCount[fromId] = Unit
 				//自动同意好友申请
@@ -165,16 +170,20 @@ object PluginMain : KotlinPlugin(
 			sendAdmin("bot被踢出群：${groupId}(${group.name})")
 		}
 		subscribeAlways<OtherClientOnlineEvent> {
-			sendAdmin("""其他客户端上线
+			sendAdmin(
+				"""其他客户端上线
 				|设备名称:${client.info.deviceName}
 				|设备类型:${client.info.deviceKind}
-			""".trimMargin())
+			""".trimMargin()
+			)
 		}
 		subscribeAlways<OtherClientOnlineEvent> {
-			sendAdmin("""其他客户端下线
+			sendAdmin(
+				"""其他客户端下线
 				|设备名称:${client.info.deviceName}
 				|设备类型:${client.info.deviceKind}
-			""".trimMargin())
+			""".trimMargin()
+			)
 		}
 		subscribeAlways<BotMuteEvent> {
 			Counter.groups[groupId].update { isBaned = true }

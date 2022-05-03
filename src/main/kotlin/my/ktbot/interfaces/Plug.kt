@@ -5,6 +5,7 @@ import my.ktbot.PlugConfig
 import my.ktbot.database.Gmt.Companion.add
 import my.ktbot.utils.CacheMap
 import my.ktbot.utils.Counter
+import my.ktbot.utils.callor.AutoCallor
 import my.ktbot.utils.sendAdmin
 import net.mamoe.mirai.contact.SendMessageFailedException
 import net.mamoe.mirai.event.events.FriendMessageEvent
@@ -31,23 +32,23 @@ abstract class Plug(
 //	/**是否为合并转发消息*/
 //	val forward: Boolean = false,
 	/**是否需要管理员*/
-	open val needAdmin: Boolean = false,
+	val needAdmin: Boolean = false,
 	/**帮助文本*/
-	open val help: Message? = null,
+	val help: Message? = null,
 	/**存在时延时固定时间撤回，单位ms*/
-	open val deleteMSG: Long = 0,
+	val deleteMSG: Long = 0,
 	/**存在时启用调用限速，单位ms*/
-	open val speedLimit: Long = 0,
+	val speedLimit: Long = 0,
 	/**私聊经验*/
-	open val expPrivate: Double = 0.0,
+	val expPrivate: Double = 0.0,
 	/**群聊经验*/
-	open val expGroup: Double = 0.0,
-	open val msgLength: IntRange = 0..100,
-	open val hidden: Boolean = false,
+	val expGroup: Double = 0.0,
+	val msgLength: IntRange = 0..100,
+	val hidden: Boolean = false,
 	/**群聊可用*/
-	open var canGroup: Boolean = true,
+	var canGroup: Boolean = true,
 	/**私聊可用*/
-	open var canPrivate: Boolean = true,
+	var canPrivate: Boolean = true,
 ) : Comparable<Plug> {
 
 	private val lock = Mutex()
@@ -168,23 +169,11 @@ abstract class Plug(
 		val plugs: MutableList<Plug> = ArrayList()
 
 		@JvmStatic
-		private fun addAll(list: List<*>) {
-			for (plug in list) {
-				if (plug is Plug) plugs.add(plug)
-				if (plug is SubPlugs) addAll(plug.subPlugs)
-			}
-		}
-
-		@JvmName("plusAssign1")
-		@JvmStatic
 		operator fun plusAssign(list: List<Plug>) {
-			addAll(list)
-			plugs.sort()
-		}
-
-		@JvmStatic
-		operator fun plusAssign(list: List<SubPlugs>) {
-			addAll(list)
+			for (plug in list) {
+				plugs.add(plug)
+				plugs.addAll(AutoCallor.add(plug))
+			}
 			plugs.sort()
 		}
 
@@ -238,25 +227,5 @@ abstract class Plug(
 
 		// endregion
 
-	}
-
-	class StringPlug(
-		/**名称*/
-		name: String,
-		/**正则匹配*/
-		regex: Regex,
-		/**权重*/
-		weight: Double,
-		/**帮助文本*/
-		override val help: Message? = null,
-		override val deleteMSG: Long = 0,
-		override val msgLength: IntRange = 0..100,
-		private val msg: Message,
-	) : Plug(
-		name = name,
-		regex = regex,
-		weight = weight,
-	) {
-		override suspend fun invoke(event: MessageEvent, result: MatchResult) = msg
 	}
 }
