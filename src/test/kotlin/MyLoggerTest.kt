@@ -1,5 +1,3 @@
-package my.ktbot
-
 import my.ktbot.utils.MyLogger
 
 fun main() {

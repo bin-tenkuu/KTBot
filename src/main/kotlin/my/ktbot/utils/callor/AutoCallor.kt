@@ -4,8 +4,7 @@ import my.ktbot.annotation.AutoCall
 import my.ktbot.interfaces.Plug
 import java.lang.reflect.AnnotatedElement
 import java.util.*
-import kotlin.reflect.KCallable
-import kotlin.reflect.KProperty
+import kotlin.reflect.*
 import kotlin.reflect.full.declaredMembers
 import kotlin.reflect.jvm.javaField
 
@@ -13,12 +12,31 @@ object AutoCallor {
 
 	fun add(vararg objs: Any): PriorityQueue<Plug> {
 		val list = PriorityQueue<Plug>()
-		for (obj in objs) {
+		for (obj: Any in objs) {
 			for (member: KCallable<*> in obj::class.declaredMembers) {
-				val autoCall: AutoCall = member.AutoCall() ?: (member as? KProperty<*>)?.run {
-					getter.AutoCall() ?: member.javaField?.AutoCall()
-				} ?: continue
-				val caller = Caller(obj, member, autoCall)
+				val caller: Caller
+				when (member) {
+					is KFunction<*> -> {
+						val autoCall: AutoCall = member.AutoCall() ?: continue
+						caller = Caller.Func(obj, member, autoCall)
+					}
+					is KProperty1<*, *> -> {
+						val field = member.javaField
+						val autoCall: AutoCall =
+							member.AutoCall() ?: member.getter.AutoCall() ?: field?.AutoCall() ?: continue
+						caller = (if (field !== null) Caller.JavaField(obj, field, autoCall)
+						else Caller.Property1(obj, member, autoCall))
+					}
+					is KProperty2<*, *, *> -> {
+						val autoCall: AutoCall =
+							member.AutoCall() ?: member.getter.AutoCall() ?: continue
+						caller = Caller.Property2(obj, member, autoCall)
+					}
+					else -> {
+						System.err.println(member)
+						continue
+					}
+				}
 				list += caller
 				ObjectMap.global[caller.name] = caller
 			}

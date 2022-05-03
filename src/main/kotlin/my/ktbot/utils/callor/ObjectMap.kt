@@ -11,11 +11,16 @@ class ObjectMap(name: String? = null) : Cloneable {
 		set(name, this)
 	}
 
-	operator fun <T : Any> get(kClass: KClass<T>, name: String? = null): T? {
+	operator fun <T : Any> get(kClass: KClass<out T>, name: String? = null): T? {
 		return this[kClass.java, name]
 	}
 
-	operator fun <T : Any> get(clazz: Class<T>, name: String? = null): T? {
+	operator fun <T : Any> get(pair: Pair<Class<out T>, String?>): T? {
+		val (clazz, name) = pair
+		return this[clazz, name]
+	}
+
+	operator fun <T : Any> get(clazz: Class<out T>, name: String? = null): T? {
 		val queue = map[clazz] ?: return null
 		if (name == null) return queue.firstOrNull()?.obj as T?
 		return queue.firstOrNull { name == it.name }?.obj as T?

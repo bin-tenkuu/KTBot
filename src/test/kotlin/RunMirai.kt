@@ -1,5 +1,3 @@
-package my.ktbot
-
 import net.mamoe.mirai.console.MiraiConsole
 import net.mamoe.mirai.console.terminal.MiraiConsoleTerminalLoader
 import net.mamoe.mirai.console.util.ConsoleExperimentalApi
