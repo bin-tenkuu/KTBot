@@ -266,7 +266,7 @@ object CQBotCOC : Plug(
 		help = "打开/关闭特殊模式",
 		msgLength = MsgLength(2, 10),
 	)
-	private fun setSpecial(event: MessageEvent, result: MatchResult): String? {
+	private fun setSpecial(result: MatchResult): String? {
 		val operator = result["operator"]?.value ?: return null
 		return if (operator == "bug") {
 			specialEffects = Effects.bug

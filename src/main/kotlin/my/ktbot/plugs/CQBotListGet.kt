@@ -128,7 +128,7 @@ object CQBotListGet : Plug(
 		weight = 10.0,
 		help = "表达式间不允许出现空格"
 	)
-	private fun cqBotCalculate(event: MessageEvent, result: MatchResult): Message {
+	private fun cqBotCalculate(result: MatchResult): Message {
 		val calc = result["calc"]?.value ?: return EmptyMessageChain
 		return try {
 			"结果为${Calculator(calc).v}".toPlainText()

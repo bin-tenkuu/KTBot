@@ -35,7 +35,7 @@ object CQBotSBI : Plug(
 		return "${diceResult.origin}：[${diceResult.list.joinToString()}]（${getRes(diceResult.list)}）".toPlainText()
 	}
 
-	fun getRes(list: IntArray): String {
+	private fun getRes(list: IntArray): String {
 		if (list.size < 3) return "数量过少"
 		setOf(list[0], list[1], list[2]).sorted().apply {
 			if (size == 1) {
