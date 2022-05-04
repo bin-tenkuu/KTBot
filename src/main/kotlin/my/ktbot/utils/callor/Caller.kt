@@ -28,7 +28,7 @@ internal sealed class Caller(
 	msgLength = autoCall.msgLength.start..autoCall.msgLength.endInclusive,
 	hidden = autoCall.hidden
 ) {
-	protected val tmp = ObjectMap("tmp")
+	private val tmp = ObjectMap("tmp")
 
 	abstract suspend operator fun invoke(): Any?
 
@@ -37,6 +37,8 @@ internal sealed class Caller(
 		tmp + event + result
 		return invoke().toMassage()
 	}
+
+	protected fun Pair<Class<out Any>, String?>.get() = tmp[first, second] ?: ObjectMap.global[first, second]
 
 	class Func(
 		private val obj: Any,
@@ -48,15 +50,13 @@ internal sealed class Caller(
 		}
 
 		private val args = callable.parameters.drop(1).map {
-			it.type.classifier.cast<KClass<*>>().java to it.annotations.filterIsInstance<Qualifier>()
-				.firstOrNull()?.name
+			it.type.classifier.cast<KClass<*>>().java to
+				it.annotations.filterIsInstance<Qualifier>().firstOrNull()?.name
 		}
 
-		override suspend operator fun invoke(): Any? {
-			return callable.callSuspend(obj, *Array(args.size) {
-				tmp[args[it]] ?: ObjectMap.global[args[it]] ?: return null
-			})
-		}
+		override suspend operator fun invoke() = callable.callSuspend(obj, *Array(args.size) {
+			args[it].get() ?: return null
+		})
 	}
 
 	class JavaField(
@@ -68,9 +68,7 @@ internal sealed class Caller(
 			callable.isAccessible = true
 		}
 
-		override suspend operator fun invoke(): Any? {
-			return callable.get(obj)
-		}
+		override suspend operator fun invoke(): Any? = callable.get(obj)
 	}
 
 	class Property1(
@@ -84,9 +82,7 @@ internal sealed class Caller(
 			callable.isAccessible = true
 		}
 
-		override suspend operator fun invoke(): Any? {
-			return callable.call(obj)
-		}
+		override suspend operator fun invoke() = callable.call(obj)
 	}
 
 	class Property2(
@@ -105,7 +101,7 @@ internal sealed class Caller(
 		}
 
 		override suspend operator fun invoke(): Any? {
-			return callable.call(obj, tmp[arg] ?: ObjectMap.global[arg] ?: return null)
+			return callable.call(obj, arg.get() ?: return null)
 		}
 	}
 }

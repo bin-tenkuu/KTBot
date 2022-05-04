@@ -1,13 +1,13 @@
-
 import my.ktbot.annotation.AutoCall
+import my.ktbot.annotation.Qualifier
 import my.ktbot.annotation.RegexAnn
 import my.ktbot.utils.callor.AutoCallor
 import my.ktbot.utils.callor.Caller
 import my.ktbot.utils.callor.ObjectMap
-import my.ktbot.utils.println
 
 suspend fun main() {
-	ObjectMap.global + "string"
+	fun <T> T.println() = apply { println(toString()) }
+	ObjectMap.global.set("a", "a") + "string"
 	AutoCallor.add(ObjectTest).forEach {
 		(it as Caller)().println()
 	}
@@ -21,6 +21,9 @@ object ObjectTest {
 	const val const = "const"
 
 	@AutoCall("", RegexAnn(""), 0.0)
-	val String.get get() = "$this.get"
+	val String.exGet get() = "$this.exGet"
+
+	@AutoCall("", RegexAnn(""), 0.0)
+	fun ObjectMap.func(@Qualifier("a") s: String, @Qualifier("global") map: ObjectMap) = "$this.func($s, $map)"
 
 }

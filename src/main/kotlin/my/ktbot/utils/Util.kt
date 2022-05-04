@@ -12,11 +12,6 @@ import org.ktorm.entity.*
 import org.ktorm.schema.ColumnDeclaring
 import org.ktorm.schema.Table
 
-fun <T> T.println(): T {
-	println(toString())
-	return this
-}
-
 @Suppress("UNCHECKED_CAST")
 fun <E : Entity<E>, T : Table<E>> EntitySequence<E, T>.findOrAdd(
 	predicate: (T) -> ColumnDeclaring<Boolean>,

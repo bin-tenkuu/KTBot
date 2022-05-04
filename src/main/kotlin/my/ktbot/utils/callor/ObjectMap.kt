@@ -11,15 +11,9 @@ class ObjectMap(name: String? = null) : Cloneable {
 		set(name, this)
 	}
 
-	operator fun <T : Any> get(kClass: KClass<out T>, name: String? = null): T? {
-		return this[kClass.java, name]
-	}
+	// region getter, setter
 
-	operator fun <T : Any> get(pair: Pair<Class<out T>, String?>): T? {
-		val (clazz, name) = pair
-		return this[clazz, name]
-	}
-
+	operator fun <T : Any> get(kClass: KClass<out T>, name: String? = null) = this[kClass.java, name]
 	operator fun <T : Any> get(clazz: Class<out T>, name: String? = null): T? {
 		val queue = map[clazz] ?: return null
 		if (name == null) return queue.firstOrNull()?.obj as T?
@@ -30,39 +24,13 @@ class ObjectMap(name: String? = null) : Cloneable {
 		return map.computeIfAbsent(clazz) { PriorityQueue<SortObject<*>>(1) }
 	}
 
-	operator fun <T : Any> plusAssign(value: T) {
-		this[value::class.java as Class<T>] = value
-	}
-
-	operator fun <T : Any> plus(value: T): ObjectMap {
-		this[value::class.java as Class<T>] = value
-		return this
-	}
-
-	operator fun <T : Any> set(name: String?, value: T): ObjectMap {
-		this[value::class.java as Class<T>, name] = value
-		return this
-	}
-
-	operator fun <T : Any> set(kClass: KClass<T>, value: T): ObjectMap {
-		this[kClass.java, null] = value
-		return this
-	}
-
-	operator fun <T : Any> set(clazz: Class<T>, value: T): ObjectMap {
-		this[clazz, null] = value
-		return this
-	}
-
-	operator fun <T : Any> set(kClass: KClass<T>, name: String? = null, value: T): ObjectMap {
-		this[kClass.java, name] = value
-		return this
-	}
-
-	operator fun <T : Any> set(clazz: Class<T>, name: String? = null, value: T): ObjectMap {
-		return set(clazz, value, name, 0)
-	}
-
+	operator fun <T : Any> plusAssign(value: T) = this.plus(value).run { }
+	operator fun <T : Any> plus(value: T) = this.set(value::class.java as Class<T>, value)
+	operator fun <T : Any> set(name: String?, value: T) = this.set(value::class.java as Class<T>, name, value)
+	operator fun <T : Any> set(kClass: KClass<T>, value: T) = this.set(kClass.java, null, value)
+	operator fun <T : Any> set(clazz: Class<T>, value: T) = this.set(clazz, null, value)
+	operator fun <T : Any> set(kClass: KClass<T>, name: String?, value: T) = this.set(kClass.java, name, value)
+	operator fun <T : Any> set(clazz: Class<T>, name: String?, value: T) = set(clazz, value, name, 0)
 	fun <T : Any> set(clazz: Class<T>, value: T, name: String?, initWeight: Int = 0): ObjectMap {
 		val set = HashSet<Class<*>>()
 		var tmp: Class<*>? = clazz
@@ -80,6 +48,8 @@ class ObjectMap(name: String? = null) : Cloneable {
 		return this
 	}
 
+	// endregion
+
 	fun clear() = map.clear()
 
 	public override fun clone(): ObjectMap {
@@ -88,6 +58,10 @@ class ObjectMap(name: String? = null) : Cloneable {
 				it.get0(clazz).addAll(list)
 			}
 		}
+	}
+
+	override fun toString(): String {
+		return "ObjectMap(mapSize=${map.size})"
 	}
 
 	private inner class SortObject<T>(
@@ -99,13 +73,11 @@ class ObjectMap(name: String? = null) : Cloneable {
 		override operator fun compareTo(other: SortObject<*>) = weight.compareTo(other.weight)
 		override fun hashCode() = obj.hashCode()
 		override fun toString() = obj.toString()
-		override fun equals(other: Any?): Boolean {
-			if (this === other) return true
-			if (other !is SortObject<*>) return false
-
-			if (obj != other.obj) return false
-
-			return true
+		override fun equals(other: Any?) = when {
+			this === other -> true
+			other !is SortObject<*> -> false
+			obj != other.obj -> false
+			else -> true
 		}
 	}
 

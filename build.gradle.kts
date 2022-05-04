@@ -3,6 +3,7 @@ plugins {
 	kotlin("jvm") version kotlinVersion
 	kotlin("plugin.serialization") version kotlinVersion
 
+	java
 	id("net.mamoe.mirai-console") version "2.10.1"
 }
 
@@ -45,6 +46,12 @@ mirai {
 }
 kotlin.sourceSets.all {
 	languageSettings.optIn("kotlin.RequiresOptIn")
+}
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile::class.java) {
+	kotlinOptions {
+		// freeCompilerArgs = freeCompilerArgs + "-Xcontext-receivers"
+		jvmTarget = "17"
+	}
 }
 tasks.create("build2Jar") {
 	group = "mirai"

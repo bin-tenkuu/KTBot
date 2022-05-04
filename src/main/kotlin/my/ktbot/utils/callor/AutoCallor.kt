@@ -17,19 +17,17 @@ object AutoCallor {
 				val caller: Caller
 				when (member) {
 					is KFunction<*> -> {
-						val autoCall: AutoCall = member.AutoCall() ?: continue
+						val autoCall = member.AutoCall() ?: continue
 						caller = Caller.Func(obj, member, autoCall)
 					}
 					is KProperty1<*, *> -> {
 						val field = member.javaField
-						val autoCall: AutoCall =
-							member.AutoCall() ?: member.getter.AutoCall() ?: field?.AutoCall() ?: continue
+						val autoCall = member.AutoCall() ?: member.getter.AutoCall() ?: field?.AutoCall() ?: continue
 						caller = (if (field !== null) Caller.JavaField(obj, field, autoCall)
 						else Caller.Property1(obj, member, autoCall))
 					}
 					is KProperty2<*, *, *> -> {
-						val autoCall: AutoCall =
-							member.AutoCall() ?: member.getter.AutoCall() ?: continue
+						val autoCall = member.AutoCall() ?: member.getter.AutoCall() ?: continue
 						caller = Caller.Property2(obj, member, autoCall)
 					}
 					else -> {

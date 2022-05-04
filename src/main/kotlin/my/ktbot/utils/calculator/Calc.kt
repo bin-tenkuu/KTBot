@@ -1,7 +1,5 @@
 package my.ktbot.utils.calculator
 
-import my.ktbot.utils.println
-
 class Calc : IValue {
 	/**计算结果*/
 	override val v: Number get() = deque[0].v
@@ -16,7 +14,7 @@ class Calc : IValue {
 		}
 		is Operator1Impl -> plusAssign(it.v(deque.removeLast()))
 		else -> {
-			it.println()
+			println(it)
 			error("未受支持的运算符种类")
 		}
 	}
