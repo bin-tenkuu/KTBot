@@ -10,6 +10,11 @@ plugins {
 group = "my.ktbot"
 version = "1.0"
 
+java {
+	sourceCompatibility = JavaVersion.VERSION_17
+	targetCompatibility = JavaVersion.VERSION_17
+}
+
 repositories {
 	mavenLocal()
 	maven("https://maven.aliyun.com/repository/public") // 阿里云国内代理仓库
@@ -73,3 +78,6 @@ tasks.create("build2Jar") {
 		}
 	}
 }
+// tasks.getByName<Test>("test") {
+// 	useJUnitPlatform()
+// }
