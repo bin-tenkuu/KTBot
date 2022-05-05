@@ -5,6 +5,7 @@ import my.ktbot.annotation.MsgLength
 import my.ktbot.annotation.RegexAnn
 import my.ktbot.interfaces.Plug
 import my.ktbot.utils.sendAdmin
+import net.mamoe.mirai.event.events.GroupMessageEvent
 import net.mamoe.mirai.event.events.MessageEvent
 import net.mamoe.mirai.message.data.Message
 import net.mamoe.mirai.message.data.toPlainText
@@ -78,10 +79,29 @@ object CQBotHelper : Plug(
 		weight = 6.0,
 		help = "附上消息发送给开发者"
 	)
+	@JvmStatic
 	private suspend fun report(event: MessageEvent, result: MatchResult): String? {
 		val txt = result["txt"]?.value ?: return null
-		event.sendAdmin("来自 ${event.senderName}(${event.sender.id}):\n${txt}".toPlainText())
+		val group = if (event is GroupMessageEvent) "${event.group.name}(${event.group.id})" else ""
+		event.sendAdmin("来自 ${group}${event.senderName}(${event.sender.id}):\n${txt}".toPlainText())
 		return "收到"
+	}
+
+	@AutoCall(
+		name = ".send[g]<qq> <txt>",
+		regex = RegexAnn("^[.．。]send(?<g>g)?(?<qq>\\d+) (?<txt>.+)$", RegexOption.IGNORE_CASE),
+		weight = 6.0,
+		needAdmin = true,
+		help = "bot代理发送消息"
+	)
+	@JvmStatic
+	private suspend fun sendMsg(event: MessageEvent, result: MatchResult): String {
+		val qq = result["qq"]?.value?.toLongOrNull() ?: return "需要发送目标"
+		val g = result["g"] !== null
+		val txt = result["txt"]?.value ?: return "需要发送的消息"
+		(if (g) event.bot.getGroup(qq) else event.bot.getFriend(qq))
+			?.sendMessage(txt) ?: return "发送失败"
+		return "已发送"
 	}
 
 

@@ -30,12 +30,12 @@ object CQBotListGet : Plug(
 		val type = result["type"]?.value ?: return null
 		when (type) {
 			"群" -> return event.bot.groups.run {
-				"总共${size}个群:\n" + joinToString("\n") {
+				"总共 ${size} 个群:\n" + joinToString("\n") {
 					"${it.id}: ${it.name}"
 				}
 			}.toPlainText()
 			"好友" -> return event.bot.friends.run {
-				"总共${size}个好友:\n" + joinToString("\n") {
+				"总共 ${size} 个好友:\n" + joinToString("\n") {
 					"${it.id}: ${it.nick}"
 				}
 			}.toPlainText()
@@ -55,6 +55,7 @@ object CQBotListGet : Plug(
 		needAdmin = true,
 		help = "查看插件信息"
 	)
+	@JvmStatic
 	private fun cqBotPluginInfo(result: MatchResult): Message {
 		val p = run {
 			val id = result["id"]?.run { value.trim().toIntOrNull() } ?: return@run null
@@ -83,6 +84,7 @@ object CQBotListGet : Plug(
 		needAdmin = true,
 		help = "设置插件状态"
 	)
+	@JvmStatic
 	private fun cqBotPluginStatus(result: MatchResult): Message? {
 		val isOpen = when (result["open"]!!.value) {
 			"开" -> true
@@ -113,6 +115,7 @@ object CQBotListGet : Plug(
 		weight = 10.0,
 		needAdmin = true,
 	)
+	@JvmStatic
 	private fun cqBotCounter(event: MessageEvent): Message {
 		return Counter.state(event.subject)
 	}
@@ -128,6 +131,7 @@ object CQBotListGet : Plug(
 		weight = 10.0,
 		help = "表达式间不允许出现空格"
 	)
+	@JvmStatic
 	private fun cqBotCalculate(result: MatchResult): Message {
 		val calc = result["calc"]?.value ?: return EmptyMessageChain
 		return try {

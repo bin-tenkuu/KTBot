@@ -37,8 +37,8 @@ object CQBotMemeAI : Plug(
 		"吗" to "",
 	)
 
-	override suspend fun invoke(event: GroupMessageEvent, result: MatchResult): Message? {
-		if (!event.message.contains(At(event.bot.id))) return null
+	override suspend fun invoke(event: GroupMessageEvent, result: MatchResult): Message {
+		if (!event.message.contains(At(event.bot.id))) return EmptyMessageChain
 		val msg: String = replaceNode.replace(
 			event.message.filterIsInstance<PlainText>()
 				.joinToString("", transform = PlainText::contentToString)

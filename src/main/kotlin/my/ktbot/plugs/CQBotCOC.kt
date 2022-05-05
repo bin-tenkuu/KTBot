@@ -139,7 +139,6 @@ object CQBotCOC : Plug(
 		abstract operator fun invoke(sc: Pair<Long, Long>, num: Long): Pair<Long, Long>
 	}
 
-	@JvmStatic
 	private var specialEffects: Effects = Effects.bug
 
 	@Suppress("EnumEntryName", "unused")
@@ -190,6 +189,7 @@ object CQBotCOC : Plug(
 		weight = 1.11,
 		msgLength = MsgLength(5, 10),
 	)
+	@JvmStatic
 	private fun cheaterAllOne(): String {
 		cheater = !cheater
 		return "全1" + if (cheater) "开" else "关"
@@ -202,6 +202,7 @@ object CQBotCOC : Plug(
 		help = "查看全部简写",
 		msgLength = MsgLength(5, 7),
 	)
+	@JvmStatic
 	private fun statsMap(): String {
 		val list = Sqlite[TCOCShortKey].toList()
 		return if (list.isEmpty()) "空"
@@ -217,6 +218,7 @@ object CQBotCOC : Plug(
 		help = "删除[设置]简写",
 		msgLength = MsgLength(5, 100),
 	)
+	@JvmStatic
 	private fun statsSet(result: MatchResult): Message {
 		val key = result["key"]?.value
 		val value = result["value"]?.value
@@ -245,6 +247,7 @@ object CQBotCOC : Plug(
 		help = "10分钟之内加投骰",
 		msgLength = MsgLength(3, 500)
 	)
+	@JvmStatic
 	private fun addedDice(event: MessageEvent, result: MatchResult): String {
 		val num = result["num"]?.run { value.trim().toIntOrNull() } ?: 1
 		var cache: DiceResult = CQBotCOC.cache[event.sender.id] ?: return "10分钟之内没有投任何骰子"
@@ -266,6 +269,7 @@ object CQBotCOC : Plug(
 		help = "打开/关闭特殊模式",
 		msgLength = MsgLength(2, 10),
 	)
+	@JvmStatic
 	private fun setSpecial(result: MatchResult): String? {
 		val operator = result["operator"]?.value ?: return null
 		return if (operator == "bug") {

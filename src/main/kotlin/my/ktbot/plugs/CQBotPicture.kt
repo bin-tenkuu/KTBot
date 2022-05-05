@@ -79,9 +79,9 @@ object CQBotPicture : Plug(
 
 	override suspend fun invoke(event: GroupMessageEvent, result: MatchResult): Message {
 		if (AbstractPermitteeId.ExactGroup(event.group.id) in PluginPerm.setu) {
-			return message(result, event.group)
+			return EmptyMessageChain
 		}
-		return EmptyMessageChain
+		return message(result, event.group)
 	}
 
 	@JvmStatic
@@ -124,6 +124,7 @@ object CQBotPicture : Plug(
 		expPrivate = -5.0,
 		expGroup = -3.0,
 	)
+	@JvmStatic
 	private suspend fun setuCache(event: MessageEvent, result: MatchResult): Message {
 		return messageLocal(result, event.subject)
 	}

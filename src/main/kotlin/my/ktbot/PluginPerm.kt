@@ -10,20 +10,14 @@ object PluginPerm {
 	val root: Permission = instance.rootPermission
 	val setu: Permission = instance.register(PluginMain.permissionId("setu"), "色图调用权限")
 
-	fun cancel(permitteeId: PermitteeId, permission: Permission, recursive: Boolean = false) {
-		if (permission in permitteeId) {
-			instance.cancel(permitteeId, permission, recursive)
+	operator fun Permission.minusAssign(permitteeId: PermitteeId) {
+		if (permitteeId in this) {
+			instance.cancel(permitteeId, this, false)
 		}
 	}
 
-	operator fun PermitteeId.minusAssign(permission: Permission) {
-		if (permission in this) {
-			instance.cancel(this, permission, false)
-		}
-	}
-
-	operator fun PermitteeId.plusAssign(permission: Permission) {
-		instance.permit(this, permission)
+	operator fun Permission.plusAssign(permitteeId: PermitteeId) {
+		instance.permit(permitteeId, this)
 	}
 
 	operator fun PermitteeId.contains(permission: Permission): Boolean {
@@ -34,4 +28,7 @@ object PluginPerm {
 		return instance.testPermission(permission, this)
 	}
 
+	operator fun get(name: String): Permission? {
+		return instance[PluginMain.permissionId(name)]
+	}
 }

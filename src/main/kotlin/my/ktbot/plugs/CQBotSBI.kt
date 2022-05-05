@@ -65,9 +65,10 @@ object CQBotSBI : Plug(
 		help = "10分钟之内加投骰",
 		msgLength = MsgLength(3, 500)
 	)
-	private fun addedDice(event: MessageEvent, result: MatchResult): Message {
+	@JvmStatic
+	private fun addedDice(event: MessageEvent, result: MatchResult): String {
 		val num = result["num"]?.run { value.trim().toIntOrNull() } ?: 1
-		var diceResult: DiceResult = cache[event.sender.id] ?: return "10分钟之内没有投任何骰子".toPlainText()
+		var diceResult: DiceResult = cache[event.sender.id] ?: return "10分钟之内没有投任何骰子"
 		val dice: DiceResult = when (cheater) {
 			true -> DiceResult(num, diceResult.max)
 			false -> DiceResult.dice(num, diceResult.max)
@@ -76,6 +77,6 @@ object CQBotSBI : Plug(
 		cache[event.sender.id] = diceResult
 		return """${dice.origin}：[${dice.list.joinToString(", ")}]=${dice.sum}
 			|[${diceResult.list.joinToString(", ")}]（${getRes(diceResult.list)}）
-		""".trimMargin().toPlainText()
+		""".trimMargin()
 	}
 }

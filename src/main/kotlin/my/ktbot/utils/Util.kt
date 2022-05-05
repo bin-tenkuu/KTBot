@@ -4,9 +4,7 @@ import my.ktbot.PlugConfig
 import my.ktbot.PluginMain
 import my.ktbot.database.Gmt
 import net.mamoe.mirai.event.events.BotEvent
-import net.mamoe.mirai.message.data.Message
-import net.mamoe.mirai.message.data.PlainText
-import net.mamoe.mirai.message.data.buildMessageChain
+import net.mamoe.mirai.message.data.*
 import net.mamoe.mirai.utils.error
 import org.ktorm.entity.*
 import org.ktorm.schema.ColumnDeclaring
@@ -50,12 +48,12 @@ fun Any?.toMassage(): Message? {
 		null -> null
 		Unit -> null
 		is Message -> this
-		is CharSequence -> PlainText(this)
+		is CharSequence -> if (isEmpty()) EmptyMessageChain else PlainText(this)
 		is Array<*> -> buildMessageChain {
-			for (any in this@toMassage) any.toMassage()?.unaryPlus()
+			addAll(this@toMassage.mapNotNull(Any?::toMassage))
 		}
 		is Iterable<*> -> buildMessageChain {
-			for (any in this@toMassage) any.toMassage()?.unaryPlus()
+			addAll(this@toMassage.mapNotNull(Any?::toMassage))
 		}
 		else -> PlainText(toString())
 	}
