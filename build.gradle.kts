@@ -4,7 +4,7 @@ plugins {
 	kotlin("plugin.serialization") version kotlinVersion
 
 	java
-	id("net.mamoe.mirai-console") version "2.10.1"
+	id("net.mamoe.mirai-console") version "2.10.3"
 }
 
 group = "my.ktbot"

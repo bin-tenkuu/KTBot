@@ -1,1 +1,1 @@
-rootProject.name = "plugin-binbot"
+rootProject.name = "KTBot"

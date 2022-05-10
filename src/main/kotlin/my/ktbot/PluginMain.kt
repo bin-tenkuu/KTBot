@@ -51,7 +51,8 @@ object PluginMain : KotlinPlugin(
 			CQBotCOC, CQBotSBI,
 			CQBotRepeat, AddExp, MemberExp, CQBotBan,
 			CQBotPixiv, CQBotPicture,
-			CQBotPerm, CQBotHelper, CQBotListGet, CQBotMemeAI
+			CQBotPerm, CQBotHelper, CQBotListGet, CQBotMemeAI,
+			CQNginxLogHandel,
 		)
 	}
 

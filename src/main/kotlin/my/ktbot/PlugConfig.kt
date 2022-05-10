@@ -14,6 +14,7 @@ object PlugConfig : AutoSavePluginConfig("config") {
 	val httpProxy: String by value("")
 	val socksProxy: String by value("")
 	val socksPort: Int by value(0)
+	val nginxLogPath: String by value("./logs")
 
 	fun getAdmin(bot: Bot): Friend {
 		return bot.getFriendOrFail(adminId)
