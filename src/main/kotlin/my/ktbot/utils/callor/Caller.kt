@@ -54,9 +54,16 @@ internal sealed class Caller(
 				it.annotations.filterIsInstance<Qualifier>().firstOrNull()?.name
 		}
 
-		override suspend operator fun invoke() = callable.callSuspend(obj, *Array(args.size) {
-			args[it].get() ?: return null
-		})
+		override suspend operator fun invoke(): Any? {
+			try {
+				return callable.callSuspend(obj, *Array(args.size) {
+					args[it].get() ?: return null
+				})
+			} catch (e: Exception) {
+				logger.error(e.cause ?: e)
+				return null
+			}
+		}
 	}
 
 	class JavaField(

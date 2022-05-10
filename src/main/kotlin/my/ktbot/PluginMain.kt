@@ -52,7 +52,7 @@ object PluginMain : KotlinPlugin(
 			CQBotRepeat, AddExp, MemberExp, CQBotBan,
 			CQBotPixiv, CQBotPicture,
 			CQBotPerm, CQBotHelper, CQBotListGet, CQBotMemeAI,
-			CQNginxLogHandel,
+			CQNginxLogHandle,
 		)
 	}
 

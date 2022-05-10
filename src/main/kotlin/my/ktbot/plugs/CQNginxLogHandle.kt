@@ -4,6 +4,8 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.serializer
 import my.ktbot.PlugConfig
+import my.ktbot.annotation.AutoCall
+import my.ktbot.annotation.RegexAnn
 import my.ktbot.interfaces.Plug
 import my.ktbot.utils.KtorUtils.json
 import net.mamoe.mirai.event.events.MessageEvent
@@ -11,16 +13,19 @@ import net.mamoe.mirai.message.data.Message
 import net.mamoe.mirai.message.data.toPlainText
 import net.mamoe.mirai.utils.ExternalResource.Companion.toExternalResource
 import java.io.*
-import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
-object CQNginxLogHandel : Plug(
+object CQNginxLogHandle : Plug(
 	name = "nginx日志处理",
-	regex = Regex("^[.．。]nginx$"),
-	weight = 0.0,
+	regex = Regex("^[.．。]nginx$", RegexOption.IGNORE_CASE),
+	weight = 10.0,
 	needAdmin = true,
 	canPrivate = false,
 	canGroup = true
 ) {
+	private val formater = DateTimeFormatter.ofPattern("uuuu-MM-dd'T'HH-mm'.yml'")
+	private val nowFile: String get() = formater.format(LocalDateTime.now())
 	override suspend fun invoke(event: MessageEvent, result: MatchResult): Message {
 		val logToYml = logToYml()
 		if (logToYml.size < 10) {
@@ -29,22 +34,41 @@ object CQNginxLogHandel : Plug(
 		val resource = logToYml.toExternalResource(".yml").toAutoCloseable()
 		val group = PlugConfig.getAdminGroup(event.bot)
 		group.launch {
-			group.files.uploadNewFile(LocalDate.now().toString() + ".yml", resource)
+			group.files.uploadNewFile(nowFile, resource)
 			flushFiles()
 		}
 		return "正在发送".toPlainText()
 	}
 
+	private val ipRegex =
+		Regex("((\\d|[1-9]\\d|1\\d\\d|2[0-4]\\d|25[0-5])\\.){3}(\\d|[1-9]\\d|1\\d\\d|2[0-4]\\d|25[0-5])")
+
+	@AutoCall(
+		name = "添加banip",
+		regex = RegexAnn("^[.．。]banip (.+)$", RegexOption.IGNORE_CASE),
+		weight = 10.0,
+		needAdmin = true
+	)
+	private fun addIP(result: MatchResult): String {
+		val s = result.groups[1]?.value ?: return "未匹配到ip"
+		val list = ipRegex.findAll(s).map(MatchResult::value).toMutableList()
+		if (list.isEmpty()) {
+			return "未匹配到ip"
+		}
+		return list.joinToString("\n") {
+			try {
+				val start = ProcessBuilder("ipset", "add", "banip", it).start()
+				start.waitFor()
+				it + " -> " + start.errorReader().readLine()
+			} catch (e: Exception) {
+				logger.error(e)
+				"执行出错：$it"
+			}
+		}
+	}
+
 	private val nginxRegex = Regex(
-		"^(?<ip>[^ ]+) - " +
-			"(?<user>[^ ]+) " +
-			"\\[(?<time>[^]]+)] " +
-			"\"(?:(?<method>[A-Z]{3,7}) )?(?<url>[^ ]*)(?: (?<protocol>[^\"]+))?\" " +
-			"(?<status>\\d+) " +
-			"(?<bytes>\\d+) " +
-			"\"(?<referer>[^\"]*)\" " +
-			"\"(?<agent>[^\"]*)\"" +
-			"",
+		"^(?<ip>[^ ]+) - (?<user>[^ ]+) \\[(?<time>[^]]+)] \"(?:(?<method>[A-Z]{3,7}) )?(?<url>[^ ]*)(?: (?<protocol>[^\"]+))?\" (?<status>\\d+) (?<bytes>\\d+) \"(?<referer>[^\"]*)\" \"(?<agent>[^\"]*)\"",
 	)
 
 	@Serializable
@@ -60,27 +84,23 @@ object CQNginxLogHandel : Plug(
 		val protocol: String?, // HTTP/1.1
 		val agent: String, // -
 	) {
+		constructor(result: MatchResult) : this(
+			user = result["user"]!!.value,
+			time = result["time"]!!.value,
+			status = result["status"]!!.value.toInt(),
+			referer = result["referer"]!!.value,
+			bytes = result["bytes"]!!.value.toInt(),
+			method = result["method"]?.value,
+			url = result["url"]!!.value,
+			protocol = result["protocol"]?.value,
+			agent = result["agent"]!!.value,
+		)
+
 		fun test(): Boolean {
 			if (status / 100 == 2) {
 				return false
 			}
 			return true
-		}
-
-		companion object {
-			fun toLogNginx(result: MatchResult): LogNginx {
-				return LogNginx(
-					user = result["user"]!!.value,
-					time = result["time"]!!.value,
-					status = result["status"]!!.value.toInt(),
-					referer = result["referer"]!!.value,
-					bytes = result["bytes"]!!.value.toInt(),
-					method = result["method"]?.value,
-					url = result["url"]!!.value,
-					protocol = result["protocol"]?.value,
-					agent = result["agent"]!!.value,
-				)
-			}
 		}
 	}
 
@@ -96,7 +116,7 @@ object CQNginxLogHandel : Plug(
 						logger.info("\tNot Match Line: $line")
 						continue
 					}
-					val element = LogNginx.toLogNginx(result)
+					val element = LogNginx(result)
 					element.fromFile = name
 					if (element.test()) {
 						map.computeIfAbsent(result["ip"]!!.value) { ArrayList() }.add(element)
