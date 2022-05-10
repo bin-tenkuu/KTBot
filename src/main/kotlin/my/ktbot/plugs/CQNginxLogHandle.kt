@@ -125,7 +125,7 @@ object CQNginxLogHandle : Plug(
 			}
 		}
 		val it = StringBuilder()
-		for ((ip, list) in map) {
+		for ((ip, list) in map.toList().sortedByDescending { it.second.size }) {
 			it.append(ip)
 			it.append(":\n")
 			for (logNginx in list) {
