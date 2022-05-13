@@ -46,7 +46,7 @@ class CacheMap<K, V>(
 	operator fun get(key: K): V? {
 		val node = map[key] ?: return null
 		if (node.isBeOverdue()) {
-			map -= key
+			map.remove(key)
 			return null
 		}
 		return node.v
@@ -58,35 +58,31 @@ class CacheMap<K, V>(
 
 	operator fun contains(key: K): Boolean {
 		if ((map[key] ?: return false).isBeOverdue()) {
-			map -= key
+			map.remove(key)
 			return false
 		}
 		return true
 	}
 
-	private fun remove(key: K) {
-		map.remove(key)
+	fun remove(key: K): V? {
+		val node = map.remove(key) ?: return null
+		if (node.isBeOverdue()) return null
+		return node.v
 	}
 
 	operator fun minusAssign(key: K) {
-		remove(key)
+		map.remove(key)
 	}
 
 	private fun expungeExpiredEntries() {
 		val time = System.currentTimeMillis()
-		if (nextExpirationTime > time) {
-			return
-		}
+		if (nextExpirationTime > time) return
 		nextExpirationTime = Long.MAX_VALUE
 		val iterator = map.iterator()
 		while (iterator.hasNext()) {
-			val (_, v) = iterator.next()
-			if (v.isBeOverdue(time)) {
-				iterator.remove()
-			}
-			else if (nextExpirationTime > v.time) {
-				nextExpirationTime = v.time
-			}
+			val v = iterator.next().value
+			if (v.isBeOverdue(time)) iterator.remove()
+			else if (nextExpirationTime > v.time) nextExpirationTime = v.time
 		}
 	}
 }

@@ -33,7 +33,7 @@ class ReplaceNode private constructor(
 				continue
 			}
 			if (c == '\\') {
-				if (nodeTmp != null) {
+				if (nodeTmp !== null) {
 					sb.append(nodeTmp.replace)
 					nodeTmp = null
 					node = this
@@ -43,8 +43,8 @@ class ReplaceNode private constructor(
 			}
 			while (true) {
 				val value = node[c]
-				if (value != null) {
-					if (value.replace != null) nodeTmp = value
+				if (value !== null) {
+					if (value.replace !== null) nodeTmp = value
 					node = value
 					break
 				}
@@ -58,7 +58,7 @@ class ReplaceNode private constructor(
 				node = this
 			}
 		}
-		if (nodeTmp != null) {
+		if (nodeTmp !== null) {
 			sb.append(nodeTmp.replace)
 		}
 		return sb.toString()
