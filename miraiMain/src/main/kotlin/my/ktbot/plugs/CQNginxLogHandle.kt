@@ -45,7 +45,7 @@ object CQNginxLogHandle : Plug(
 
 	@AutoCall(
 		name = "添加banip",
-		regex = RegexAnn("^[.．。]banip (.+)$", RegexOption.IGNORE_CASE),
+		regex = RegexAnn("^[.．。]banip(.+)$", RegexOption.IGNORE_CASE),
 		weight = 10.0,
 		needAdmin = true
 	)
@@ -59,7 +59,7 @@ object CQNginxLogHandle : Plug(
 			try {
 				val start = ProcessBuilder("ipset", "add", "banip", it).start()
 				start.waitFor()
-				it + " -> " + start.errorReader().readLine()
+				it + " -> " + BufferedReader(InputStreamReader(start.errorStream)).use(BufferedReader::readLine)
 			} catch (e: Exception) {
 				logger.error(e)
 				"执行出错：$it"
