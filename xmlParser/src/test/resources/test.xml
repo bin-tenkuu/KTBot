@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"
+
+
+>
+    <channel>
+        <title><![CDATA[A.M. Turing Award Winners]]></title>
+        <link>https://amturing.acm.org/byyear.cfm</link>
+        <atom:link href="http://127.0.0.1:1200/acm/amturingaward" rel="self" type="application/rss+xml"/>
+        <description>
+            <![CDATA[A.M. Turing Award Winners - Made with love by RSSHub(https://github.com/DIYgod/RSSHub)]]></description>
+        <generator>RSSHub</generator>
+        <webMaster>i@diygod.me (DIYgod)</webMaster>
+
+
+        <language>zh-cn</language>
+
+        <lastBuildDate>Thu, 19 May 2022 01:18:01 GMT</lastBuildDate>
+        <ttl>5</ttl>
+
+        <item>
+            <title><![CDATA[2021]]></title>
+            <description><![CDATA[<a href="https://amturing.acm.org/award_winners/dongarra_3406337.cfm"><img src="https://amturing.acm.org/images/lg_aw/3406337.jpg" class="img-rounded" width="219" height="208" alt="Jack Dongarra" referrerpolicy="no-referrer"></a>
+
+<h1 class="country">
+<a href="https://amturing.acm.org/award_winners/dongarra_3406337.cfm">Jack Dongarra</a>
+<a href="https://dl.acm.org/profile/81100368092" target="_blank"><img class="author-link" src="https://amturing.acm.org/images/dl.png" alt="DL Author Profile link" referrerpolicy="no-referrer"></a>
+</h1>
+<div class="description">
+<span>United States – 2021</span>
+</div>
+<div class="citation">
+<span class="label">CITATION</span>
+<p>For his pioneering contributions to numerical algorithms and libraries that enabled high performance computational software to keep pace with exponential hardware improvements for over four decades</p>
+</div>
+
+<div class="bibliography">
+</div>
+]]></description>
+            <pubDate>Fri, 31 Dec 2021 00:00:00 GMT</pubDate>
+            <guid isPermaLink="false">https://amturing.acm.org/byyear.cfm</guid>
+            <link>https://amturing.acm.org/byyear.cfm</link>
+
+
+        </item>
+
+    </channel>
+</rss>
