@@ -3,20 +3,21 @@ package my.ktbot.plugs
 import kotlinx.coroutines.launch
 import my.ktbot.PlugConfig
 import my.ktbot.annotation.AutoCall
+import my.ktbot.annotation.MsgLength
 import my.ktbot.annotation.RegexAnn
 import my.ktbot.interfaces.Plug
 import my.ktbot.utils.NginxLogHandle
 import net.mamoe.mirai.event.events.MessageEvent
 import net.mamoe.mirai.message.data.Message
+import net.mamoe.mirai.message.data.PlainText
 import net.mamoe.mirai.message.data.toPlainText
 import net.mamoe.mirai.utils.ExternalResource.Companion.toExternalResource
-import java.io.*
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 object CQNginxLogHandle : Plug(
 	name = "nginx日志处理",
-	regex = Regex("^[.．。]nginx(?<type>yml|csv)?$", RegexOption.IGNORE_CASE),
+	regex = Regex("^[.．。]nginx$", RegexOption.IGNORE_CASE),
 	weight = 10.0,
 	needAdmin = true,
 	canPrivate = false,
@@ -25,8 +26,12 @@ object CQNginxLogHandle : Plug(
 	private val formater = DateTimeFormatter.ofPattern("uuuu-MM-dd HH-mm")
 	private val nowFile: String get() = formater.format(LocalDateTime.now())
 	override suspend fun invoke(event: MessageEvent, result: MatchResult): Message {
-		if (NginxLogHandle.logSize() < 512) {
-			return "日志量过少".toPlainText()
+		if (NginxLogHandle.logSize() < 1) {
+			return "无日志".toPlainText()
+		}
+		val sb = StringBuilder("正在发送")
+		for (it in NginxLogHandle.banipResult()) {
+			sb.append("\n").append(it)
 		}
 		val group = PlugConfig.getAdminGroup(event.bot)
 		group.launch {
@@ -36,7 +41,7 @@ object CQNginxLogHandle : Plug(
 			group.files.uploadNewFile("$nowFile.yml", yml)
 			NginxLogHandle.flushFiles()
 		}
-		return "正在发送".toPlainText()
+		return PlainText(sb)
 	}
 
 	private val ipRegex =
@@ -46,6 +51,7 @@ object CQNginxLogHandle : Plug(
 		name = "添加banip",
 		regex = RegexAnn("^[.．。]banip(.+)$", RegexOption.IGNORE_CASE),
 		weight = 10.0,
+		msgLength = MsgLength(0, Int.MAX_VALUE),
 		needAdmin = true
 	)
 	private fun addIP(result: MatchResult): String {
@@ -54,15 +60,7 @@ object CQNginxLogHandle : Plug(
 		if (list.isEmpty()) {
 			return "未匹配到ip"
 		}
-		return list.joinToString("\n") {
-			try {
-				val start = ProcessBuilder("ipset", "add", "banip", it).start()
-				start.waitFor()
-				it + " -> " + BufferedReader(InputStreamReader(start.errorStream)).use(BufferedReader::readLine)
-			} catch (e: Exception) {
-				logger.error(e)
-				"执行出错：$it"
-			}
-		}
+		NginxLogHandle.banip(list)
+		return NginxLogHandle.banipResult().joinToString("\n")
 	}
 }
