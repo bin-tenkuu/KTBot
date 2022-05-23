@@ -50,7 +50,7 @@ object NginxLogHandle {
 			return true
 		}
 
-		fun toCsv() = "$fromFile,$ip,$user,$time,$status,$referer,$bytes,$method,$url,$protocol,$agent,$extra"
+		fun toCsv() = "$fromFile,$ip,\"$user\",$time,$status,\"$referer\",$bytes,$method,\"$url\",$protocol,\"$agent\",\"$extra\""
 
 		companion object {
 			fun toCsv() = "fromFile,ip,user,time,status,referer,bytes,method,url,protocol,agent,extra"
