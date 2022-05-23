@@ -2,18 +2,21 @@ plugins {
 	kotlin("jvm")
 	kotlin("plugin.serialization")
 
-	id("net.mamoe.mirai-console") version "2.10.3"
+	id("net.mamoe.mirai-console") version "2.11.0"
 }
+
+description = "mirai 主类"
 
 dependencies {
 	implementation(project(":xmlParser"))
 	implementation("org.xerial:sqlite-jdbc:3.36.0.3")
+	implementation(project(":mySqlite"))
 	implementation("org.ktorm:ktorm-core:3.4.1")
 	implementation("org.ktorm:ktorm-support-sqlite:3.4.1")
 	implementation("org.jetbrains.kotlin:kotlin-reflect:1.4.0")
 	implementation("io.ktor:ktor-client-serialization-jvm:1.6.8")
 	compileOnly("org.jetbrains:annotations:23.0.0")
-	implementation("ch.qos.logback:logback-classic:1.2.11")
+	// implementation("ch.qos.logback:logback-classic:1.2.11")
 	// implementation("org.fusesource.jansi:jansi:2.4.0")
 	// implementation("org.apache.logging.log4j:log4j-api:2.17.1")
 	// implementation("org.apache.logging.log4j:log4j-core:2.17.1")
@@ -44,7 +47,7 @@ tasks.create("build2Jar") {
 		File(pluginPath).listFiles()?.forEach {
 			if (it.isFile) {
 				println("Delete File: ${it.name}")
-				if (!it.delete()) {
+				if (!delete(it)) {
 					println("Cannot Delete File:${it.name}")
 				}
 			}

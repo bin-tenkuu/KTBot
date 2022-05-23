@@ -1,4 +1,4 @@
-package my.ktbot.utils.sqlite
+package my.sqlite
 
 import org.ktorm.expression.*
 

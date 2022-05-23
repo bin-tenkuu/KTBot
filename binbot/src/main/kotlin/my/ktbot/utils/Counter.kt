@@ -5,7 +5,6 @@ import kotlinx.coroutines.launch
 import my.ktbot.PluginMain
 import my.ktbot.database.*
 import my.ktbot.interfaces.Plug
-import my.ktbot.utils.sqlite.Sqlite
 import net.mamoe.mirai.Bot
 import net.mamoe.mirai.contact.Contact
 import net.mamoe.mirai.event.events.GroupEvent

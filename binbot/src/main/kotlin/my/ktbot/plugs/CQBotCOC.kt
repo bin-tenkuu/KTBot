@@ -8,7 +8,7 @@ import my.ktbot.database.TCOCShortKey
 import my.ktbot.interfaces.Plug
 import my.ktbot.utils.CacheMap
 import my.ktbot.utils.DiceResult
-import my.ktbot.utils.sqlite.Sqlite
+import my.ktbot.utils.Sqlite
 import net.mamoe.mirai.event.events.MessageEvent
 import net.mamoe.mirai.message.data.Message
 import net.mamoe.mirai.message.data.toPlainText

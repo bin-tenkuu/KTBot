@@ -1,4 +1,4 @@
-package my.ktbot.xml
+package my.parser.xml
 
 class XmlConfig(
 	val version: String,

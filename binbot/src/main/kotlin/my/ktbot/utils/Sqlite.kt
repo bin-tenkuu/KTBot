@@ -1,7 +1,7 @@
-package my.ktbot.utils.sqlite
+package my.ktbot.utils
 
 import my.ktbot.PluginMain
-import my.ktbot.utils.LoggerBridge
+import my.sqlite.SQLiteCostom
 import org.ktorm.database.Database
 import org.ktorm.entity.EntitySequence
 import org.ktorm.entity.sequenceOf

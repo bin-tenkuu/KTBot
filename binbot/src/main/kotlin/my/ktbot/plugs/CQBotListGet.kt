@@ -7,7 +7,7 @@ import my.ktbot.database.TMembers
 import my.ktbot.interfaces.Plug
 import my.ktbot.utils.Counter
 import my.ktbot.utils.calculator.Calculator
-import my.ktbot.utils.sqlite.Sqlite
+import my.ktbot.utils.Sqlite
 import net.mamoe.mirai.event.events.MessageEvent
 import net.mamoe.mirai.message.data.*
 import org.ktorm.dsl.eq

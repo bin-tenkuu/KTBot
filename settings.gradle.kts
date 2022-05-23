@@ -1,3 +1,4 @@
 rootProject.name = "KTBot"
 include("xmlParser")
-include("miraiMain")
+include("binbot")
+include("mySqlite")
