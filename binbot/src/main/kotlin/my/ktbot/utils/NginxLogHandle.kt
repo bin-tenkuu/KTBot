@@ -7,9 +7,13 @@ import my.ktbot.interfaces.Plug
 import java.io.*
 
 object NginxLogHandle {
-
+	//	'$remote_addr - $remote_user [$time_iso8601] "$request"'
+	//	' $status,$body_bytes_sent "$http_referer" "$http_user_agent"'
+	//	',"$http_x_forwarded_for","$http_host"';
 	private val nginxRegex = Regex(
-		"^(?<ip>[^ ]+) - (?<user>[^ ]+) \\[(?<time>[^]]+)] \"(?:(?<method>[A-Z]{3,7}) )?(?<url>[^ ]*)(?: (?<protocol>[^\"]+))?\" (?<status>\\d+) (?<bytes>\\d+) \"(?<referer>[^\"]*)\" \"(?<agent>[^\"]*)\"(?<extra>.*)",
+		"^(?<ip>[^ ]+) - (?<user>[^ ]+) \\[(?<time>[^]]+)] \"(?:(?<method>[A-Z]{3,7}) )?(?<url>[^ ]*)(?: (?<protocol>[^\"]+))?\"" +
+			" (?<status>\\d+) (?<bytes>\\d+) \"(?<referer>[^\"]*)\" \"(?<agent>[^\"]*)\"" +
+			",(?<extra>.*)",
 	)
 
 	@Serializable
@@ -46,11 +50,11 @@ object NginxLogHandle {
 		val success get() = status.length != 3 || status[0] != '2'
 		val warn get() = warnReg.containsMatchIn(url)
 		fun toCsv() =
-			"\"$fromFile\",\"$ip\",\"$user\",\"$time\",$status,\"$referer\",$bytes,$method,\"$url\",$protocol,\"$agent\",\"$extra\""
+			"$fromFile,$ip,$user,$time,$status,\"$referer\",$bytes,$method,\"$url\",$protocol,\"$agent\",$extra"
 
 		companion object {
 			val warnReg = Regex("-rf|wget")
-			fun toCsv() = "fromFile,ip,user,time,status,referer,bytes,method,url,protocol,agent,extra"
+			fun toCsv() = "fromFile,ip,user,time,status,referer,bytes,method,url,protocol,agent,forwarded,host"
 		}
 	}
 
