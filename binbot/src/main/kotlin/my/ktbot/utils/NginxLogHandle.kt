@@ -101,6 +101,7 @@ object NginxLogHandle {
 						continue
 					}
 					val element = LogNginx(result, name)
+					if (element.method === null) continue
 					val ip = element.ip
 					if (ip in pass) continue
 					else if (element.success) {
