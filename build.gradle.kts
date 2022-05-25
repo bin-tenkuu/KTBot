@@ -7,8 +7,8 @@ plugins {
 	kotlin("plugin.spring") version kotlinVersion
 	kotlin("plugin.serialization") version kotlinVersion
 
-	id("org.springframework.boot") version "2.7.0"
-	id("io.spring.dependency-management") version "1.0.11.RELEASE"
+	// id("org.springframework.boot") version "2.7.0"
+	// id("io.spring.dependency-management") version "1.0.11.RELEASE"
 	id("net.mamoe.mirai-console") version "2.11.0"
 }
 
@@ -27,7 +27,7 @@ dependencies {
 	implementation("org.ktorm:ktorm-core:3.4.1")
 	implementation("org.ktorm:ktorm-support-sqlite:3.4.1")
 	implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
-	implementation("io.ktor:ktor-client-serialization-jvm:1.6.8")
+	implementation("io.ktor", "ktor-client-serialization-jvm", "1.6.8")
 	compileOnly("org.jetbrains:annotations:23.0.0")
 	// implementation("ch.qos.logback:logback-classic:1.2.11")
 	// implementation("org.fusesource.jansi:jansi:2.4.0")
@@ -36,8 +36,7 @@ dependencies {
 	// api("net.mamoe:mirai-logging-log4j2:2.9.2")
 	// implementation("org.reflections:reflections:0.10.2")
 
-
-	implementation("org.springframework.boot:spring-boot-starter")
+	// implementation("org.springframework.boot:spring-boot-starter")
 	implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 }
 
