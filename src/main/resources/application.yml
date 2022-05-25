@@ -1,0 +1,29 @@
+server:
+  port: 8080
+  tomcat:
+    uri-encoding: UTF-8
+
+debug: false
+
+spring:
+  main:
+    banner-mode: off
+  output.ansi.enabled: always
+  application:
+    name: application-gpg
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    locale: zh_CN
+    time-zone: GMT+8
+    default-property-inclusion: non_null
+
+logging:
+  file.name: ./logs/gpg.log
+  pattern:
+    console: '%d{yyyy-MM-dd HH:mm:ss.SSS} %clr(%-5level) [%clr(%thread){blue}] - %cyan(%logger{50}) : %msg%n'
+    file: '%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] - %logger{50} : %line - %msg%n'
+  level:
+    root: info
+    org.springframework: warn
+    springfox.documentation: warn
+    com.om: debug

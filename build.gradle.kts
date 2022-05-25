@@ -4,8 +4,11 @@ val kotlinVersion = "1.6.21"
 plugins {
 	val kotlinVersion = "1.6.21"
 	kotlin("jvm") version kotlinVersion
+	kotlin("plugin.spring") version kotlinVersion
 	kotlin("plugin.serialization") version kotlinVersion
 
+	id("org.springframework.boot") version "2.7.0"
+	id("io.spring.dependency-management") version "1.0.11.RELEASE"
 	id("net.mamoe.mirai-console") version "2.11.0"
 }
 
@@ -32,6 +35,10 @@ dependencies {
 	// implementation("org.apache.logging.log4j:log4j-core:2.17.1")
 	// api("net.mamoe:mirai-logging-log4j2:2.9.2")
 	// implementation("org.reflections:reflections:0.10.2")
+
+
+	implementation("org.springframework.boot:spring-boot-starter")
+	implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 }
 
 mirai {
@@ -49,12 +56,12 @@ mirai {
 	}
 }
 
-tasks.withType(AbstractCompile::class.java) {
+tasks.withType<AbstractCompile> {
 	sourceCompatibility = JavaVersion.VERSION_17.toString()
 	targetCompatibility = JavaVersion.VERSION_17.toString()
 }
 
-tasks.withType(KotlinCompile::class.java) {
+tasks.withType<KotlinCompile> {
 	kotlinOptions {
 		jvmTarget = JavaVersion.VERSION_17.toString()
 		freeCompilerArgs = listOf(
