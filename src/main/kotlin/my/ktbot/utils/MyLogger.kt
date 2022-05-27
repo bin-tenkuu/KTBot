@@ -12,7 +12,7 @@ import kotlin.reflect.KClass
  * @since 1.0
  * @date 2022/1/28
  */
-class MyLogger : MiraiLogger.Factory {
+class MyLogger : MiraiLogger.Factory by MyLogger {
 	companion object : MiraiLogger.Factory {
 		fun getLogger(requester: Class<*>, identity: String? = null): Logger {
 			return LoggerFactory.getLogger(identity ?: requester.simpleName ?: requester.name)
@@ -21,26 +21,10 @@ class MyLogger : MiraiLogger.Factory {
 		fun getLogger(requester: KClass<*>, identity: String? = null): Logger = getLogger(requester.java, identity)
 
 		override fun create(requester: Class<*>, identity: String?): MiraiLogger {
+			// MiraiLogger.Factory.create(requester)
 			// return DirectoryLogger(identity ?: requester.simpleName ?: requester.name, File("./logs"),
 			// 	Duration.ofDays(10).toMillis())
 			return getLogger(requester, identity).asMiraiLogger()
 		}
-
-	}
-
-	override fun create(requester: Class<*>, identity: String?): MiraiLogger {
-		return MyLogger.create(requester, identity)
-	}
-
-	override fun create(requester: Class<*>): MiraiLogger {
-		return MyLogger.create(requester)
-	}
-
-	override fun create(requester: KClass<*>): MiraiLogger {
-		return MyLogger.create(requester)
-	}
-
-	override fun create(requester: KClass<*>, identity: String?): MiraiLogger {
-		return MyLogger.create(requester, identity)
 	}
 }

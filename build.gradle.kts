@@ -38,7 +38,9 @@ dependencies {
 	// implementation("net.mamoe:mirai-core-all:2.11.1")
 	// implementation("net.mamoe:mirai-console:2.11.1")
 	// implementation("net.mamoe:mirai-console-terminal:2.11.1")
-	// implementation("org.springframework.boot:spring-boot-starter")
+	// implementation("org.springframework.boot:spring-boot-starter") {
+	// 	exclude("")
+	// }
 	implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 }
 
