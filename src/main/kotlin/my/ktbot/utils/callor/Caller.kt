@@ -13,7 +13,7 @@ import kotlin.reflect.*
 import kotlin.reflect.full.callSuspend
 import kotlin.reflect.jvm.isAccessible
 
-internal sealed class Caller(
+abstract class Caller(
 	autoCall: AutoCall,
 ) : Plug(
 	name = autoCall.name,
@@ -59,7 +59,8 @@ internal sealed class Caller(
 				return callable.callSuspend(obj, *Array(args.size) {
 					args[it].get() ?: return null
 				})
-			} catch (e: Exception) {
+			}
+			catch (e: Exception) {
 				logger.error(e.cause ?: e)
 				return null
 			}

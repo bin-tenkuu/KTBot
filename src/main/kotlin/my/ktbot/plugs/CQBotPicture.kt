@@ -7,9 +7,11 @@ import my.ktbot.annotation.MsgLength
 import my.ktbot.annotation.RegexAnn
 import my.ktbot.dao.Lolicon
 import my.ktbot.dao.LoliconRequest
+import my.ktbot.database.Gmt.Companion.add
 import my.ktbot.database.PixivPic
 import my.ktbot.database.TPixivPic
 import my.ktbot.interfaces.Plug
+import my.ktbot.utils.Counter
 import my.ktbot.utils.KtorUtils
 import my.ktbot.utils.Sqlite
 import my.sqlite.insertOrUpdate
@@ -43,8 +45,6 @@ object CQBotPicture : Plug(
 	""".trimMargin().toPlainText(),
 	deleteMSG = 20 * 1000,
 	speedLimit = 5000,
-	expPrivate = -8.0,
-	expGroup = -5.0,
 	msgLength = 4..20,
 ) {
 
@@ -74,14 +74,15 @@ object CQBotPicture : Plug(
 
 	override suspend fun invoke(event: FriendMessageEvent, result: MatchResult): Message {
 		val sender = event.sender
+		Counter.members[sender.id].add(-8.0)
 		return message(result, sender)
 	}
 
 	override suspend fun invoke(event: GroupMessageEvent, result: MatchResult): Message {
-		if (AbstractPermitteeId.ExactGroup(event.group.id) in PluginPerm.setu) {
-			return EmptyMessageChain
-		}
-		return message(result, event.group)
+		val group = event.group
+		if (AbstractPermitteeId.ExactGroup(group.id) in PluginPerm.setu) return EmptyMessageChain
+		Counter.groups[group.id].add(-5.0) || Counter.members[event.sender.id].add(-5.0)
+		return message(result, group)
 	}
 
 	@JvmStatic
@@ -107,7 +108,8 @@ object CQBotPicture : Plug(
 			).receive<ByteArray>().toExternalResource().toAutoCloseable().uploadAsImage(contact)
 			contact.sendMessage("作者：${lolicon.uid}\n原图p${lolicon.p}：${lolicon.pid}")
 			return image
-		} catch (e: Exception) {
+		}
+		catch (e: Exception) {
 			logger.error(e)
 			return "<WARN>:网络请求失败".toPlainText()
 		}

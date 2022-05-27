@@ -2,7 +2,6 @@ package my.ktbot.interfaces
 
 import kotlinx.coroutines.sync.Mutex
 import my.ktbot.PlugConfig
-import my.ktbot.database.Gmt.Companion.add
 import my.ktbot.utils.CacheMap
 import my.ktbot.utils.Counter
 import my.ktbot.utils.callor.AutoCallor
@@ -140,16 +139,11 @@ abstract class Plug(
 	}
 
 	private fun get(event: GroupMessageEvent): Boolean {
-		return canGroup && !Counter.groups[event.group.id].isBaned && (expGroup == 0.0
-			|| Counter.groups[event.group.id].add(expGroup)
-			|| Counter.members[event.sender.id].add(expGroup)
-			)
+		return canGroup && !Counter.groups[event.group.id].isBaned
 	}
 
 	private fun get(event: FriendMessageEvent): Boolean {
-		return canPrivate && (expPrivate == 0.0
-			|| Counter.members[event.sender.id].add(expPrivate)
-			)
+		return canPrivate && !Counter.members[event.sender.id].isBaned
 	}
 
 	// endregion

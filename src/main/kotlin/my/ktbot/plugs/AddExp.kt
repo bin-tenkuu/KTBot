@@ -18,8 +18,6 @@ object AddExp : Plug(
 	name = "(活跃增长)",
 	regex = Regex("^"),
 	weight = Double.MAX_VALUE,
-	expPrivate = 0.5,
-	expGroup = 1.0,
 	msgLength = 0..Int.MAX_VALUE
 ) {
 	override suspend fun invoke(event: MessageEvent, result: MatchResult): Message? {
@@ -27,13 +25,13 @@ object AddExp : Plug(
 	}
 
 	override suspend fun invoke(event: GroupMessageEvent, result: MatchResult): Message? {
-		Counter.groups[event.group.id].add(expGroup)
-		Counter.members[event.sender.id].add(expGroup)
+		Counter.groups[event.group.id].add(1.0)
+		Counter.members[event.sender.id].add(1.0)
 		return null
 	}
 
 	override suspend fun invoke(event: FriendMessageEvent, result: MatchResult): Message? {
-		Counter.members[event.sender.id].add(expPrivate)
+		Counter.members[event.sender.id].add(0.5)
 		return null
 	}
 }

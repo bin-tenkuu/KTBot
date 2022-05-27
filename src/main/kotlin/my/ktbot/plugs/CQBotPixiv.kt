@@ -1,6 +1,8 @@
 package my.ktbot.plugs
 
+import my.ktbot.database.Gmt.Companion.add
 import my.ktbot.interfaces.Plug
+import my.ktbot.utils.Counter
 import my.ktbot.utils.KtorUtils
 import net.mamoe.mirai.contact.Contact
 import net.mamoe.mirai.event.events.FriendMessageEvent
@@ -24,17 +26,17 @@ object CQBotPixiv : Plug(
 	help = "看看p站带上pid发送，可选参数：p".toPlainText(),
 	deleteMSG = 100 * 1000,
 	speedLimit = 2000,
-	expPrivate = -8.0,
-	expGroup = -5.0,
 	msgLength = 5..20,
 ) {
 	override suspend fun invoke(event: GroupMessageEvent, result: MatchResult): Message {
 		val pid: Int = result["pid"]?.run { value.trim().toIntOrNull() } ?: return "pid获取失败".toPlainText()
+		Counter.groups[event.group.id].add(-5.0) || Counter.members[event.sender.id].add(-5.0)
 		return this(pid, event.group)
 	}
 
 	override suspend fun invoke(event: FriendMessageEvent, result: MatchResult): Message {
 		val pid: Int = result["pid"]?.run { value.trim().toIntOrNull() } ?: return "pid获取失败".toPlainText()
+		Counter.members[event.sender.id].add(-8.0)
 		return this(pid, event.sender)
 	}
 

@@ -4,6 +4,9 @@ import kotlinx.coroutines.*
 import my.ktbot.interfaces.Plug
 import my.ktbot.plugs.*
 import my.ktbot.utils.*
+import my.miraiplus.MyEventHandle
+import my.miraiplus.annotation.MessageHandle
+import my.miraiplus.injector.Injector
 import net.mamoe.mirai.Bot
 import net.mamoe.mirai.console.extension.PluginComponentStorage
 import net.mamoe.mirai.console.plugin.jvm.JvmPlugin
@@ -31,10 +34,10 @@ object PluginMain : KotlinPlugin(
 ), JvmPlugin {
 	private var inviteCount = CacheMap<Long, Unit>(Duration.ofHours(12).toMillis())
 
-	@JvmStatic
-	private val eventChannel: EventChannel<Event> by lazy {
-		GlobalEventChannel.parentScope(this).exceptionHandler(logger::error)
-	}
+	@JvmField
+	val eventChannel: EventChannel<Event> = GlobalEventChannel.parentScope(this).exceptionHandler(logger::error)
+
+	private val myEventHandle = MyEventHandle(this)
 
 	@JvmStatic
 	private val eventListeners: ArrayList<CompletableJob> = ArrayList()
@@ -72,6 +75,17 @@ object PluginMain : KotlinPlugin(
 		}
 		subscribeAlways<MessageEvent> { Counter.log(it) }
 		subEvents()
+		myEventHandle.register(this, ::test)
+		myEventHandle.injector.add(object : Injector<MessageHandle>() {
+			override fun doAfter(ann: MessageHandle, event: MessageEvent, result: Any?) {
+				async { result.toMassage()?.let { event.subject.sendMessage(it) } }
+			}
+		})
+	}
+
+	@MessageHandle("^[.．。]1")
+	private fun test(): Int {
+		return 1
 	}
 
 	override fun onDisable() {
@@ -122,7 +136,8 @@ object PluginMain : KotlinPlugin(
 				inviteCount[fromId] = Unit
 				//自动同意好友申请
 				accept()
-			} else reject()
+			}
+			else reject()
 		}
 		subscribeAlways<BotInvitedJoinGroupRequestEvent> {
 			val msg = "${invitorNick}（${invitorId}）邀请加入群 ${groupName}（${groupId}）"
@@ -150,7 +165,8 @@ object PluginMain : KotlinPlugin(
 			logger.info("MemberJoinEvent: ${msg}")
 			try {
 				group.sendMessage(PlainText(msg))
-			} catch (e: Exception) {
+			}
+			catch (e: Exception) {
 				logger.error(toString(), e)
 				sendAdmin("来自群：${groupId}\n${msg}")
 			}
@@ -179,7 +195,8 @@ object PluginMain : KotlinPlugin(
 			logger.info("MemberLeaveEvent: ${msg}")
 			try {
 				group.sendMessage(PlainText(msg))
-			} catch (e: Exception) {
+			}
+			catch (e: Exception) {
 				logger.error(toString(), e)
 				sendAdmin("来自群：${groupId}\n${msg}")
 			}

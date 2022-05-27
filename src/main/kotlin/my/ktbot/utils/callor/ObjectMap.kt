@@ -11,7 +11,7 @@ class ObjectMap(name: String? = null) : Cloneable {
 		set(name, this)
 	}
 
-	// region getter, setter
+	// region getter, setter, remove
 
 	operator fun <T : Any> get(kClass: KClass<out T>, name: String? = null) = this[kClass.java, name]
 	operator fun <T : Any> get(clazz: Class<out T>, name: String? = null): T? {
@@ -48,6 +48,20 @@ class ObjectMap(name: String? = null) : Cloneable {
 		return this
 	}
 
+	fun <T : Any> remove(value: T) {
+		val function: (SortObject<*>) -> Boolean = { it.obj === value || it.obj == value }
+		val set = HashSet<Class<*>>()
+		var tmp: Class<*>? = value::class.java
+		while (tmp != null) {
+			map[tmp]?.removeIf(function)
+			for (iclazz: Class<*> in tmp.interfaces) {
+				if (set.add(iclazz)) {
+					map[iclazz]?.removeIf(function)
+				}
+			}
+			tmp = tmp.superclass
+		}
+	}
 	// endregion
 
 	fun clear() = map.clear()
@@ -64,7 +78,7 @@ class ObjectMap(name: String? = null) : Cloneable {
 		return "ObjectMap(mapSize=${map.size})"
 	}
 
-	private inner class SortObject<T>(
+	private inner class SortObject<T : Any>(
 		@JvmField
 		val obj: T,
 		private val weight: Int,
