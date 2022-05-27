@@ -1,6 +1,5 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-val kotlinVersion = "1.6.21"
 plugins {
 	val kotlinVersion = "1.6.21"
 	kotlin("jvm") version kotlinVersion
@@ -9,7 +8,7 @@ plugins {
 
 	// id("org.springframework.boot") version "2.7.0"
 	// id("io.spring.dependency-management") version "1.0.11.RELEASE"
-	id("net.mamoe.mirai-console") version "2.11.0"
+	id("net.mamoe.mirai-console") version "2.11.1"
 }
 
 group = "my.ktbot"
@@ -26,16 +25,19 @@ dependencies {
 	implementation("org.xerial:sqlite-jdbc:3.36.0.3")
 	implementation("org.ktorm:ktorm-core:3.4.1")
 	implementation("org.ktorm:ktorm-support-sqlite:3.4.1")
-	implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
+	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	implementation("io.ktor", "ktor-client-serialization-jvm", "1.6.8")
 	compileOnly("org.jetbrains:annotations:23.0.0")
-	// implementation("ch.qos.logback:logback-classic:1.2.11")
+	// implementation("net.mamoe:mirai-logging-slf4j-logback:2.10.3")
 	// implementation("org.fusesource.jansi:jansi:2.4.0")
 	// implementation("org.apache.logging.log4j:log4j-api:2.17.1")
 	// implementation("org.apache.logging.log4j:log4j-core:2.17.1")
 	// api("net.mamoe:mirai-logging-log4j2:2.9.2")
 	// implementation("org.reflections:reflections:0.10.2")
 
+	// implementation("net.mamoe:mirai-core-all:2.11.1")
+	// implementation("net.mamoe:mirai-console:2.11.1")
+	// implementation("net.mamoe:mirai-console-terminal:2.11.1")
 	// implementation("org.springframework.boot:spring-boot-starter")
 	implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 }
