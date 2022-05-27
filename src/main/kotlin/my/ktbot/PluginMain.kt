@@ -58,27 +58,19 @@ object PluginMain : KotlinPlugin(
 	override fun onEnable() {
 		logger.warning("Plugin loaded")
 		logger.warning(Counter.members[2938137849].toString())
+		fun Long.toNow() = Duration.ofMillis(System.currentTimeMillis() - this)
 
 		subscribeAlways<GroupMessageEvent> {
 			val millis = System.currentTimeMillis()
 			val plug = Plug(this) ?: return@subscribeAlways
-			Counter.log(this, plug)
-			logger.info(
-				"${
-					Duration.ofMillis(System.currentTimeMillis() - millis)
-				}:${plug.name}\t来源:${sender.group.id}.${sender.id}"
-			)
+			logger.info("${millis.toNow()}:${plug.name}\t来源:${sender.group.id}.${sender.id}")
 		}
 		subscribeAlways<FriendMessageEvent> {
 			val millis = System.currentTimeMillis()
 			val plug = Plug(this) ?: return@subscribeAlways
-			Counter.log(this, plug)
-			logger.info(
-				"${
-					Duration.ofMillis(System.currentTimeMillis() - millis)
-				}:${plug.name}\t来源:${sender.id}"
-			)
+			logger.info("${millis.toNow()}:${plug.name}\t来源:${sender.id}")
 		}
+		subscribeAlways<MessageEvent> { Counter.log(it) }
 		subEvents()
 	}
 

@@ -9,12 +9,14 @@ import net.mamoe.mirai.Bot
 import net.mamoe.mirai.contact.Contact
 import net.mamoe.mirai.event.events.GroupEvent
 import net.mamoe.mirai.event.events.MessageEvent
-import net.mamoe.mirai.message.data.*
+import net.mamoe.mirai.message.data.EmptyMessageChain
+import net.mamoe.mirai.message.data.ForwardMessageBuilder
+import net.mamoe.mirai.message.data.Message
 import org.ktorm.dsl.eq
 import java.time.Duration
 
 /**
- *
+ * 统计类
  * @author bin
  * @since 1.0
  * @date 2022/1/26
@@ -29,25 +31,15 @@ object Counter {
 	@JvmStatic
 	val members = CacheSql(TMembers)
 
-	@JvmStatic
-	private val plugMap = object {
-		operator fun component1(): MutableMap<Long, PlugMap> = groups
-		operator fun component2(): MutableMap<Long, PlugMap> = members
+	/**
+	 * 群聊事件统计
+	 */
+	private val groupMap = HashMap<Long, HashMap<Long, Int>>()
 
-		val groups: MutableMap<Long, PlugMap> = mutableMapOf()
-		val members: MutableMap<Long, PlugMap> = mutableMapOf()
-
-	}
-
-	private class PlugMap : HashMap<Plug, Int>() {
-		override operator fun get(key: Plug): Int {
-			return getOrDefault(key, 0)
-		}
-
-		operator fun plusAssign(key: Plug) {
-			put(key, get(key) + 1)
-		}
-	}
+	/**
+	 * 私聊事件统计
+	 */
+	private val memberMap = HashMap<Long, Int>()
 
 	init {
 		PluginMain.launch {
@@ -79,18 +71,15 @@ object Counter {
 	}
 
 	@JvmStatic
-	fun log(event: MessageEvent, plug: Plug) {
-		plugMap.members.getOrPut(event.sender.id, ::PlugMap) += plug
-		if (event is GroupEvent) {
-			plugMap.groups.getOrPut(event.group.id, ::PlugMap) += plug
-		}
+	fun log(event: MessageEvent) {
+		operator fun HashMap<Long, Int>.invoke(key: Long) = set(key, getOrDefault(key, 0) + 1)
+		if (event !is GroupEvent) memberMap(event.sender.id)
+		else groupMap.getOrPut(event.group.id) { HashMap() }(event.sender.id)
 	}
 
 	@JvmStatic
 	fun state(context: Contact): Message {
-		val groups = plugMap.groups.toMSG()
-		val members = plugMap.members.toMSG()
-		if (groups.isEmpty() && members.isEmpty()) {
+		if (groupMap.isEmpty() && memberMap.isEmpty()) {
 			return EmptyMessageChain
 		}
 		return ForwardMessageBuilder(context, 2).apply {
@@ -101,8 +90,7 @@ object Counter {
 			}
 
 			fun Bot.says(pre: String, list: List<String>) {
-				says(pre)
-				val sb = StringBuilder()
+				val sb = StringBuilder(pre)
 				var i = 0
 				for (msg in list) {
 					i++
@@ -114,23 +102,19 @@ object Counter {
 				}
 				if (sb.isNotEmpty()) sb.saysTo(this)
 			}
-			bot.says("群内：", groups)
-			bot.says("个人：", members)
+
+			fun Map<Long, Int>.toMSG() = map { (id, num) -> "${id}：${num}次" }
+			for ((group, list) in groupMap) {
+				bot.says("群($group)：", list.toMSG())
+			}
+			bot.says("个人：", memberMap.toMSG())
 		}.build()
 	}
 
 	@JvmStatic
 	fun clear() {
-		plugMap.groups.clear()
-		plugMap.members.clear()
-	}
-
-	private fun Map<Long, PlugMap>.toMSG(): List<String> {
-		return map {
-			it.key to it.value.values.sum()
-		}.sortedByDescending(Pair<Long, Int>::second).map { (id, num) ->
-			"${id}：${num}次"
-		}
+		groupMap.clear()
+		memberMap.clear()
 	}
 
 	class CacheSql<E : Gmt<E>, T : TGmt<E>>(private val table: T) {
