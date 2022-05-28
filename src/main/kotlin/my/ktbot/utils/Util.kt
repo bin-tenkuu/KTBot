@@ -43,17 +43,17 @@ suspend fun BotEvent.sendAdmin(msg: Message) {
 	}
 }
 
-fun Any?.toMassage(): Message? {
+fun Any?.toMessage(): Message? {
 	return when (this) {
 		null -> null
 		Unit -> null
 		is Message -> this
 		is CharSequence -> if (isEmpty()) EmptyMessageChain else PlainText(this)
 		is Array<*> -> buildMessageChain {
-			addAll(this@toMassage.mapNotNull(Any?::toMassage))
+			addAll(this@toMessage.mapNotNull(Any?::toMessage))
 		}
 		is Iterable<*> -> buildMessageChain {
-			addAll(this@toMassage.mapNotNull(Any?::toMassage))
+			addAll(this@toMessage.mapNotNull(Any?::toMessage))
 		}
 		else -> PlainText(toString())
 	}

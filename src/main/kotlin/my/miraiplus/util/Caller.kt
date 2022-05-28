@@ -1,8 +1,8 @@
 package my.miraiplus.util
 
-import my.ktbot.annotation.Qualifier
 import my.ktbot.utils.callor.ObjectMap
 import my.miraiplus.annotation.MessageHandle
+import my.miraiplus.annotation.Qualifier
 import my.miraiplus.injector.InjectMap
 import my.miraiplus.injector.Injector
 import net.mamoe.mirai.console.util.cast
@@ -12,42 +12,82 @@ import kotlin.reflect.*
 import kotlin.reflect.full.callSuspend
 import kotlin.reflect.jvm.isAccessible
 import kotlin.reflect.jvm.javaField
+import kotlin.reflect.jvm.javaMethod
 
-abstract class Caller(
+sealed class Caller(
 	@JvmField
-	protected val obj: Any,
+	val obj: Any,
 	callable: KCallable<*>,
-	@JvmField
-	protected val messageHandle: MessageHandle,
-	@JvmField
-	protected val injector: InjectMap,
+	messageHandle: MessageHandle,
+	private val injector: InjectMap,
 ) : suspend (MessageEvent, MessageEvent) -> Unit {
 	companion object {
 		private val logger = MiraiLogger.Factory.create(Caller::class.java)
 	}
 
-	private val anns: List<Annotation> = callable.annotations
-	protected val regex = Regex(messageHandle.pattern, messageHandle.option.toSet())
+	val name = callable.toString()
+	val tmp = ObjectMap("tmp")
 
-	private val tmp = ObjectMap("tmp")
+	private val anns: List<Annotation> = callable.annotations
+	private val regex = Regex(messageHandle.pattern, messageHandle.option.toSet())
+
 
 	protected fun Pair<Class<out Any>, String?>.get() = tmp[first, second] ?: ObjectMap.global[first, second]
 
-	abstract suspend operator fun invoke(): Any?
+	protected abstract suspend operator fun invoke(): Any?
 
-	override suspend fun invoke(p1: MessageEvent, p2: MessageEvent) {
+	override suspend fun invoke(event: MessageEvent, p2: MessageEvent) {
+		val matchResult = regex.find(event.message.contentToString()) ?: return
+		tmp + event + matchResult
 		val deque = ArrayList<Inject>(anns.size)
 		for (ann in anns) {
-			val list = injector[ann.javaClass] ?: continue
+			val list = injector[ann.annClass] ?: continue
 			for (injector in list) {
 				deque.add(Inject(ann, injector))
 			}
 		}
 		deque.sort()
-		for (inj in deque) inj(p1)
+		for (inj in deque) inj.doBefore(event)
 		val any = invoke()
 		while (deque.isNotEmpty()) {
-			deque.removeLast()(p1, any)
+			deque.removeLast().doAfter(event, any)
+		}
+		tmp.clear()
+	}
+
+	@Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN", "UNCHECKED_CAST")
+	private val <T : Annotation> T.annClass: Class<T>
+		get() = (this as java.lang.annotation.Annotation).annotationType() as Class<T>
+
+	// region impl
+
+	class JavaFunc(
+		obj: Any,
+		property: KFunction<*>,
+		messageHandle: MessageHandle,
+		injector: InjectMap,
+	) : Caller(obj, property, messageHandle, injector) {
+		private val callable = property.javaMethod!!
+
+		init {
+			callable.isAccessible = true
+		}
+
+		private val args = property.parameters.drop(1).map {
+			it.type.classifier.cast<KClass<*>>().java to
+				it.annotations.filterIsInstance<Qualifier>().firstOrNull()?.name
+		}
+
+		override suspend operator fun invoke(): Any? {
+			try {
+				return callable.invoke(obj, *Array(args.size) {
+					args[it].get() ?: return null
+				})
+			}
+			catch (e: Exception) {
+				logger.error(e.cause ?: e)
+				return null
+			}
 		}
 	}
 
@@ -130,9 +170,14 @@ abstract class Caller(
 		}
 	}
 
-	private inner class Inject(val ann: Annotation, val inj: Injector<Annotation>) : Comparable<Inject> {
-		override fun compareTo(other: Inject): Int = inj.weight compareTo other.inj.weight
-		operator fun invoke(e: MessageEvent) = inj.doBefore(ann, e)
-		operator fun invoke(e: MessageEvent, any: Any?) = inj.doAfter(ann, e, any)
+	// endregion
+
+	private inner class Inject(
+		val ann: Annotation,
+		val inj: Injector<Annotation>
+	) : Comparable<Inject> {
+		override fun compareTo(other: Inject): Int = inj.weight.compareTo(other.inj.weight)
+		suspend fun doBefore(e: MessageEvent) = inj.doBefore(ann, e, this@Caller)
+		suspend fun doAfter(e: MessageEvent, any: Any?) = inj.doAfter(ann, e, this@Caller, any)
 	}
 }

@@ -1,4 +1,4 @@
-package my.ktbot.annotation
+package my.miraiplus.annotation
 
 @Target(AnnotationTarget.VALUE_PARAMETER)
 @Retention

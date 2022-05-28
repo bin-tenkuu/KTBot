@@ -1,7 +1,8 @@
 package my.ktbot.plugs
 
-import my.ktbot.interfaces.Plug
 import my.ktbot.utils.ReplaceNode
+import my.miraiplus.annotation.MessageHandle
+import net.mamoe.mirai.event.EventPriority
 import net.mamoe.mirai.event.events.GroupMessageEvent
 import net.mamoe.mirai.message.data.*
 import net.mamoe.mirai.message.data.MessageSource.Key.quote
@@ -12,14 +13,7 @@ import net.mamoe.mirai.message.data.MessageSource.Key.quote
  * @since 1.0
  * @date 2022/1/14
  */
-object CQBotMemeAI : Plug(
-	name = "(@复读AI)",
-	regex = Regex("^"),
-	weight = 91.0,
-	msgLength = 0..50,
-	hidden = true,
-	canPrivate = false,
-) {
+object CQBotMemeAI {
 
 	@JvmStatic
 	private val replaceNode = ReplaceNode() + mapOf(
@@ -37,14 +31,16 @@ object CQBotMemeAI : Plug(
 		"吗" to "",
 	)
 
-	override suspend fun invoke(event: GroupMessageEvent, result: MatchResult): Message {
-		if (!event.message.contains(At(event.bot.id))) return EmptyMessageChain
+	@MessageHandle("", priority = EventPriority.LOW)
+	fun invoke(event: GroupMessageEvent): Message {
+		val message = event.message
+		if (!message.contains(At(event.bot.id))) return EmptyMessageChain
 		val msg: String = replaceNode.replace(
-			event.message.filterIsInstance<PlainText>()
+			message.filterIsInstance<PlainText>()
 				.joinToString("", transform = PlainText::contentToString)
 		)
 		return buildMessageChain {
-			+event.message.quote()
+			+message.quote()
 			+event.sender.at()
 			+msg
 		}

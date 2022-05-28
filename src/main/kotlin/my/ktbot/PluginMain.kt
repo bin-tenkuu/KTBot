@@ -1,12 +1,12 @@
 package my.ktbot
 
 import kotlinx.coroutines.*
+import my.ktbot.annotation.NeedAdminFilter
 import my.ktbot.interfaces.Plug
 import my.ktbot.plugs.*
 import my.ktbot.utils.*
 import my.miraiplus.MyEventHandle
-import my.miraiplus.annotation.MessageHandle
-import my.miraiplus.injector.Injector
+import my.miraiplus.injector.MessageSendInjector
 import net.mamoe.mirai.Bot
 import net.mamoe.mirai.console.extension.PluginComponentStorage
 import net.mamoe.mirai.console.plugin.jvm.JvmPlugin
@@ -51,11 +51,12 @@ object PluginMain : KotlinPlugin(
 		logger.warning("管理员QQ群：${PlugConfig.adminGroup}")
 		Plug += listOf(
 			CQBotCOC, CQBotSBI,
-			CQBotRepeat, AddExp, MemberExp, CQBotBan,
+			CQBotRepeat, MemberExp, CQBotBan,
 			CQBotPixiv, CQBotPicture,
-			CQBotPerm, CQBotHelper, CQBotListGet, CQBotMemeAI,
+			CQBotPerm, CQBotHelper, CQBotListGet,
 			CQNginxLogHandle,
 		)
+		myEventHandle.injector + MessageSendInjector + NeedAdminFilter
 	}
 
 	override fun onEnable() {
@@ -75,20 +76,11 @@ object PluginMain : KotlinPlugin(
 		}
 		subscribeAlways<MessageEvent> { Counter.log(it) }
 		subEvents()
-		myEventHandle.register(this, ::test)
-		myEventHandle.injector.add(object : Injector<MessageHandle>() {
-			override fun doAfter(ann: MessageHandle, event: MessageEvent, result: Any?) {
-				async { result.toMassage()?.let { event.subject.sendMessage(it) } }
-			}
-		})
-	}
-
-	@MessageHandle("^[.．。]1")
-	private fun test(): Int {
-		return 1
+		myEventHandle.register(AddExp)
 	}
 
 	override fun onDisable() {
+		myEventHandle.unregisterAll()
 		eventListeners.removeIf { it.complete();true }
 		Counter.save()
 	}

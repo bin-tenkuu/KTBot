@@ -1,12 +1,11 @@
 package my.ktbot.plugs
 
 import my.ktbot.database.Gmt.Companion.add
-import my.ktbot.interfaces.Plug
 import my.ktbot.utils.Counter
+import my.miraiplus.annotation.MessageHandle
+import net.mamoe.mirai.event.EventPriority
 import net.mamoe.mirai.event.events.FriendMessageEvent
 import net.mamoe.mirai.event.events.GroupMessageEvent
-import net.mamoe.mirai.event.events.MessageEvent
-import net.mamoe.mirai.message.data.Message
 
 /**
  *
@@ -14,24 +13,17 @@ import net.mamoe.mirai.message.data.Message
  * @since 1.0
  * @date 2022/1/10
  */
-object AddExp : Plug(
-	name = "(活跃增长)",
-	regex = Regex("^"),
-	weight = Double.MAX_VALUE,
-	msgLength = 0..Int.MAX_VALUE
-) {
-	override suspend fun invoke(event: MessageEvent, result: MatchResult): Message? {
-		return super.invoke(event, result)
-	}
-
-	override suspend fun invoke(event: GroupMessageEvent, result: MatchResult): Message? {
+object AddExp {
+	@MessageHandle("", priority = EventPriority.LOWEST)
+	@JvmStatic
+	fun invoke(event: GroupMessageEvent) {
 		Counter.groups[event.group.id].add(1.0)
 		Counter.members[event.sender.id].add(1.0)
-		return null
 	}
 
-	override suspend fun invoke(event: FriendMessageEvent, result: MatchResult): Message? {
+	@MessageHandle("", priority = EventPriority.LOWEST)
+	@JvmStatic
+	fun invoke(event: FriendMessageEvent) {
 		Counter.members[event.sender.id].add(0.5)
-		return null
 	}
 }

@@ -1,5 +1,5 @@
 import my.ktbot.annotation.AutoCall
-import my.ktbot.annotation.Qualifier
+import my.miraiplus.annotation.Qualifier
 import my.ktbot.annotation.RegexAnn
 import my.ktbot.utils.callor.AutoCallor
 import my.ktbot.utils.callor.Caller

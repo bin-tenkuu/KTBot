@@ -1,9 +1,9 @@
 package my.ktbot.utils.callor
 
 import my.ktbot.annotation.AutoCall
-import my.ktbot.annotation.Qualifier
+import my.miraiplus.annotation.Qualifier
 import my.ktbot.interfaces.Plug
-import my.ktbot.utils.toMassage
+import my.ktbot.utils.toMessage
 import net.mamoe.mirai.console.util.cast
 import net.mamoe.mirai.event.events.MessageEvent
 import net.mamoe.mirai.message.data.Message
@@ -35,7 +35,7 @@ abstract class Caller(
 	override suspend fun invoke(event: MessageEvent, result: MatchResult): Message? {
 		tmp.clear()
 		tmp + event + result
-		return invoke().toMassage()
+		return invoke().toMessage()
 	}
 
 	protected fun Pair<Class<out Any>, String?>.get() = tmp[first, second] ?: ObjectMap.global[first, second]

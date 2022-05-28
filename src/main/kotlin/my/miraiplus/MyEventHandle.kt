@@ -4,7 +4,7 @@ import my.miraiplus.annotation.MessageHandle
 import my.miraiplus.injector.InjectMap
 import my.miraiplus.util.Caller
 import net.mamoe.mirai.console.plugin.jvm.KotlinPlugin
-import net.mamoe.mirai.console.util.cast
+import net.mamoe.mirai.console.util.safeCast
 import net.mamoe.mirai.event.Listener
 import net.mamoe.mirai.event.events.MessageEvent
 import net.mamoe.mirai.event.globalEventChannel
@@ -17,33 +17,33 @@ import kotlin.reflect.jvm.javaField
 class MyEventHandle(
 	private val plugin: KotlinPlugin
 ) {
-	private val map = HashMap<KCallable<*>, Listener<*>>()
+	private val map = HashMap<String, Listener<*>>()
 
 	@JvmField
 	val injector = InjectMap()
 
 	fun register(obj: Any) {
-		for (member: KCallable<*> in obj::class.declaredMembers) {
-			register(obj, member)
-		}
+		for (member: KCallable<*> in obj::class.declaredMembers) register0(obj, member)
 	}
 
-	fun register(obj: Any, member: KCallable<*>) {
+	private fun register0(obj: Any, member: KCallable<*>) {
 		val caller: Caller
+		val messageHandle: MessageHandle
 		when (member) {
 			is KFunction<*> -> {
-				val messageHandle = member.MessageHandle() ?: return
-				caller = Caller.Func(obj, member, messageHandle, injector)
+				messageHandle = (member.MessageHandle() ?: return)
+				caller = if (member.isSuspend) Caller.Func(obj, member, messageHandle, injector)
+				else Caller.JavaFunc(obj, member, messageHandle, injector)
 			}
 			is KProperty1<*, *> -> {
 				val field = member.javaField
-				val messageHandle =
+				messageHandle =
 					member.MessageHandle() ?: member.getter.MessageHandle() ?: field?.MessageHandle() ?: return
 				caller = (if (field !== null) Caller.JavaField(obj, member, messageHandle, injector)
 				else Caller.Property1(obj, member, messageHandle, injector))
 			}
 			is KProperty2<*, *, *> -> {
-				val messageHandle = member.MessageHandle() ?: member.getter.MessageHandle() ?: return
+				messageHandle = member.MessageHandle() ?: member.getter.MessageHandle() ?: return
 				caller = Caller.Property2(obj, member, messageHandle, injector)
 			}
 			else -> {
@@ -51,19 +51,32 @@ class MyEventHandle(
 				return
 			}
 		}
-		@Suppress("UNCHECKED_CAST")
-		val typeE = member.parameters.map {
-			it.type.classifier.cast<KClass<out MessageEvent>>()
+		val typeE = member.parameters.mapNotNull {
+			it.type.classifier.safeCast<KClass<out MessageEvent>>()
 		}.find(MessageEvent::class::isSuperclassOf) ?: MessageEvent::class
-		map[member] = plugin.globalEventChannel().subscribeAlways(typeE, handler = caller)
+		map[member.toString()] = plugin.globalEventChannel().subscribeAlways(
+			typeE, plugin.coroutineContext, messageHandle.concurrency, messageHandle.priority, caller
+		)
 	}
 
-	fun unRegister(member: KCallable<*>) {
+	fun register(obj: Any, member: KCallable<*>) = register(obj, member.name)
+
+	fun register(obj: Any, member: String) {
+		val kCallable = obj::class.declaredMembers.find { it.name == member } ?: return
+		register0(obj, kCallable)
+	}
+
+	fun unregister(member: KCallable<*>) = unregister(member.toString())
+
+	fun unregister(member: String) {
 		map.remove(member)?.complete()
+	}
+
+	fun unregisterAll() {
+		map.values.removeIf { it.complete(); true }
 	}
 
 	private fun KCallable<*>.MessageHandle() = annotations.filterIsInstance<MessageHandle>().firstOrNull()
 
 	private fun AnnotatedElement.MessageHandle() = annotations.filterIsInstance<MessageHandle>().firstOrNull()
-
 }
