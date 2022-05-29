@@ -1,6 +1,6 @@
 package my.miraiplus.injector
 
-import my.miraiplus.util.Caller
+import my.miraiplus.Caller
 import net.mamoe.mirai.event.events.MessageEvent
 
 /**
