@@ -1,6 +1,5 @@
-package my.miraiplus.util
+package my.miraiplus
 
-import my.ktbot.utils.callor.ObjectMap
 import my.miraiplus.annotation.MessageHandle
 import my.miraiplus.annotation.Qualifier
 import my.miraiplus.injector.InjectMap
@@ -25,11 +24,11 @@ sealed class Caller(
 		private val logger = MiraiLogger.Factory.create(Caller::class.java)
 	}
 
-	val name = callable.toString()
+	val name = if (messageHandle.name.isEmpty()) messageHandle.name else callable.toString()
 	val tmp = ObjectMap("tmp")
 
-	private val anns: List<Annotation> = callable.annotations
-	private val regex = Regex(messageHandle.pattern, messageHandle.option.toSet())
+	val anns: List<Annotation> = callable.annotations
+	val regex = Regex(messageHandle.pattern, messageHandle.options.toSet())
 
 
 	protected fun Pair<Class<out Any>, String?>.get() = tmp[first, second] ?: ObjectMap.global[first, second]

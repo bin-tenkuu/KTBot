@@ -70,7 +70,7 @@ object NginxLogHandle {
 	}
 
 	fun log2Yml(): String {
-		val map = logMap().toList().sortedByDescending { it.second.size }
+		val map = logMap().entries.sortedByDescending { it.value.size }
 		val it = StringBuilder(map.size.shl(7))
 		for ((ip, list) in map) {
 			it.append(ip)

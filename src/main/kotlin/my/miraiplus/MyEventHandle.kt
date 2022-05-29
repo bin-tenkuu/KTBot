@@ -2,7 +2,6 @@ package my.miraiplus
 
 import my.miraiplus.annotation.MessageHandle
 import my.miraiplus.injector.InjectMap
-import my.miraiplus.util.Caller
 import net.mamoe.mirai.console.plugin.jvm.KotlinPlugin
 import net.mamoe.mirai.console.util.safeCast
 import net.mamoe.mirai.event.Listener
@@ -18,15 +17,24 @@ class MyEventHandle(
 	private val plugin: KotlinPlugin
 ) {
 	private val map = HashMap<String, Listener<*>>()
+	val callers = ArrayList<Caller>()
 
 	@JvmField
 	val injector = InjectMap()
+
+	operator fun plus(obj: Any): MyEventHandle {
+		register(obj)
+		return this
+	}
 
 	fun register(obj: Any) {
 		for (member: KCallable<*> in obj::class.declaredMembers) register0(obj, member)
 	}
 
 	private fun register0(obj: Any, member: KCallable<*>) {
+		if (member.toString() in map) {
+			return
+		}
 		val caller: Caller
 		val messageHandle: MessageHandle
 		when (member) {
@@ -50,6 +58,9 @@ class MyEventHandle(
 				System.err.println(member)
 				return
 			}
+		}
+		if (messageHandle.name.isEmpty()) {
+			callers += caller
 		}
 		val typeE = member.parameters.mapNotNull {
 			it.type.classifier.safeCast<KClass<out MessageEvent>>()

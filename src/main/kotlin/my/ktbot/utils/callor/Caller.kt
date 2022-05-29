@@ -4,6 +4,7 @@ import my.ktbot.annotation.AutoCall
 import my.miraiplus.annotation.Qualifier
 import my.ktbot.interfaces.Plug
 import my.ktbot.utils.toMessage
+import my.miraiplus.ObjectMap
 import net.mamoe.mirai.console.util.cast
 import net.mamoe.mirai.event.events.MessageEvent
 import net.mamoe.mirai.message.data.Message

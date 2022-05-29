@@ -1,4 +1,4 @@
-package my.ktbot.utils.callor
+package my.miraiplus
 
 import java.util.*
 import kotlin.reflect.KClass

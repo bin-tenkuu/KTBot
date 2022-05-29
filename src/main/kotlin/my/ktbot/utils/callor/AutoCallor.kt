@@ -2,6 +2,7 @@ package my.ktbot.utils.callor
 
 import my.ktbot.annotation.AutoCall
 import my.ktbot.interfaces.Plug
+import my.miraiplus.ObjectMap
 import java.lang.reflect.AnnotatedElement
 import java.util.*
 import kotlin.reflect.*

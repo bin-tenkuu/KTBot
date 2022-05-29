@@ -1,12 +1,12 @@
 package my.ktbot
 
 import kotlinx.coroutines.*
-import my.ktbot.annotation.NeedAdminFilter
+import my.ktbot.annotation.AutoSend
+import my.ktbot.annotation.NeedAdmin
 import my.ktbot.interfaces.Plug
 import my.ktbot.plugs.*
 import my.ktbot.utils.*
 import my.miraiplus.MyEventHandle
-import my.miraiplus.injector.MessageSendInjector
 import net.mamoe.mirai.Bot
 import net.mamoe.mirai.console.extension.PluginComponentStorage
 import net.mamoe.mirai.console.plugin.jvm.JvmPlugin
@@ -56,7 +56,7 @@ object PluginMain : KotlinPlugin(
 			CQBotPerm, CQBotHelper, CQBotListGet,
 			CQNginxLogHandle,
 		)
-		myEventHandle.injector + MessageSendInjector + NeedAdminFilter
+		myEventHandle.injector + AutoSend.Inject + NeedAdmin.Inject
 	}
 
 	override fun onEnable() {
@@ -67,16 +67,19 @@ object PluginMain : KotlinPlugin(
 		subscribeAlways<GroupMessageEvent> {
 			val millis = System.currentTimeMillis()
 			val plug = Plug(this) ?: return@subscribeAlways
+			Counter.log(it)
 			logger.info("${millis.toNow()}:${plug.name}\t来源:${sender.group.id}.${sender.id}")
+			this.cancel()
 		}
 		subscribeAlways<FriendMessageEvent> {
 			val millis = System.currentTimeMillis()
 			val plug = Plug(this) ?: return@subscribeAlways
+			Counter.log(it)
 			logger.info("${millis.toNow()}:${plug.name}\t来源:${sender.id}")
+			this.cancel()
 		}
-		subscribeAlways<MessageEvent> { Counter.log(it) }
 		subEvents()
-		myEventHandle.register(AddExp)
+		myEventHandle + AddExp
 	}
 
 	override fun onDisable() {

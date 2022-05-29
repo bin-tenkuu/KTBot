@@ -47,7 +47,8 @@ object Counter {
 			while (true) {
 				try {
 					save()
-				} catch (e: Exception) {
+				}
+				catch (e: Exception) {
 					Plug.logger.error(e)
 				}
 				System.gc()
@@ -90,7 +91,7 @@ object Counter {
 			}
 
 			fun Bot.says(pre: String, list: List<String>) {
-				val sb = StringBuilder(pre)
+				val sb = StringBuilder(pre).appendLine()
 				var i = 0
 				for (msg in list) {
 					i++
@@ -103,7 +104,9 @@ object Counter {
 				if (sb.isNotEmpty()) sb.saysTo(this)
 			}
 
-			fun Map<Long, Int>.toMSG() = map { (id, num) -> "${id}：${num}次" }
+			fun Map<Long, Int>.toMSG(): List<String> = entries
+					.sortedByDescending(Map.Entry<Long, Int>::value)
+					.map { (id, num) -> "${id}：${num}次" }
 			for ((group, list) in groupMap) {
 				bot.says("群($group)：", list.toMSG())
 			}

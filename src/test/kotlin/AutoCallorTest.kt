@@ -3,7 +3,7 @@ import my.miraiplus.annotation.Qualifier
 import my.ktbot.annotation.RegexAnn
 import my.ktbot.utils.callor.AutoCallor
 import my.ktbot.utils.callor.Caller
-import my.ktbot.utils.callor.ObjectMap
+import my.miraiplus.ObjectMap
 
 suspend fun main() {
 	fun <T> T.println() = apply { println(toString()) }
