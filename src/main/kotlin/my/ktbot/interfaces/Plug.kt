@@ -4,7 +4,7 @@ import kotlinx.coroutines.sync.Mutex
 import my.ktbot.PlugConfig
 import my.ktbot.utils.CacheMap
 import my.ktbot.utils.Counter
-import my.ktbot.utils.callor.AutoCallor
+import my.ktbot.utils.callor.Callor2Plug
 import my.ktbot.utils.sendAdmin
 import net.mamoe.mirai.contact.SendMessageFailedException
 import net.mamoe.mirai.event.events.FriendMessageEvent
@@ -166,7 +166,7 @@ abstract class Plug(
 		operator fun plusAssign(list: List<Plug>) {
 			for (plug in list) {
 				plugs.add(plug)
-				plugs.addAll(AutoCallor.add(plug))
+				plugs.addAll(Callor2Plug.add(plug))
 			}
 			plugs.sort()
 		}

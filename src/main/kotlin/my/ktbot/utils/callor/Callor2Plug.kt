@@ -9,27 +9,27 @@ import kotlin.reflect.*
 import kotlin.reflect.full.declaredMembers
 import kotlin.reflect.jvm.javaField
 
-object AutoCallor {
+object Callor2Plug {
 
 	fun add(vararg objs: Any): PriorityQueue<Plug> {
 		val list = PriorityQueue<Plug>()
 		for (obj: Any in objs) {
 			for (member: KCallable<*> in obj::class.declaredMembers) {
-				val caller: Caller
+				val caller: AutoCaller
 				when (member) {
 					is KFunction<*> -> {
 						val autoCall = member.AutoCall() ?: continue
-						caller = Caller.Func(obj, member, autoCall)
+						caller = AutoCaller.Func(obj, member, autoCall)
 					}
 					is KProperty1<*, *> -> {
 						val field = member.javaField
 						val autoCall = member.AutoCall() ?: member.getter.AutoCall() ?: field?.AutoCall() ?: continue
-						caller = (if (field !== null) Caller.JavaField(obj, field, autoCall)
-						else Caller.Property1(obj, member, autoCall))
+						caller = (if (field !== null) AutoCaller.JavaField(obj, field, autoCall)
+						else AutoCaller.Property1(obj, member, autoCall))
 					}
 					is KProperty2<*, *, *> -> {
 						val autoCall = member.AutoCall() ?: member.getter.AutoCall() ?: continue
-						caller = Caller.Property2(obj, member, autoCall)
+						caller = AutoCaller.Property2(obj, member, autoCall)
 					}
 					else -> {
 						System.err.println(member)

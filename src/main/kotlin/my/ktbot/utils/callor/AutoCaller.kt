@@ -1,10 +1,10 @@
 package my.ktbot.utils.callor
 
 import my.ktbot.annotation.AutoCall
-import my.miraiplus.annotation.Qualifier
 import my.ktbot.interfaces.Plug
 import my.ktbot.utils.toMessage
 import my.miraiplus.ObjectMap
+import my.miraiplus.annotation.Qualifier
 import net.mamoe.mirai.console.util.cast
 import net.mamoe.mirai.event.events.MessageEvent
 import net.mamoe.mirai.message.data.Message
@@ -14,7 +14,7 @@ import kotlin.reflect.*
 import kotlin.reflect.full.callSuspend
 import kotlin.reflect.jvm.isAccessible
 
-abstract class Caller(
+abstract class AutoCaller(
 	autoCall: AutoCall,
 ) : Plug(
 	name = autoCall.name,
@@ -45,7 +45,7 @@ abstract class Caller(
 		private val obj: Any,
 		private val callable: KFunction<*>,
 		autoCall: AutoCall,
-	) : Caller(autoCall) {
+	) : AutoCaller(autoCall) {
 		init {
 			callable.isAccessible = true
 		}
@@ -72,7 +72,7 @@ abstract class Caller(
 		private val obj: Any,
 		private val callable: Field,
 		autoCall: AutoCall,
-	) : Caller(autoCall) {
+	) : AutoCaller(autoCall) {
 		init {
 			callable.isAccessible = true
 		}
@@ -84,7 +84,7 @@ abstract class Caller(
 		private val obj: Any,
 		property: KProperty1<*, *>,
 		autoCall: AutoCall,
-	) : Caller(autoCall) {
+	) : AutoCaller(autoCall) {
 		private val callable = property.getter
 
 		init {
@@ -98,7 +98,7 @@ abstract class Caller(
 		private val obj: Any,
 		property: KProperty2<*, *, *>,
 		autoCall: AutoCall,
-	) : Caller(autoCall) {
+	) : AutoCaller(autoCall) {
 		private val callable = property.getter
 
 		init {
