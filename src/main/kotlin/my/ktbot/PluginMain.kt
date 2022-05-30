@@ -50,7 +50,7 @@ object PluginMain : KotlinPlugin(
 		logger.warning("管理员QQ：${PlugConfig.adminId}")
 		logger.warning("管理员QQ群：${PlugConfig.adminGroup}")
 		Plug += listOf(
-			CQBotCOC, CQBotSBI,
+			CQBotCOC,
 			CQBotRepeat, MemberExp, CQBotBan,
 			CQBotPixiv, CQBotPicture,
 			CQBotPerm, CQBotHelper, CQBotListGet,
@@ -79,7 +79,7 @@ object PluginMain : KotlinPlugin(
 			this.cancel()
 		}
 		subEvents()
-		myEventHandle + AddExp
+		myEventHandle + AddExp + CQBotSBI
 	}
 
 	override fun onDisable() {

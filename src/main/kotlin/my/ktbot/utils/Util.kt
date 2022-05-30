@@ -21,6 +21,10 @@ fun <E : Entity<E>, T : Table<E>> EntitySequence<E, T>.findOrAdd(
 	}
 }
 
+operator fun MatchResult.get(key: String): MatchGroup? {
+	return groups[key]
+}
+
 fun <T : Gmt<T>> T.update(block: (T.() -> Unit) = {}) {
 	block()
 	gmtModified = System.currentTimeMillis()
@@ -38,7 +42,8 @@ suspend fun BotEvent.sendAdmin(msg: CharSequence) = sendAdmin(PlainText(msg))
 suspend fun BotEvent.sendAdmin(msg: Message) {
 	try {
 		PlugConfig.getAdmin(bot).sendMessage(msg)
-	} catch (e: Exception) {
+	}
+	catch (e: Exception) {
 		PluginMain.logger.error({ "管理员消息发送失败" }, e)
 	}
 }

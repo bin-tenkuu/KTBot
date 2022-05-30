@@ -1,21 +1,15 @@
 package my.ktbot.plugs
 
-import my.ktbot.annotation.*
-import my.ktbot.interfaces.Plug
+import my.ktbot.annotation.Helper
 import my.ktbot.utils.CacheMap
 import my.ktbot.utils.DiceResult
+import my.ktbot.utils.get
 import my.miraiplus.annotation.MessageHandle
 import net.mamoe.mirai.event.events.MessageEvent
 import net.mamoe.mirai.message.data.Message
 import net.mamoe.mirai.message.data.toPlainText
 
-object CQBotSBI : Plug(
-	name = "骰子：SBI特化功能",
-	regex = Regex("^[.．。]s +(?<num>\\d*)d(?<max>\\d*)", RegexOption.IGNORE_CASE),
-	weight = 1.1,
-	help = "SBI骰子主功能".toPlainText(),
-	msgLength = 4..500,
-) {
+object CQBotSBI {
 
 	@JvmStatic
 	val cache = CacheMap<Long, DiceResult>()
@@ -23,8 +17,12 @@ object CQBotSBI : Plug(
 	@JvmStatic
 	val cheater: Boolean get() = CQBotCOC.cheater
 
-	@MessageHandle("^[.．。]s +(?<num>\\d*)d(?<max>\\d*)", RegexOption.IGNORE_CASE, name = "骰子：SBI特化功能")
-	override suspend fun invoke(event: MessageEvent, result: MatchResult): Message? {
+	@MessageHandle(
+		"^[.．。]s +(?<num>\\d*)d(?<max>\\d*)", RegexOption.IGNORE_CASE,
+		name = "骰子：SBI特化功能"
+	)
+	@Helper("SBI骰子主功能")
+	fun invoke(event: MessageEvent, result: MatchResult): Message? {
 		val num = (result["num"]?.value?.toIntOrNull() ?: return null).coerceAtLeast(3)
 		val max = result["max"]?.value?.toIntOrNull() ?: return null
 		val diceResult = when (cheater) {
@@ -58,14 +56,10 @@ object CQBotSBI : Plug(
 		return "失败"
 	}
 
-	@AutoCall(
-		name = "骰子：SBI加骰",
-		regex = RegexAnn("^[.．。]sp(?<num> ?\\d*)", RegexOption.IGNORE_CASE),
-		weight = 1.13,
-		help = "10分钟之内加投骰",
-		msgLength = MsgLength(3, 500)
+	@MessageHandle(
+		"^[.．。]sp(?<num> ?\\d*)", RegexOption.IGNORE_CASE,
+		name = "骰子：SBI加骰"
 	)
-	@MessageHandle("^[.．。]sp(?<num> ?\\d*)", RegexOption.IGNORE_CASE, name = "骰子：SBI加骰")
 	@Helper("10分钟之内加投骰")
 	@JvmStatic
 	private fun addedDice(event: MessageEvent, result: MatchResult): String {
