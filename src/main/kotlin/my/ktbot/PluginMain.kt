@@ -50,7 +50,7 @@ object PluginMain : KotlinPlugin(
 		Plug += listOf(
 			CQBotCOC,
 			MemberExp,
-			CQBotPixiv, CQBotPicture,
+			// CQBotPixiv, CQBotPicture,
 			CQBotPerm,
 		)
 		myEventHandle.injector + AutoSend.Inject + NeedAdmin.Inject + RegexAnn.Inject() +
@@ -78,7 +78,7 @@ object PluginMain : KotlinPlugin(
 		}
 		subEvents()
 		myEventHandle += arrayOf(
-			CQBotSBI,//	CQBotCOC, CQBotSBI,
+			CQBotSBI, BotProxy,//	CQBotCOC, CQBotSBI,
 			CQBotRepeat, AddExp, CQBotBan,//	CQBotRepeat, AddExp, MemberExp, CQBotBan,
 			//	CQBotPixiv, CQBotPicture,
 			CQBotHelper, CQBotListGet, CQBotMemeAI,//	CQBotPerm, CQBotHelper,
@@ -87,6 +87,7 @@ object PluginMain : KotlinPlugin(
 		myEventHandle += arrayOf(
 			BotEventHandle
 		)
+		println(myEventHandle.callers.joinToString(",") { it.name })
 	}
 
 	override fun onDisable() {

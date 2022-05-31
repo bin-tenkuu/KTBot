@@ -1,5 +1,6 @@
 package my.ktbot.annotation
 
+import my.ktbot.PluginMain
 import my.ktbot.utils.Counter
 import my.ktbot.utils.toMessage
 import my.miraiplus.Caller
@@ -29,7 +30,10 @@ annotation class AutoSend(
 			if (message === null || message.isContentBlank()) {
 				return
 			}
-			if (ann.log) Counter.log(event)
+			if (ann.log) {
+				PluginMain.logger.info(":${caller.name} 来源：${event.subject}.${event.sender}")
+				Counter.log(event)
+			}
 			event.intercept()
 			val receipt = event.subject.sendMessage(message)
 			if (event is GroupMessageEvent && ann.recall > 0) {

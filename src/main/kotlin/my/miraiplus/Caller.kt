@@ -55,6 +55,7 @@ sealed class Caller(
 	protected abstract suspend operator fun invoke(): Any?
 
 	override suspend fun invoke(event: Event, p2: Event) {
+		val name1 = name
 		tmp + event
 		for (inj in injects) {
 			if (inj.doBefore(event)) continue
@@ -73,11 +74,16 @@ sealed class Caller(
 			iterator.previous().doAfter(event, any)
 		}
 		tmp.clear()
+		name1.length
 	}
 
 	@Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN", "UNCHECKED_CAST")
 	private val <T : Annotation> T.annClass: Class<T>
 		get() = (this as java.lang.annotation.Annotation).annotationType() as Class<T>
+
+	override fun toString(): String {
+		return name
+	}
 
 	// region impl
 
