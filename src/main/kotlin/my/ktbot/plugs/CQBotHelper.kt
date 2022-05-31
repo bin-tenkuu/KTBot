@@ -1,9 +1,12 @@
 package my.ktbot.plugs
 
-import my.ktbot.annotation.AutoCall
-import my.ktbot.annotation.MsgLength
+import my.ktbot.annotation.AutoSend
+import my.ktbot.annotation.Helper
+import my.ktbot.annotation.NeedAdmin
 import my.ktbot.interfaces.Plug
+import my.ktbot.utils.get
 import my.ktbot.utils.sendAdmin
+import my.miraiplus.annotation.MessageHandle
 import my.miraiplus.annotation.RegexAnn
 import net.mamoe.mirai.event.events.GroupMessageEvent
 import net.mamoe.mirai.event.events.MessageEvent
@@ -16,24 +19,40 @@ import net.mamoe.mirai.message.data.toPlainText
  * @since 1.0
  * @date 2022/1/13
  */
-object CQBotHelper : Plug(
-	name = ".(help|帮助)[<id>]",
-	regex = Regex("^[.．。](?:help|帮助)(?<num> ?\\d+)?$", RegexOption.IGNORE_CASE),
-	weight = 2.0,
-	deleteMSG = 30 * 1000,
-	msgLength = 3..10,
-	help = """帮助专用功能
-		|.help后附带下标数字查看对应功能详情
-	""".trimMargin().toPlainText()
-) {
-	override suspend fun invoke(event: MessageEvent, result: MatchResult): Message {
-		// kotlin.run {
-		// 	PluginMain.myEventHandle.callers.mapIndexed { i, c ->
-		// 		"$i :${c.name}"
-		// 	}
-		// 	val caller = PluginMain.myEventHandle.callers.getOrNull(0) ?: return@run
-		// 	caller.anns.filterIsInstance<Helper>().firstOrNull()?.help
-		// }
+object CQBotHelper {
+	@MessageHandle(".(help|帮助)[<id>]")
+	@RegexAnn("^[.．。](?:help|帮助)(?<num> ?\\d+)?$", RegexOption.IGNORE_CASE)
+	@Helper("帮助专用功能\n.help后附带下标数字查看对应功能详情")
+	@AutoSend(recall = 30 * 1000)
+	suspend fun invoke(event: MessageEvent, result: MatchResult): Message {
+		/*
+		kotlin.run {
+			val list = PluginMain.myEventHandle.callers.filter {
+				it.anns.any { ann -> ann is Helper }
+					&& it.anns.none { ann -> ann is NeedAdmin }
+			}
+
+			event.sendAdmin(
+				"发送下标\n${
+					list.mapIndexed { i, c ->
+						"$i :${c.name}"
+					}.joinToString("\n")
+				}"
+			)
+			val index = event.selectMessages {
+				default {
+					Regex("(\\d)").find(it)?.run { groupValues[0].toInt() } ?: 0
+				}
+				timeout(30 * 1000) {
+					null as Int?
+				}
+			}
+			if (index === null) return@run
+			val caller = list.getOrNull(index) ?: return@run
+			val s = caller.anns.filterIsInstance<Helper>().firstOrNull()?.help ?: return@run
+			return s.toPlainText()
+		}
+		*/
 		val plugs = this.get()
 		val p = run {
 			val num = result["num"]?.run { value.trim().toIntOrNull() } ?: return@run null
@@ -55,37 +74,28 @@ object CQBotHelper : Plug(
 		""".trimMargin().toPlainText() + p.help!!
 	}
 
-	private fun get(): List<Plug> = plugs.filter { it.isOpen == true && !it.needAdmin && it.help !== null }
+	private fun get(): List<Plug> = Plug.plugs.filter { it.isOpen == true && !it.needAdmin && it.help !== null }
 
-	@AutoCall(
-		name = ".ping",
-		regex = RegexAnn("^[.．。]ping$", RegexOption.IGNORE_CASE),
-		weight = 0.0,
-		help = "测试bot是否连接正常",
-		msgLength = MsgLength(4, 6),
-	)
+	@MessageHandle(".ping")
+	@RegexAnn("^[.．。]ping$", RegexOption.IGNORE_CASE)
+	@Helper("测试bot是否连接正常")
+	@AutoSend
 	private val Ping = ".pong!"
 
-	@AutoCall(
-		name = ".data",
-		regex = RegexAnn("^[.．。]data$", RegexOption.IGNORE_CASE),
-		weight = 10.0,
-		help = "开发者信息",
-		deleteMSG = 90 * 1000,
-		msgLength = MsgLength(4, 6),
-	)
+	@MessageHandle(".data")
+	@RegexAnn("^[.．。]data$", RegexOption.IGNORE_CASE)
+	@Helper("开发者信息")
+	@AutoSend(recall = 90 * 1000)
 	private val Data = """
 		|开发者QQ：2938137849
 		|项目地址github：2938137849/KTBot
 		|轮子github：mamoe/mirai
 	""".trimMargin()
 
-	@AutoCall(
-		name = ".report <txt>",
-		regex = RegexAnn("^[.．。]report(?<txt>.+)$", RegexOption.IGNORE_CASE),
-		weight = 6.0,
-		help = "附上消息发送给开发者"
-	)
+	@MessageHandle(".report <txt>")
+	@RegexAnn("^[.．。]report(?<txt>.+)$", RegexOption.IGNORE_CASE)
+	@Helper("附上消息发送给开发者")
+	@AutoSend
 	@JvmStatic
 	private suspend fun report(event: MessageEvent, result: MatchResult): String? {
 		val txt = result["txt"]?.value ?: return null
@@ -94,13 +104,10 @@ object CQBotHelper : Plug(
 		return "收到"
 	}
 
-	@AutoCall(
-		name = ".send[g]<qq> <txt>",
-		regex = RegexAnn("^[.．。]send(?<g>g)?(?<qq>\\d+) (?<txt>.+)$", RegexOption.IGNORE_CASE),
-		weight = 6.0,
-		needAdmin = true,
-		help = "bot代理发送消息"
-	)
+	@MessageHandle(".send[g]<qq> <txt>")
+	@RegexAnn("^[.．。]send(?<g>g)?(?<qq>\\d+) (?<txt>.+)$", RegexOption.IGNORE_CASE)
+	@NeedAdmin
+	@Helper("bot代理发送消息")
 	@JvmStatic
 	private suspend fun sendMsg(event: MessageEvent, result: MatchResult): String {
 		val qq = result["qq"]?.value?.toLongOrNull() ?: return "需要发送目标"

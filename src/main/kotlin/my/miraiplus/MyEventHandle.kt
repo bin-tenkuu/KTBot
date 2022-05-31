@@ -24,6 +24,12 @@ class MyEventHandle(
 		return this
 	}
 
+	operator fun plusAssign(objs: Array<Any>) {
+		for (obj in objs) {
+			register(obj)
+		}
+	}
+
 	fun register(obj: Any) {
 		for (member: KCallable<*> in obj::class.declaredMembers) register0(obj, member)
 	}
