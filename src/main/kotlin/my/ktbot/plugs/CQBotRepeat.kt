@@ -1,7 +1,9 @@
 package my.ktbot.plugs
 
-import my.ktbot.interfaces.Plug
+import my.ktbot.annotation.AutoSend
 import my.ktbot.utils.CacheMap
+import my.miraiplus.annotation.MessageHandle
+import net.mamoe.mirai.event.EventPriority
 import net.mamoe.mirai.event.events.GroupMessageEvent
 import net.mamoe.mirai.message.data.*
 
@@ -10,18 +12,14 @@ import net.mamoe.mirai.message.data.*
  *  @author bin
  *  @version 1.0.0
  */
-object CQBotRepeat : Plug(
-	name = "(复读)",
-	regex = Regex("^"),
-	weight = 90.0,
-	msgLength = 0..50,
-	hidden = true,
-	canPrivate = false,
-) {
+object CQBotRepeat {
 
 	@JvmStatic
 	private val cache = CacheMap<Long, RepeatCache>()
-	override suspend fun invoke(event: GroupMessageEvent, result: MatchResult): Message? {
+
+	@MessageHandle("(复读)", priority = EventPriority.LOW)
+	@AutoSend
+	fun invoke(event: GroupMessageEvent): Message? {
 		val node = cache[event.group.id]
 		if (node === null || node.msg != event.message.contentToString()) {
 			cache[event.group.id] = RepeatCache(event.message.contentToString()).also {

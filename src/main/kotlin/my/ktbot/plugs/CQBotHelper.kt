@@ -24,14 +24,13 @@ object CQBotHelper {
 	@RegexAnn("^[.．。](?:help|帮助)(?<num> ?\\d+)?$", RegexOption.IGNORE_CASE)
 	@Helper("帮助专用功能\n.help后附带下标数字查看对应功能详情")
 	@AutoSend(recall = 30 * 1000)
-	suspend fun invoke(event: MessageEvent, result: MatchResult): Message {
+	fun invoke(/* event: MessageEvent, */ result: MatchResult): Message {
 		/*
 		kotlin.run {
 			val list = PluginMain.myEventHandle.callers.filter {
 				it.anns.any { ann -> ann is Helper }
 					&& it.anns.none { ann -> ann is NeedAdmin }
 			}
-
 			event.sendAdmin(
 				"发送下标\n${
 					list.mapIndexed { i, c ->
@@ -108,6 +107,7 @@ object CQBotHelper {
 	@RegexAnn("^[.．。]send(?<g>g)?(?<qq>\\d+) (?<txt>.+)$", RegexOption.IGNORE_CASE)
 	@NeedAdmin
 	@Helper("bot代理发送消息")
+	@AutoSend
 	@JvmStatic
 	private suspend fun sendMsg(event: MessageEvent, result: MatchResult): String {
 		val qq = result["qq"]?.value?.toLongOrNull() ?: return "需要发送目标"

@@ -1,5 +1,6 @@
 package my.ktbot.plugs
 
+import my.ktbot.annotation.AutoSend
 import my.ktbot.utils.ReplaceNode
 import my.miraiplus.annotation.MessageHandle
 import net.mamoe.mirai.event.EventPriority
@@ -32,17 +33,19 @@ object CQBotMemeAI {
 	)
 
 	@MessageHandle(priority = EventPriority.LOW)
+	@AutoSend
 	fun invoke(event: GroupMessageEvent): Message {
 		val message = event.message
-		if (!message.contains(At(event.bot.id))) return EmptyMessageChain
-		val msg: String = replaceNode.replace(
-			message.filterIsInstance<PlainText>()
-				.joinToString("", transform = PlainText::contentToString)
-		)
+		val at = At(event.bot.id)
+		if (!message.contains(at)) return EmptyMessageChain
 		return buildMessageChain {
 			+message.quote()
 			+event.sender.at()
-			+msg
+			for (it in message) {
+				if (it == at) continue
+				if (it !is PlainText) +it
+				else +PlainText(replaceNode.replace(it.content))
+			}
 		}
 	}
 

@@ -52,7 +52,7 @@ object CQNginxLogHandle {
 		needAdmin = true
 	)
 	@MessageHandle("添加banip")
-	@RegexAnn("^[.．。]banip(.+)\$", RegexOption.IGNORE_CASE)
+	@RegexAnn("^[.．。]banip(.+)$", RegexOption.IGNORE_CASE)
 	@AutoSend
 	@NeedAdmin
 	private fun addIP(result: MatchResult): String {

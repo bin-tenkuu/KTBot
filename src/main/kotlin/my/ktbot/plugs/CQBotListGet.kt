@@ -1,13 +1,17 @@
 package my.ktbot.plugs
 
-import my.ktbot.annotation.AutoCall
-import my.miraiplus.annotation.RegexAnn
+import my.ktbot.annotation.AutoSend
+import my.ktbot.annotation.Helper
+import my.ktbot.annotation.NeedAdmin
 import my.ktbot.database.TGroup
 import my.ktbot.database.TMembers
-import my.ktbot.interfaces.Plug
+import my.ktbot.interfaces.Plug.Companion.plugs
 import my.ktbot.utils.Counter
-import my.ktbot.utils.calculator.Calculator
 import my.ktbot.utils.Sqlite
+import my.ktbot.utils.calculator.Calculator
+import my.ktbot.utils.get
+import my.miraiplus.annotation.MessageHandle
+import my.miraiplus.annotation.RegexAnn
 import net.mamoe.mirai.event.events.MessageEvent
 import net.mamoe.mirai.message.data.*
 import org.ktorm.dsl.eq
@@ -20,13 +24,12 @@ import org.ktorm.entity.joinTo
  * @since 1.0
  * @date 2022/1/13
  */
-object CQBotListGet : Plug(
-	name = ".获取<type>列表",
-	regex = Regex("^[.．。]获取(?<type>[^ ]+)列表$"),
-	weight = 4.0,
-	needAdmin = true,
-) {
-	override suspend fun invoke(event: MessageEvent, result: MatchResult): Message? {
+object CQBotListGet {
+	@MessageHandle(".获取<type>列表")
+	@RegexAnn("^[.．。]获取(?<type>[^ ]+)列表$")
+	@NeedAdmin
+	@AutoSend
+	fun invoke(event: MessageEvent, result: MatchResult): Message? {
 		val type = result["type"]?.value ?: return null
 		when (type) {
 			"群" -> return event.bot.groups.run {
@@ -48,13 +51,11 @@ object CQBotListGet : Plug(
 		}
 	}
 
-	@AutoCall(
-		name = ".插件[<id>]",
-		regex = RegexAnn("^[.．。]插件(?<id> *\\d*)$"),
-		weight = 4.0,
-		needAdmin = true,
-		help = "查看插件信息"
-	)
+	@MessageHandle(".插件[<id>]")
+	@RegexAnn("^[.．。]插件(?<id> *\\d*)$")
+	@NeedAdmin
+	@Helper("查看插件信息")
+	@AutoSend
 	@JvmStatic
 	private fun cqBotPluginInfo(result: MatchResult): Message {
 		val p = run {
@@ -77,13 +78,11 @@ object CQBotListGet : Plug(
 		""".trimMargin().toPlainText()
 	}
 
-	@AutoCall(
-		name = ".插件<open><nums[]>",
-		regex = RegexAnn("^[.．。]插件(?<open>[开关])(?<nums>[\\d ]+)$"),
-		weight = 4.0,
-		needAdmin = true,
-		help = "设置插件状态"
-	)
+	@MessageHandle(".插件<open><nums[]>")
+	@RegexAnn("^[.．。]插件(?<open>[开关])(?<nums>[\\d ]+)$")
+	@NeedAdmin
+	@Helper("设置插件状态")
+	@AutoSend
 	@JvmStatic
 	private fun cqBotPluginStatus(result: MatchResult): Message? {
 		val isOpen = when (result["open"]!!.value) {
@@ -109,34 +108,26 @@ object CQBotListGet : Plug(
 		}
 	}
 
-	@AutoCall(
-		name = "日志",
-		regex = RegexAnn("^[.．。]日志$"),
-		weight = 10.0,
-		needAdmin = true,
-	)
+	@MessageHandle("日志")
+	@RegexAnn("^[.．。]日志$")
+	@NeedAdmin
+	@AutoSend
 	@JvmStatic
 	private fun cqBotCounter(event: MessageEvent): Message {
 		return Counter.state(event.subject)
 	}
 
-	/**
-	 *  @Date:2022/2/3
-	 *  @author bin
-	 *  @version 1.0.0
-	 */
-	@AutoCall(
-		name = "简易计算器",
-		regex = RegexAnn("^[.．。]calc (?<calc>[^ ]+)"),
-		weight = 10.0,
-		help = "表达式间不允许出现空格"
-	)
+	@MessageHandle("简易计算器")
+	@RegexAnn("^[.．。]calc (?<calc>[^ ]+)", RegexOption.IGNORE_CASE)
+	@Helper("表达式间不允许出现空格")
+	@AutoSend
 	@JvmStatic
 	private fun cqBotCalculate(result: MatchResult): Message {
 		val calc = result["calc"]?.value ?: return EmptyMessageChain
 		return try {
 			"结果为${Calculator(calc).v}".toPlainText()
-		} catch (e: Exception) {
+		}
+		catch (e: Exception) {
 			e.toString().toPlainText()
 		}
 	}
