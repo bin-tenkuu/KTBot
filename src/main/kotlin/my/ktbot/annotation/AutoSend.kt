@@ -30,11 +30,11 @@ annotation class AutoSend(
 				return
 			}
 			if (ann.log) Counter.log(event)
+			event.intercept()
 			val receipt = event.subject.sendMessage(message)
 			if (event is GroupMessageEvent && ann.recall > 0) {
 				receipt.recallIn(ann.recall)
 			}
-			event.intercept()
 		}
 	}
 }

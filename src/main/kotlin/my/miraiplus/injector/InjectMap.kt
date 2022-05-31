@@ -22,28 +22,24 @@ class InjectMap {
 		return this
 	}
 
-	inline operator fun <reified T : Annotation> plusAssign(injector: Injector<T, out Event>) {
-		add(T::class.java, injector)
-	}
-
 	// endregion
 
 	// region remove
 
-	fun <T : Annotation> remove(annClass: Class<T>, injector: Injector<T, out Event>): Boolean {
+	fun <T : Annotation> remove(annClass: Class<T>, injector: Injector<T, Event>): Boolean {
 		return injectorMap[annClass]?.remove(injector) ?: false
 	}
 
-	fun <T : Annotation> remove(annClass: KClass<T>, injector: Injector<T, out Event>) = remove(annClass.java, injector)
+	fun <T : Annotation> remove(annClass: KClass<T>, injector: Injector<T, Event>) = remove(annClass.java, injector)
 
-	inline fun <reified T : Annotation> remove(injector: Injector<T, out Event>) = remove(T::class.java, injector)
+	inline fun <reified T : Annotation> remove(injector: Injector<T, Event>) = remove(T::class.java, injector)
 
-	inline operator fun <reified T : Annotation> minus(injector: Injector<T, out Event>): InjectMap {
+	inline operator fun <reified T : Annotation> minus(injector: Injector<T, Event>): InjectMap {
 		remove(T::class.java, injector)
 		return this
 	}
 
-	inline operator fun <reified T : Annotation> minusAssign(injector: Injector<T, out Event>) {
+	inline operator fun <reified T : Annotation> minusAssign(injector: Injector<T, Event>) {
 		remove(T::class.java, injector)
 	}
 
@@ -52,8 +48,8 @@ class InjectMap {
 	// region get
 
 	@Suppress("UNCHECKED_CAST")
-	operator fun <T : Annotation> get(annClass: Class<T>): MutableList<Injector<T, out Event>>? {
-		return injectorMap[annClass] as MutableList<Injector<T, out Event>>?
+	operator fun <T : Annotation> get(annClass: Class<T>): MutableList<Injector<T, Event>>? {
+		return injectorMap[annClass] as MutableList<Injector<T, Event>>?
 	}
 
 	@Suppress("UNCHECKED_CAST")

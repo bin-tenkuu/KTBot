@@ -2,8 +2,7 @@ package my.ktbot
 
 import kotlinx.coroutines.CompletableJob
 import kotlinx.coroutines.Job
-import my.ktbot.annotation.AutoSend
-import my.ktbot.annotation.NeedAdmin
+import my.ktbot.annotation.*
 import my.ktbot.interfaces.Plug
 import my.ktbot.plugs.*
 import my.ktbot.utils.*
@@ -54,7 +53,8 @@ object PluginMain : KotlinPlugin(
 			CQBotPixiv, CQBotPicture,
 			CQBotPerm,
 		)
-		myEventHandle.injector + AutoSend.Inject + NeedAdmin.Inject + RegexAnn.Inject()
+		myEventHandle.injector + AutoSend.Inject + NeedAdmin.Inject + RegexAnn.Inject() +
+			SendGroup.Inject + SendAdmin.Inject
 	}
 
 	override fun onEnable() {

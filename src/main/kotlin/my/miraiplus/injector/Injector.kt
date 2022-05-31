@@ -14,7 +14,7 @@ interface Injector<T : Annotation, E : Event> {
 	 * 权重：越小，排名越前
 	 */
 	val weight: Double get() = 0.0
-	val event: KClass<out E>
+	val event: KClass<E>
 
 	/**
 	 * 初始化方法，将会在具体运行方法实例化完成之后调用，运行顺序为[weight]顺序
@@ -41,7 +41,7 @@ interface Injector<T : Annotation, E : Event> {
 	suspend fun doAfter(ann: T, event: E, caller: Caller, result: Any?) {}
 
 	interface Message<T : Annotation> : Injector<T, MessageEvent> {
-		override val event: KClass<out MessageEvent>
+		override val event: KClass<MessageEvent>
 			get() = MessageEvent::class
 	}
 }

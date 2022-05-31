@@ -7,7 +7,6 @@ import my.miraiplus.injector.Injector
 import net.mamoe.mirai.console.util.cast
 import net.mamoe.mirai.console.util.safeCast
 import net.mamoe.mirai.event.Event
-import net.mamoe.mirai.event.events.MessageEvent
 import net.mamoe.mirai.utils.MiraiLogger
 import kotlin.reflect.*
 import kotlin.reflect.full.callSuspend
@@ -30,8 +29,8 @@ sealed class Caller(
 	val name = messageHandle.name.ifEmpty { callable.toString() }
 	val tmp = ObjectMap("tmp")
 	val eventClass = callable.parameters.mapNotNull {
-		it.type.classifier.safeCast<KClass<out Event>>()
-	}.find(MessageEvent::class::isSuperclassOf) ?: messageHandle.eventType
+		it.type.classifier.safeCast<KClass<Event>>()
+	}.find(Event::class::isSuperclassOf) ?: messageHandle.eventType
 
 	val anns: List<Annotation> = callable.annotations
 
