@@ -69,14 +69,14 @@ object PluginMain : KotlinPlugin(
 			val plug = Plug(this) ?: return@subscribeAlways
 			Counter.log(it)
 			logger.info("${millis.toNow()}:${plug.name}\t来源:${sender.group.id}.${sender.id}")
-			this.cancel()
+			intercept()
 		}
 		subscribeAlways<FriendMessageEvent> {
 			val millis = System.currentTimeMillis()
 			val plug = Plug(this) ?: return@subscribeAlways
 			Counter.log(it)
 			logger.info("${millis.toNow()}:${plug.name}\t来源:${sender.id}")
-			this.cancel()
+			intercept()
 		}
 		subEvents()
 		myEventHandle += arrayOf(

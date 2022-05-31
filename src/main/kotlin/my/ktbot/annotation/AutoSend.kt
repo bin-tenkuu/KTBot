@@ -24,10 +24,6 @@ annotation class AutoSend(
 	val recall: Long = 0
 ) {
 	object Inject : Injector.Message<AutoSend> {
-		override suspend fun doBefore(ann: AutoSend, event: MessageEvent, caller: Caller): Boolean {
-			return super.doBefore(ann, event, caller)
-		}
-
 		override suspend fun doAfter(ann: AutoSend, event: MessageEvent, caller: Caller, result: Any?) {
 			val message = result.toMessage()
 			if (message === null || message.isContentBlank()) {
