@@ -7,6 +7,7 @@ import my.ktbot.interfaces.Plug
 import my.ktbot.plugs.*
 import my.ktbot.utils.*
 import my.miraiplus.MyEventHandle
+import my.miraiplus.annotation.RegexAnn
 import net.mamoe.mirai.Bot
 import net.mamoe.mirai.console.extension.PluginComponentStorage
 import net.mamoe.mirai.console.plugin.jvm.JvmPlugin
@@ -37,7 +38,7 @@ object PluginMain : KotlinPlugin(
 	@JvmField
 	val eventChannel: EventChannel<Event> = GlobalEventChannel.parentScope(this).exceptionHandler(logger::error)
 
-	private val myEventHandle = MyEventHandle(this)
+	val myEventHandle = MyEventHandle(this)
 
 	@JvmStatic
 	private val eventListeners: ArrayList<CompletableJob> = ArrayList()
@@ -54,9 +55,8 @@ object PluginMain : KotlinPlugin(
 			CQBotRepeat, MemberExp, CQBotBan,
 			CQBotPixiv, CQBotPicture,
 			CQBotPerm, CQBotHelper, CQBotListGet,
-			CQNginxLogHandle,
 		)
-		myEventHandle.injector + AutoSend.Inject + NeedAdmin.Inject
+		myEventHandle.injector + AutoSend.Inject + NeedAdmin.Inject + RegexAnn.Inject()
 	}
 
 	override fun onEnable() {
@@ -79,7 +79,7 @@ object PluginMain : KotlinPlugin(
 			this.cancel()
 		}
 		subEvents()
-		myEventHandle + AddExp + CQBotSBI
+		myEventHandle + AddExp + CQBotSBI + CQNginxLogHandle
 	}
 
 	override fun onDisable() {

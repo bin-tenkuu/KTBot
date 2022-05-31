@@ -2,7 +2,9 @@ object Test {
 	@JvmStatic
 	fun main(args: Array<String>) {
 		fun <T : Any?> T.p() = println(this)
-		Regex("").find(" afdas").p()
+		A::class.java.isAssignableFrom(B::class.java).p()
 	}
 
+	interface A
+	interface B : A
 }

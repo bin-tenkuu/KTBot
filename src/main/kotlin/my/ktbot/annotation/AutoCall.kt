@@ -1,5 +1,6 @@
 package my.ktbot.annotation
 
+import my.miraiplus.annotation.RegexAnn
 import kotlin.annotation.AnnotationTarget.*
 
 @Target(FUNCTION, FIELD, PROPERTY, PROPERTY_GETTER)

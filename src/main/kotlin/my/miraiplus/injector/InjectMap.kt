@@ -1,26 +1,28 @@
 package my.miraiplus.injector
 
+import net.mamoe.mirai.event.Event
 import kotlin.reflect.KClass
+import kotlin.reflect.full.isSuperclassOf
 
 class InjectMap {
-	private val injectorMap = HashMap<Class<out Annotation>, ArrayList<Injector<out Annotation>>>()
+	private val injectorMap = HashMap<Class<out Annotation>, ArrayList<Injector<out Annotation, out Event>>>()
 
 	// region add
 
-	fun <T : Annotation> add(annClass: Class<T>, injector: Injector<T>): Boolean {
+	fun <T : Annotation> add(annClass: Class<T>, injector: Injector<T, out Event>): Boolean {
 		return injectorMap.getOrPut(annClass) { ArrayList() }.add(injector)
 	}
 
-	fun <T : Annotation> add(annClass: KClass<T>, injector: Injector<T>) = add(annClass.java, injector)
+	fun <T : Annotation> add(annClass: KClass<T>, injector: Injector<T, out Event>) = add(annClass.java, injector)
 
-	inline fun <reified T : Annotation> add(injector: Injector<T>) = add(T::class.java, injector)
+	inline fun <reified T : Annotation> add(injector: Injector<T, out Event>) = add(T::class.java, injector)
 
-	inline operator fun <reified T : Annotation> plus(injector: Injector<T>): InjectMap {
+	inline operator fun <reified T : Annotation> plus(injector: Injector<T, out Event>): InjectMap {
 		add(T::class.java, injector)
 		return this
 	}
 
-	inline operator fun <reified T : Annotation> plusAssign(injector: Injector<T>) {
+	inline operator fun <reified T : Annotation> plusAssign(injector: Injector<T, out Event>) {
 		add(T::class.java, injector)
 	}
 
@@ -28,20 +30,20 @@ class InjectMap {
 
 	// region remove
 
-	fun <T : Annotation> remove(annClass: Class<T>, injector: Injector<T>): Boolean {
+	fun <T : Annotation> remove(annClass: Class<T>, injector: Injector<T, out Event>): Boolean {
 		return injectorMap[annClass]?.remove(injector) ?: false
 	}
 
-	fun <T : Annotation> remove(annClass: KClass<T>, injector: Injector<T>) = remove(annClass.java, injector)
+	fun <T : Annotation> remove(annClass: KClass<T>, injector: Injector<T, out Event>) = remove(annClass.java, injector)
 
-	inline fun <reified T : Annotation> remove(injector: Injector<T>) = remove(T::class.java, injector)
+	inline fun <reified T : Annotation> remove(injector: Injector<T, out Event>) = remove(T::class.java, injector)
 
-	inline operator fun <reified T : Annotation> minus(injector: Injector<T>): InjectMap {
+	inline operator fun <reified T : Annotation> minus(injector: Injector<T, out Event>): InjectMap {
 		remove(T::class.java, injector)
 		return this
 	}
 
-	inline operator fun <reified T : Annotation> minusAssign(injector: Injector<T>) {
+	inline operator fun <reified T : Annotation> minusAssign(injector: Injector<T, out Event>) {
 		remove(T::class.java, injector)
 	}
 
@@ -50,8 +52,17 @@ class InjectMap {
 	// region get
 
 	@Suppress("UNCHECKED_CAST")
-	operator fun <T : Annotation> get(annClass: Class<T>): MutableList<Injector<T>>? {
-		return injectorMap[annClass] as MutableList<Injector<T>>?
+	operator fun <T : Annotation> get(annClass: Class<T>): MutableList<Injector<T, out Event>>? {
+		return injectorMap[annClass] as MutableList<Injector<T, out Event>>?
+	}
+
+	@Suppress("UNCHECKED_CAST")
+	operator fun <T : Annotation, E : Event> get(
+		annClass: Class<T>, event: KClass<E>
+	): MutableList<Injector<T, E>>? {
+		return this[annClass]?.filter {
+			it.event.isSuperclassOf(event)
+		} as MutableList<Injector<T, E>>?
 	}
 
 	@Suppress("UNCHECKED_CAST")

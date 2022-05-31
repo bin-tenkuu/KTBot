@@ -2,7 +2,7 @@ package my.ktbot.plugs
 
 import my.ktbot.annotation.AutoCall
 import my.ktbot.annotation.MsgLength
-import my.ktbot.annotation.RegexAnn
+import my.miraiplus.annotation.RegexAnn
 import my.ktbot.database.COCShortKey
 import my.ktbot.database.TCOCShortKey
 import my.ktbot.interfaces.Plug

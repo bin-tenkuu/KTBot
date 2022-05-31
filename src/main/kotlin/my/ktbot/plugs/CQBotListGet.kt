@@ -1,7 +1,7 @@
 package my.ktbot.plugs
 
 import my.ktbot.annotation.AutoCall
-import my.ktbot.annotation.RegexAnn
+import my.miraiplus.annotation.RegexAnn
 import my.ktbot.database.TGroup
 import my.ktbot.database.TMembers
 import my.ktbot.interfaces.Plug

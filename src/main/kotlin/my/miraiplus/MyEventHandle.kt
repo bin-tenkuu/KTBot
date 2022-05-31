@@ -3,14 +3,11 @@ package my.miraiplus
 import my.miraiplus.annotation.MessageHandle
 import my.miraiplus.injector.InjectMap
 import net.mamoe.mirai.console.plugin.jvm.KotlinPlugin
-import net.mamoe.mirai.console.util.safeCast
 import net.mamoe.mirai.event.Listener
-import net.mamoe.mirai.event.events.MessageEvent
 import net.mamoe.mirai.event.globalEventChannel
 import java.lang.reflect.AnnotatedElement
 import kotlin.reflect.*
 import kotlin.reflect.full.declaredMembers
-import kotlin.reflect.full.isSuperclassOf
 import kotlin.reflect.jvm.javaField
 
 class MyEventHandle(
@@ -59,14 +56,10 @@ class MyEventHandle(
 				return
 			}
 		}
-		if (messageHandle.name.isEmpty()) {
-			callers += caller
-		}
-		val typeE = member.parameters.mapNotNull {
-			it.type.classifier.safeCast<KClass<out MessageEvent>>()
-		}.find(MessageEvent::class::isSuperclassOf) ?: MessageEvent::class
+		callers += caller
+		caller.init()
 		map[member.toString()] = plugin.globalEventChannel().subscribeAlways(
-			typeE, plugin.coroutineContext, messageHandle.concurrency, messageHandle.priority, caller
+			caller.eventClass, plugin.coroutineContext, messageHandle.concurrency, messageHandle.priority, caller
 		)
 	}
 

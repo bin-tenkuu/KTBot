@@ -5,10 +5,13 @@ import my.miraiplus.annotation.Qualifier
 import my.miraiplus.injector.InjectMap
 import my.miraiplus.injector.Injector
 import net.mamoe.mirai.console.util.cast
+import net.mamoe.mirai.console.util.safeCast
+import net.mamoe.mirai.event.Event
 import net.mamoe.mirai.event.events.MessageEvent
 import net.mamoe.mirai.utils.MiraiLogger
 import kotlin.reflect.*
 import kotlin.reflect.full.callSuspend
+import kotlin.reflect.full.isSuperclassOf
 import kotlin.reflect.jvm.isAccessible
 import kotlin.reflect.jvm.javaField
 import kotlin.reflect.jvm.javaMethod
@@ -18,38 +21,57 @@ sealed class Caller(
 	val obj: Any,
 	callable: KCallable<*>,
 	messageHandle: MessageHandle,
-	private val injector: InjectMap,
-) : suspend (MessageEvent, MessageEvent) -> Unit {
+	injector: InjectMap,
+) : suspend (Event, Event) -> Unit {
 	companion object {
 		private val logger = MiraiLogger.Factory.create(Caller::class.java)
 	}
 
-	val name = if (messageHandle.name.isEmpty()) messageHandle.name else callable.toString()
+	val name = messageHandle.name.ifEmpty { callable.toString() }
 	val tmp = ObjectMap("tmp")
+	val eventClass = callable.parameters.mapNotNull {
+		it.type.classifier.safeCast<KClass<out Event>>()
+	}.find(MessageEvent::class::isSuperclassOf) ?: messageHandle.eventType
 
 	val anns: List<Annotation> = callable.annotations
-	val regex = Regex(messageHandle.pattern, messageHandle.options.toSet())
 
+	private val injects = ArrayList<Inject>()
+
+	init {
+		for (ann in anns) {
+			@Suppress("UNCHECKED_CAST")
+			injects.addAll(injector[ann.annClass, eventClass]?.map {
+				Inject(ann, it as Injector<Annotation, Event>)
+			} ?: emptyList())
+		}
+		injects.sort()
+	}
+
+	internal fun init() {
+		for (injector in injects) injector.init()
+	}
 
 	protected fun Pair<Class<out Any>, String?>.get() = tmp[first, second] ?: ObjectMap.global[first, second]
 
 	protected abstract suspend operator fun invoke(): Any?
 
-	override suspend fun invoke(event: MessageEvent, p2: MessageEvent) {
-		val matchResult = regex.find(event.message.contentToString()) ?: return
-		tmp + event + matchResult
-		val deque = ArrayList<Inject>(anns.size)
-		for (ann in anns) {
-			val list = injector[ann.annClass] ?: continue
-			for (injector in list) {
-				deque.add(Inject(ann, injector))
-			}
+	override suspend fun invoke(event: Event, p2: Event) {
+		tmp + event
+		for (inj in injects) {
+			if (inj.doBefore(event)) continue
+			return
 		}
-		deque.sort()
-		for (inj in deque) inj.doBefore(event)
-		val any = invoke()
-		while (deque.isNotEmpty()) {
-			deque.removeLast().doAfter(event, any)
+		val any: Any? = try {
+			invoke()
+		}
+		catch (e: Exception) {
+			e.printStackTrace()
+			null
+		}
+
+		val iterator = injects.listIterator(injects.size)
+		while (iterator.hasPrevious()) {
+			iterator.previous().doAfter(event, any)
 		}
 		tmp.clear()
 	}
@@ -173,10 +195,11 @@ sealed class Caller(
 
 	private inner class Inject(
 		val ann: Annotation,
-		val inj: Injector<Annotation>
+		val inj: Injector<Annotation, Event>
 	) : Comparable<Inject> {
 		override fun compareTo(other: Inject): Int = inj.weight.compareTo(other.inj.weight)
-		suspend fun doBefore(e: MessageEvent) = inj.doBefore(ann, e, this@Caller)
-		suspend fun doAfter(e: MessageEvent, any: Any?) = inj.doAfter(ann, e, this@Caller, any)
+		fun init() = inj.init(ann, this@Caller)
+		suspend fun doBefore(e: Event) = inj.doBefore(ann, e, this@Caller)
+		suspend fun doAfter(e: Event, any: Any?) = inj.doAfter(ann, e, this@Caller, any)
 	}
 }

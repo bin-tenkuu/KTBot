@@ -31,7 +31,7 @@ object CQBotMemeAI {
 		"吗" to "",
 	)
 
-	@MessageHandle("", priority = EventPriority.LOW)
+	@MessageHandle(priority = EventPriority.LOW)
 	fun invoke(event: GroupMessageEvent): Message {
 		val message = event.message
 		if (!message.contains(At(event.bot.id))) return EmptyMessageChain

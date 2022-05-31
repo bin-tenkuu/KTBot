@@ -2,9 +2,8 @@ package my.ktbot.annotation
 
 import my.ktbot.utils.Counter
 import my.ktbot.utils.toMessage
-import my.miraiplus.injector.Injector
 import my.miraiplus.Caller
-import net.mamoe.mirai.event.AbstractEvent
+import my.miraiplus.injector.Injector
 import net.mamoe.mirai.event.events.MessageEvent
 import net.mamoe.mirai.message.data.isContentBlank
 
@@ -17,7 +16,7 @@ import net.mamoe.mirai.message.data.isContentBlank
 @Retention
 @MustBeDocumented
 annotation class AutoSend(val log: Boolean = true) {
-	object Inject : Injector<AutoSend>() {
+	object Inject : Injector.Message<AutoSend> {
 		override suspend fun doBefore(ann: AutoSend, event: MessageEvent, caller: Caller): Boolean {
 			return super.doBefore(ann, event, caller)
 		}
@@ -28,8 +27,8 @@ annotation class AutoSend(val log: Boolean = true) {
 				return
 			}
 			if (ann.log) Counter.log(event)
-			(event as? AbstractEvent)?.cancel()
 			event.subject.sendMessage(message)
+			event.intercept()
 		}
 	}
 }

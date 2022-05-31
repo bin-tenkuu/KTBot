@@ -14,14 +14,14 @@ import net.mamoe.mirai.event.events.GroupMessageEvent
  * @date 2022/1/10
  */
 object AddExp {
-	@MessageHandle("", priority = EventPriority.LOWEST)
+	@MessageHandle(priority = EventPriority.LOWEST)
 	@JvmStatic
 	fun invoke(event: GroupMessageEvent) {
 		Counter.groups[event.group.id].add(1.0)
 		Counter.members[event.sender.id].add(1.0)
 	}
 
-	@MessageHandle("", priority = EventPriority.LOWEST)
+	@MessageHandle(priority = EventPriority.LOWEST)
 	@JvmStatic
 	fun invoke(event: FriendMessageEvent) {
 		Counter.members[event.sender.id].add(0.5)

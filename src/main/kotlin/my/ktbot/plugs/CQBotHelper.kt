@@ -2,9 +2,9 @@ package my.ktbot.plugs
 
 import my.ktbot.annotation.AutoCall
 import my.ktbot.annotation.MsgLength
-import my.ktbot.annotation.RegexAnn
 import my.ktbot.interfaces.Plug
 import my.ktbot.utils.sendAdmin
+import my.miraiplus.annotation.RegexAnn
 import net.mamoe.mirai.event.events.GroupMessageEvent
 import net.mamoe.mirai.event.events.MessageEvent
 import net.mamoe.mirai.message.data.Message
@@ -27,6 +27,13 @@ object CQBotHelper : Plug(
 	""".trimMargin().toPlainText()
 ) {
 	override suspend fun invoke(event: MessageEvent, result: MatchResult): Message {
+		// kotlin.run {
+		// 	PluginMain.myEventHandle.callers.mapIndexed { i, c ->
+		// 		"$i :${c.name}"
+		// 	}
+		// 	val caller = PluginMain.myEventHandle.callers.getOrNull(0) ?: return@run
+		// 	caller.anns.filterIsInstance<Helper>().firstOrNull()?.help
+		// }
 		val plugs = this.get()
 		val p = run {
 			val num = result["num"]?.run { value.trim().toIntOrNull() } ?: return@run null

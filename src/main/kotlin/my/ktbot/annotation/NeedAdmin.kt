@@ -14,7 +14,10 @@ import net.mamoe.mirai.event.events.MessageEvent
 @Retention
 @MustBeDocumented
 annotation class NeedAdmin {
-	object Inject : Injector<NeedAdmin>(-10.0) {
+	object Inject : Injector.Message<NeedAdmin> {
+		override val weight: Double
+			get() = -10.0
+
 		override suspend fun doBefore(ann: NeedAdmin, event: MessageEvent, caller: Caller): Boolean {
 			return PlugConfig.isAdmin(event)
 		}

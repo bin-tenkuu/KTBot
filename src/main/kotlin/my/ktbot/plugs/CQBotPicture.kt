@@ -4,7 +4,7 @@ import my.ktbot.PluginPerm
 import my.ktbot.PluginPerm.contains
 import my.ktbot.annotation.AutoCall
 import my.ktbot.annotation.MsgLength
-import my.ktbot.annotation.RegexAnn
+import my.miraiplus.annotation.RegexAnn
 import my.ktbot.dao.Lolicon
 import my.ktbot.dao.LoliconRequest
 import my.ktbot.database.Gmt.Companion.add

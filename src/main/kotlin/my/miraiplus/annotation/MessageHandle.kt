@@ -1,26 +1,35 @@
 package my.miraiplus.annotation
 
 import net.mamoe.mirai.event.ConcurrencyKind
+import net.mamoe.mirai.event.Event
 import net.mamoe.mirai.event.EventPriority
-import org.intellij.lang.annotations.Language
+import net.mamoe.mirai.event.events.MessageEvent
+import kotlin.reflect.KClass
 
 /**
  * 消息匹配
- * @property pattern String [Regex.pattern]
- * @property options Array<out RegexOption> [Regex.options]
- * @property name String
- * @property concurrency ConcurrencyKind []
- * @property priority EventPriority []
  * @constructor
  */
 @Target(AnnotationTarget.FUNCTION, AnnotationTarget.FIELD, AnnotationTarget.PROPERTY, AnnotationTarget.PROPERTY_GETTER)
 @Retention
 @MustBeDocumented
 annotation class MessageHandle(
-	@Language("RegExp")
-	val pattern: String,
-	vararg val options: RegexOption = [],
+	/**
+	 * 名称，未指定（为空字符串）时使用默认格式
+	 */
 	val name: String = "",
+	/**
+	 * [ConcurrencyKind]
+	 */
 	val concurrency: ConcurrencyKind = ConcurrencyKind.CONCURRENT,
+	/**
+	 * [EventPriority]
+	 */
 	val priority: EventPriority = EventPriority.NORMAL,
+	/**
+	 * 当且仅当：被注解的方法参数列表中没有明确写出具体的事件类型时，才会使用
+	 *
+	 * 默认为 [MessageEvent]
+	 */
+	val eventType: KClass<out Event> = MessageEvent::class
 )

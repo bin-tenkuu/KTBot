@@ -2,12 +2,11 @@ package my.ktbot.plugs
 
 import kotlinx.coroutines.launch
 import my.ktbot.PlugConfig
-import my.ktbot.annotation.AutoCall
-import my.ktbot.annotation.MsgLength
-import my.ktbot.annotation.RegexAnn
-import my.ktbot.interfaces.Plug
+import my.ktbot.annotation.*
 import my.ktbot.utils.NginxLogHandle
-import net.mamoe.mirai.event.events.MessageEvent
+import my.miraiplus.annotation.MessageHandle
+import my.miraiplus.annotation.RegexAnn
+import net.mamoe.mirai.event.events.GroupMessageEvent
 import net.mamoe.mirai.message.data.Message
 import net.mamoe.mirai.message.data.PlainText
 import net.mamoe.mirai.message.data.toPlainText
@@ -15,17 +14,15 @@ import net.mamoe.mirai.utils.ExternalResource.Companion.toExternalResource
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
-object CQNginxLogHandle : Plug(
-	name = "nginx日志处理",
-	regex = Regex("^[.．。]nginx$", RegexOption.IGNORE_CASE),
-	weight = 10.0,
-	needAdmin = true,
-	canPrivate = false,
-	canGroup = true
-) {
+object CQNginxLogHandle {
 	private val formater = DateTimeFormatter.ofPattern("uuuu-MM-dd HH-mm")
 	private val nowFile: String get() = formater.format(LocalDateTime.now())
-	override suspend fun invoke(event: MessageEvent, result: MatchResult): Message {
+
+	@MessageHandle("nginx日志处理")
+	@RegexAnn("^[.．。]nginx$", RegexOption.IGNORE_CASE)
+	@NeedAdmin
+	@AutoSend
+	fun invoke(event: GroupMessageEvent): Message {
 		if (NginxLogHandle.logSize() < 1) {
 			return "无日志".toPlainText()
 		}
@@ -54,6 +51,10 @@ object CQNginxLogHandle : Plug(
 		msgLength = MsgLength(0, Int.MAX_VALUE),
 		needAdmin = true
 	)
+	@MessageHandle("添加banip")
+	@RegexAnn("^[.．。]banip(.+)\$", RegexOption.IGNORE_CASE)
+	@AutoSend
+	@NeedAdmin
 	private fun addIP(result: MatchResult): String {
 		val s = result.groups[1]?.value ?: return "未匹配到ip"
 		val list = ipRegex.findAll(s).map(MatchResult::value).toMutableList()
