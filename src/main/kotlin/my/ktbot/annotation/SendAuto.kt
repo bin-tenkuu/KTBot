@@ -17,15 +17,16 @@ import net.mamoe.mirai.message.data.isContentBlank
 @Target(AnnotationTarget.FUNCTION, AnnotationTarget.FIELD, AnnotationTarget.PROPERTY, AnnotationTarget.PROPERTY_GETTER)
 @Retention
 @MustBeDocumented
-annotation class AutoSend(
+annotation class SendAuto(
 	val log: Boolean = true,
 	/**
 	 * 在此时间后撤回（单位；ms）
 	 */
 	val recall: Long = 0
 ) {
-	object Inject : Injector.Message<AutoSend> {
-		override suspend fun doAfter(ann: AutoSend, event: MessageEvent, caller: Caller, result: Any?) {
+	object Inject : Injector.Message<SendAuto> {
+
+		override suspend fun doAfter(ann: SendAuto, event: MessageEvent, caller: Caller, result: Any?) {
 			val message = result.toMessage()
 			if (message === null || message.isContentBlank()) {
 				return
@@ -35,7 +36,11 @@ annotation class AutoSend(
 				Counter.log(event)
 			}
 			event.intercept()
-			val receipt = event.subject.sendMessage(message)
+			val receipt = PluginMain.catch {
+				event.subject.sendMessage(message)
+			} ?: PluginMain.catch {
+				event.subject.sendMessage("发送失败")
+			} ?: return
 			if (event is GroupMessageEvent && ann.recall > 0) {
 				receipt.recallIn(ann.recall)
 			}

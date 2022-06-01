@@ -1,6 +1,6 @@
 package my.ktbot.plugs
 
-import my.ktbot.annotation.AutoSend
+import my.ktbot.annotation.SendAuto
 import my.ktbot.utils.ReplaceNode
 import my.miraiplus.annotation.MessageHandle
 import net.mamoe.mirai.event.EventPriority
@@ -33,7 +33,7 @@ object CQBotMemeAI {
 	)
 
 	@MessageHandle(priority = EventPriority.LOW)
-	@AutoSend
+	@SendAuto
 	fun invoke(event: GroupMessageEvent): Message {
 		val message = event.message
 		val at = At(event.bot.id)

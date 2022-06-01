@@ -1,6 +1,6 @@
 package my.ktbot.plugs
 
-import my.ktbot.annotation.AutoSend
+import my.ktbot.annotation.SendAuto
 import my.ktbot.annotation.Helper
 import my.ktbot.annotation.NeedAdmin
 import my.ktbot.interfaces.Plug
@@ -23,7 +23,7 @@ object CQBotHelper {
 	@MessageHandle(".(help|帮助)[<id>]")
 	@RegexAnn("^[.．。](?:help|帮助)(?<num> ?\\d+)?$", RegexOption.IGNORE_CASE)
 	@Helper("帮助专用功能\n.help后附带下标数字查看对应功能详情")
-	@AutoSend(recall = 30 * 1000)
+	@SendAuto(recall = 30 * 1000)
 	fun invoke(/* event: MessageEvent, */ result: MatchResult): Message {
 		/*
 		kotlin.run {
@@ -78,13 +78,13 @@ object CQBotHelper {
 	@MessageHandle(".ping")
 	@RegexAnn("^[.．。]ping$", RegexOption.IGNORE_CASE)
 	@Helper("测试bot是否连接正常")
-	@AutoSend
+	@SendAuto
 	private val Ping = ".pong!"
 
 	@MessageHandle(".data")
 	@RegexAnn("^[.．。]data$", RegexOption.IGNORE_CASE)
 	@Helper("开发者信息")
-	@AutoSend(recall = 90 * 1000)
+	@SendAuto(recall = 90 * 1000)
 	private val Data = """
 		|开发者QQ：2938137849
 		|项目地址github：2938137849/KTBot
@@ -94,7 +94,7 @@ object CQBotHelper {
 	@MessageHandle(".report <txt>")
 	@RegexAnn("^[.．。]report(?<txt>.+)$", RegexOption.IGNORE_CASE)
 	@Helper("附上消息发送给开发者")
-	@AutoSend
+	@SendAuto
 	@JvmStatic
 	private suspend fun report(event: MessageEvent, result: MatchResult): String? {
 		val txt = result["txt"]?.value ?: return null
@@ -107,7 +107,7 @@ object CQBotHelper {
 	@RegexAnn("^[.．。]send(?<g>g)?(?<qq>\\d+) (?<txt>.+)$", RegexOption.IGNORE_CASE)
 	@NeedAdmin
 	@Helper("bot代理发送消息")
-	@AutoSend
+	@SendAuto
 	@JvmStatic
 	private suspend fun sendMsg(event: MessageEvent, result: MatchResult): String {
 		val qq = result["qq"]?.value?.toLongOrNull() ?: return "需要发送目标"

@@ -1,5 +1,6 @@
 package my.ktbot.annotation
 
+import my.ktbot.PluginMain
 import my.ktbot.utils.toMessage
 import my.miraiplus.Caller
 import my.miraiplus.injector.Injector
@@ -21,7 +22,11 @@ annotation class SendGroup {
 				return
 			}
 			event.intercept()
-			event.group.sendMessage(message)
+			PluginMain.catch {
+				event.group.sendMessage(message)
+			} ?: PluginMain.catch {
+				event.group.sendMessage("发送失败")
+			}
 		}
 	}
 }

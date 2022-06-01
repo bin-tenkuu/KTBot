@@ -1,7 +1,6 @@
 package my.ktbot
 
 import kotlinx.coroutines.CompletableJob
-import kotlinx.coroutines.Job
 import my.ktbot.annotation.*
 import my.ktbot.interfaces.Plug
 import my.ktbot.plugs.*
@@ -40,20 +39,16 @@ object PluginMain : KotlinPlugin(
 	@JvmStatic
 	private val eventListeners: ArrayList<CompletableJob> = ArrayList()
 
-	@JvmStatic
-	private var tasker: Job? = null
-
 	override fun PluginComponentStorage.onLoad() {
 		PlugConfig.reload()
 		logger.warning("管理员QQ：${PlugConfig.adminId}")
 		logger.warning("管理员QQ群：${PlugConfig.adminGroup}")
 		Plug += listOf(
 			CQBotCOC,
-			MemberExp,
 			// CQBotPixiv, CQBotPicture,
 			CQBotPerm,
 		)
-		myEventHandle.injector + AutoSend.Inject + NeedAdmin.Inject + RegexAnn.Inject() +
+		myEventHandle.injector + SendAuto.Inject + NeedAdmin.Inject + RegexAnn.Inject() +
 			SendGroup.Inject + SendAdmin.Inject
 	}
 
@@ -79,7 +74,7 @@ object PluginMain : KotlinPlugin(
 		subEvents()
 		myEventHandle += arrayOf(
 			CQBotSBI, BotProxy,//	CQBotCOC, CQBotSBI,
-			CQBotRepeat, AddExp, CQBotBan,//	CQBotRepeat, AddExp, MemberExp, CQBotBan,
+			CQBotRepeat, AddExp, MemberExp, CQBotBan,
 			//	CQBotPixiv, CQBotPicture,
 			CQBotHelper, CQBotListGet, CQBotMemeAI,//	CQBotPerm, CQBotHelper,
 			CQNginxLogHandle
@@ -209,6 +204,15 @@ object PluginMain : KotlinPlugin(
 			""".trimMargin()
 			logger.info("OtherClientOnlineEvent: ${msg}")
 			sendAdmin(msg)
+		}
+	}
+
+	inline fun <T> catch(block: () -> T): T? {
+		return try {
+			block()
+		}
+		catch (e: Exception) {
+			logger.error(e); null
 		}
 	}
 }

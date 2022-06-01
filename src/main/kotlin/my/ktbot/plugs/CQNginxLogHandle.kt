@@ -21,7 +21,7 @@ object CQNginxLogHandle {
 	@MessageHandle("nginx日志处理")
 	@RegexAnn("^[.．。]nginx$", RegexOption.IGNORE_CASE)
 	@NeedAdmin
-	@AutoSend
+	@SendAuto
 	fun invoke(event: GroupMessageEvent): Message {
 		if (NginxLogHandle.logSize() < 1) {
 			return "无日志".toPlainText()
@@ -53,7 +53,7 @@ object CQNginxLogHandle {
 	)
 	@MessageHandle("添加banip")
 	@RegexAnn("^[.．。]banip(.+)$", RegexOption.IGNORE_CASE)
-	@AutoSend
+	@SendAuto
 	@NeedAdmin
 	private fun addIP(result: MatchResult): String {
 		val s = result.groups[1]?.value ?: return "未匹配到ip"

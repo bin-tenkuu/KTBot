@@ -1,6 +1,6 @@
 package my.ktbot.plugs
 
-import my.ktbot.annotation.AutoSend
+import my.ktbot.annotation.SendAuto
 import my.ktbot.utils.get
 import my.miraiplus.annotation.MessageHandle
 import my.miraiplus.annotation.RegexAnn
@@ -21,7 +21,7 @@ object BotProxy {
 
 	@MessageHandle(".c开始转发消息")
 	@RegexAnn("^[.．。]cstart", RegexOption.IGNORE_CASE)
-	@AutoSend
+	@SendAuto
 	suspend fun start(event: GroupMessageEvent): String {
 		val gId = this.groupId
 		if (gId !== null) {
@@ -36,7 +36,7 @@ object BotProxy {
 
 	@MessageHandle(".c转发具体消息")
 	@RegexAnn("^[.．。]c (?<msg>.*)", RegexOption.IGNORE_CASE, RegexOption.MULTILINE)
-	@AutoSend
+	@SendAuto
 	suspend fun cProxy(event: FriendMessageEvent, result: MatchResult): String {
 		val gId = this.groupId ?: return "无具体转发群"
 		val tmp = event.bot.getGroup(gId) ?: return "未找到对应群"

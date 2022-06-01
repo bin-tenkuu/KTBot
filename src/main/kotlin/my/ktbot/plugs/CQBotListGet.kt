@@ -1,6 +1,6 @@
 package my.ktbot.plugs
 
-import my.ktbot.annotation.AutoSend
+import my.ktbot.annotation.SendAuto
 import my.ktbot.annotation.Helper
 import my.ktbot.annotation.NeedAdmin
 import my.ktbot.database.TGroup
@@ -28,7 +28,7 @@ object CQBotListGet {
 	@MessageHandle(".获取<type>列表")
 	@RegexAnn("^[.．。]获取(?<type>[^ ]+)列表$")
 	@NeedAdmin
-	@AutoSend
+	@SendAuto
 	fun invoke(event: MessageEvent, result: MatchResult): Message? {
 		val type = result["type"]?.value ?: return null
 		when (type) {
@@ -55,7 +55,7 @@ object CQBotListGet {
 	@RegexAnn("^[.．。]插件(?<id> *\\d*)$")
 	@NeedAdmin
 	@Helper("查看插件信息")
-	@AutoSend
+	@SendAuto
 	@JvmStatic
 	private fun cqBotPluginInfo(result: MatchResult): Message {
 		val p = run {
@@ -82,7 +82,7 @@ object CQBotListGet {
 	@RegexAnn("^[.．。]插件(?<open>[开关])(?<nums>[\\d ]+)$")
 	@NeedAdmin
 	@Helper("设置插件状态")
-	@AutoSend
+	@SendAuto
 	@JvmStatic
 	private fun cqBotPluginStatus(result: MatchResult): Message? {
 		val isOpen = when (result["open"]!!.value) {
@@ -111,7 +111,7 @@ object CQBotListGet {
 	@MessageHandle("日志")
 	@RegexAnn("^[.．。]日志$")
 	@NeedAdmin
-	@AutoSend
+	@SendAuto
 	@JvmStatic
 	private fun cqBotCounter(event: MessageEvent): Message {
 		return Counter.state(event.subject)
@@ -120,7 +120,7 @@ object CQBotListGet {
 	@MessageHandle("简易计算器")
 	@RegexAnn("^[.．。]calc (?<calc>[^ ]+)", RegexOption.IGNORE_CASE)
 	@Helper("表达式间不允许出现空格")
-	@AutoSend
+	@SendAuto
 	@JvmStatic
 	private fun cqBotCalculate(result: MatchResult): Message {
 		val calc = result["calc"]?.value ?: return EmptyMessageChain

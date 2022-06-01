@@ -1,6 +1,6 @@
 package my.ktbot.plugs
 
-import my.ktbot.annotation.AutoSend
+import my.ktbot.annotation.SendAuto
 import my.ktbot.annotation.Helper
 import my.ktbot.annotation.NeedAdmin
 import my.ktbot.utils.Counter
@@ -25,7 +25,7 @@ object CQBotBan {
 	@RegexAnn("^[.．。]设置(?<group>群)?(?<type>un)?ban(?<other>[ \\d]+)$", RegexOption.IGNORE_CASE)
 	@NeedAdmin
 	@Helper("设置群聊、私聊的ban状态。格式：.设置[群][un]ban <other>")
-	@AutoSend
+	@SendAuto
 	private fun invoke(result: MatchResult): Message? {
 		/**true为群聊，false为私聊*/
 		val group = result["group"] !== null

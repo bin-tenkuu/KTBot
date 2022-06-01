@@ -1,6 +1,7 @@
 package my.ktbot.annotation
 
-import my.ktbot.utils.sendAdmin
+import my.ktbot.PlugConfig
+import my.ktbot.PluginMain
 import my.ktbot.utils.toMessage
 import my.miraiplus.Caller
 import my.miraiplus.injector.Injector
@@ -21,7 +22,14 @@ annotation class SendAdmin {
 				return
 			}
 			event.intercept()
-			event.sendAdmin(message)
+			val admin = PluginMain.catch {
+				PlugConfig.getAdmin(event.bot)
+			} ?: return
+			PluginMain.catch {
+				admin.sendMessage(message)
+			} ?: PluginMain.catch {
+				admin.sendMessage("发送失败")
+			}
 		}
 	}
 }

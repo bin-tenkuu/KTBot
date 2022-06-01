@@ -1,6 +1,6 @@
 package my.ktbot.plugs
 
-import my.ktbot.annotation.AutoSend
+import my.ktbot.annotation.SendAuto
 import my.ktbot.annotation.Helper
 import my.ktbot.utils.CacheMap
 import my.ktbot.utils.DiceResult
@@ -22,7 +22,7 @@ object CQBotSBI {
 	@MessageHandle("骰子：SBI特化功能")
 	@RegexAnn("^[.．。]s +(?<num>\\d*)d(?<max>\\d*)", RegexOption.IGNORE_CASE)
 	@Helper("SBI骰子主功能")
-	@AutoSend
+	@SendAuto
 	@JvmStatic
 	private fun invoke(event: MessageEvent, result: MatchResult): Message? {
 		val num = (result["num"]?.value?.toIntOrNull() ?: return null).coerceAtLeast(3)
@@ -61,7 +61,7 @@ object CQBotSBI {
 	@MessageHandle("骰子：SBI加骰")
 	@RegexAnn("^[.．。]sp(?<num> ?\\d*)", RegexOption.IGNORE_CASE)
 	@Helper("10分钟之内加投骰")
-	@AutoSend
+	@SendAuto
 	@JvmStatic
 	private fun addedDice(event: MessageEvent, result: MatchResult): String {
 		val num = result["num"]?.run { value.trim().toIntOrNull() } ?: 1
