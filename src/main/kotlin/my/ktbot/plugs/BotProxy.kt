@@ -1,6 +1,7 @@
 package my.ktbot.plugs
 
 import my.ktbot.annotation.AutoSend
+import my.ktbot.utils.ReplaceNode
 import my.ktbot.utils.get
 import my.miraiplus.annotation.MessageHandle
 import my.miraiplus.annotation.RegexAnn
@@ -13,7 +14,35 @@ import net.mamoe.mirai.event.events.GroupMessageEvent
  *  @version 1.0.0
  */
 object BotProxy {
+	@JvmStatic
+	private val replaceNode = ReplaceNode(false) + mapOf(
+		"：" to " ",
+		":" to " ",
+		"。" to " ",
+		"." to " ",
+		"," to " ",
+		"," to " ",
+		"！" to " ",
+		"!" to " ",
+		"？" to " ",
+		"?" to " ",
+		"、" to " ",
+		"；" to " ",
+		";" to " ",
+
+		"“" to "",
+		"”" to "",
+		"\"" to "",
+		"【" to "",
+		"】" to "",
+		"《" to "",
+		"》" to "",
+		"「" to "",
+		"」" to "",
+	)
+
 	private var groupId: Long? = null
+	private val space = Regex(" {2,}")
 
 	@MessageHandle(".c开始转发消息")
 	@RegexAnn("^[.．。]cstart", RegexOption.IGNORE_CASE)
@@ -35,9 +64,10 @@ object BotProxy {
 	@AutoSend
 	suspend fun cProxy(event: FriendMessageEvent, result: MatchResult): String {
 		val gId = this.groupId ?: return "无具体转发群"
-		val value = result["msg"]?.value ?: return "无匹配消息"
 		val tmp = event.bot.getGroup(gId) ?: return "未找到对应群"
-		tmp.sendMessage(value)
+		val value = result["msg"]?.value ?: return "无匹配消息"
+		val msg = replaceNode.replace(value).trim().replace(space, " ")
+		tmp.sendMessage(msg)
 		return "转发至群：${tmp.name}(${gId})"
 	}
 }

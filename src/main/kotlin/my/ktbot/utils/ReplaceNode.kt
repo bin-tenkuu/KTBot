@@ -1,16 +1,17 @@
 package my.ktbot.utils
 
-class ReplaceNode private constructor(
-	private val children: MutableMap<Char, ReplaceNode>,
+class ReplaceNode(
+	private val escape: Boolean = true
 ) {
-	constructor() : this(HashMap())
+
+	private val children = HashMap<Char, ReplaceNode>()
 
 	private var replace: String? = null
 
 	operator fun get(key: Char) = children[key]
 	operator fun set(string: String, replace: String) {
 		string.fold(this) { node, c ->
-			node.children.computeIfAbsent(c) { ReplaceNode() }
+			node.children.computeIfAbsent(c) { ReplaceNode(escape) }
 		}.replace = replace
 	}
 
@@ -32,7 +33,7 @@ class ReplaceNode private constructor(
 				skip = false
 				continue
 			}
-			if (c == '\\') {
+			if (escape && c == '\\') {
 				if (nodeTmp !== null) {
 					sb.append(nodeTmp.replace)
 					nodeTmp = null
