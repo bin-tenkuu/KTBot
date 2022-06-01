@@ -4,7 +4,8 @@ import kotlinx.coroutines.CompletableJob
 import my.ktbot.annotation.*
 import my.ktbot.interfaces.Plug
 import my.ktbot.plugs.*
-import my.ktbot.utils.*
+import my.ktbot.utils.CacheMap
+import my.ktbot.utils.Counter
 import my.miraiplus.MyEventHandle
 import my.miraiplus.annotation.RegexAnn
 import net.mamoe.mirai.console.extension.PluginComponentStorage
@@ -12,9 +13,8 @@ import net.mamoe.mirai.console.plugin.jvm.JvmPlugin
 import net.mamoe.mirai.console.plugin.jvm.JvmPluginDescription
 import net.mamoe.mirai.console.plugin.jvm.KotlinPlugin
 import net.mamoe.mirai.event.*
-import net.mamoe.mirai.event.events.*
-import net.mamoe.mirai.message.data.PlainText
-import net.mamoe.mirai.utils.MiraiExperimentalApi
+import net.mamoe.mirai.event.events.FriendMessageEvent
+import net.mamoe.mirai.event.events.GroupMessageEvent
 import java.time.Duration
 
 /**
@@ -29,7 +29,7 @@ object PluginMain : KotlinPlugin(
 		info("这是一个测试插件,在这里描述插件的功能和用法等.")
 	}
 ), JvmPlugin {
-	private var inviteCount = CacheMap<Long, Unit>(Duration.ofHours(12).toMillis())
+	private val inviteCount = CacheMap<Long, Unit>(Duration.ofHours(12).toMillis())
 
 	@JvmField
 	val eventChannel: EventChannel<Event> = GlobalEventChannel.parentScope(this).exceptionHandler(logger::error)
@@ -71,7 +71,6 @@ object PluginMain : KotlinPlugin(
 			logger.info("${millis.toNow()}:${plug.name}\t来源:${sender.id}")
 			intercept()
 		}
-		subEvents()
 		myEventHandle += arrayOf(
 			CQBotSBI, BotProxy,//	CQBotCOC, CQBotSBI,
 			CQBotRepeat, AddExp, MemberExp, CQBotBan,
@@ -99,111 +98,6 @@ object PluginMain : KotlinPlugin(
 	): Listener<E> {
 		return eventChannel.subscribeAlways(E::class, coroutineContext, concurrency, priority, handler).also {
 			eventListeners += it
-		}
-	}
-
-	private fun subEvents() {
-		subscribeAlways<NewFriendRequestEvent> {
-			val msg = "${fromNick}（${fromId}）来自群 ${fromGroup?.name ?: ""}（${fromGroupId}）请求添加好友消息：\n${message}"
-			logger.info("NewFriendRequestEvent: ${msg}")
-			sendAdmin(msg)
-			if (inviteCount.size <= 10) {
-				inviteCount[fromId] = Unit
-				//自动同意好友申请
-				accept()
-			}
-			else reject()
-		}
-		subscribeAlways<BotInvitedJoinGroupRequestEvent> {
-			val msg = "${invitorNick}（${invitorId}）邀请加入群 ${groupName}（${groupId}）"
-			logger.info("BotInvitedJoinGroupRequestEvent: ${msg}")
-			sendAdmin(msg)
-			Counter.groups[groupId].update {
-				exp = 20.0
-				invited = invitorId
-			}
-//			if (inviteCount.size <= 10) {
-//				inviteCount[groupId] = Unit
-//				//自动同意加群申请
-//				accept()
-//			}
-		}
-		subscribeAlways<MemberJoinEvent> {
-			val msg = "@${member.nick} ${
-				when (this) {
-					is MemberJoinEvent.Invite -> "被 @${invitor.nick} 邀请"
-					is MemberJoinEvent.Active -> "欢迎"
-					is MemberJoinEvent.Retrieve -> "恢复群主身份"
-					else -> ""
-				}
-			}入群"
-			logger.info("MemberJoinEvent: ${msg}")
-			try {
-				group.sendMessage(PlainText(msg))
-			}
-			catch (e: Exception) {
-				logger.error(toString(), e)
-				sendAdmin("来自群：${groupId}\n${msg}")
-			}
-		}
-		@OptIn(MiraiExperimentalApi::class)
-		subscribeAlways<BotJoinGroupEvent> {
-			val msg = "bot成功加入群： ${group.name}(${groupId}), 来源：${
-				when (this) {
-					is BotJoinGroupEvent.Invite -> "邀请人： ${invitor.nick}(${invitor.id})"
-					is BotJoinGroupEvent.Active -> "不确定"
-					is BotJoinGroupEvent.Retrieve -> "恢复群主身份"
-					else -> ""
-				}
-			}"
-			logger.info("BotJoinGroupEvent: ${msg}")
-			sendAdmin(msg)
-		}
-		subscribeAlways<MemberLeaveEvent> {
-			val msg = "@${member.nick}(${member.id})${
-				when (this) {
-					is MemberLeaveEvent.Quit -> "主动离开本群"
-					is MemberLeaveEvent.Kick -> "被 管理员(@${operator?.nick ?: bot.nick}) 踢出本群"
-					else -> "未知方式离开本群"
-				}
-			}"
-			logger.info("MemberLeaveEvent: ${msg}")
-			try {
-				group.sendMessage(PlainText(msg))
-			}
-			catch (e: Exception) {
-				logger.error(toString(), e)
-				sendAdmin("来自群：${groupId}\n${msg}")
-			}
-		}
-		@OptIn(MiraiExperimentalApi::class)
-		subscribeAlways<BotLeaveEvent> {
-			val msg = "bot被踢出群：${groupId}(${group.name}), 原因：${
-				when (this) {
-					is BotLeaveEvent.Active -> "主动退出, 有被踢出可能"
-					is BotLeaveEvent.Kick -> "被踢出群"
-					is BotLeaveEvent.Disband -> "群主解散群聊"
-					else -> ""
-				}
-			}"
-			logger.info("BotLeaveEvent: ${msg}")
-			sendAdmin(msg)
-		}
-		subscribeAlways<OtherClientOnlineEvent> {
-			val msg = """其他客户端上线
-				|设备名称:${client.info.deviceName}
-				|设备类型:${client.info.deviceKind}
-			""".trimMargin()
-			logger.info("OtherClientOnlineEvent: ${msg}")
-			sendAdmin(msg)
-		}
-		subscribeAlways<OtherClientOnlineEvent> {
-			val msg = """其他客户端下线
-				|设备名称:${client.info.deviceName}
-				|设备类型:${client.info.deviceKind}
-			""".trimMargin()
-			logger.info("OtherClientOnlineEvent: ${msg}")
-			sendAdmin(msg)
 		}
 	}
 
