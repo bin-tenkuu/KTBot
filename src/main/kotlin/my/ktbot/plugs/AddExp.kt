@@ -1,11 +1,8 @@
 package my.ktbot.plugs
 
-import my.ktbot.database.Gmt.Companion.add
-import my.ktbot.utils.Counter
+import my.ktbot.annotation.NeedExp
 import my.miraiplus.annotation.MessageHandle
 import net.mamoe.mirai.event.EventPriority
-import net.mamoe.mirai.event.events.FriendMessageEvent
-import net.mamoe.mirai.event.events.GroupMessageEvent
 
 /**
  *
@@ -14,16 +11,10 @@ import net.mamoe.mirai.event.events.GroupMessageEvent
  * @date 2022/1/10
  */
 object AddExp {
-	@MessageHandle(priority = EventPriority.LOWEST)
+	@MessageHandle("经验增加", priority = EventPriority.LOWEST)
+	@NeedExp(0.5, 1.0)
 	@JvmStatic
-	fun invoke(event: GroupMessageEvent) {
-		Counter.groups[event.group.id].add(1.0)
-		Counter.members[event.sender.id].add(1.0)
+	private fun invoke() {
 	}
 
-	@MessageHandle(priority = EventPriority.LOWEST)
-	@JvmStatic
-	fun invoke(event: FriendMessageEvent) {
-		Counter.members[event.sender.id].add(0.5)
-	}
 }

@@ -1,7 +1,7 @@
 package my.ktbot.plugs
 
-import my.ktbot.annotation.SendAuto
 import my.ktbot.annotation.Helper
+import my.ktbot.annotation.SendAuto
 import my.ktbot.utils.CacheMap
 import my.ktbot.utils.DiceResult
 import my.ktbot.utils.get
@@ -65,13 +65,14 @@ object CQBotSBI {
 	@JvmStatic
 	private fun addedDice(event: MessageEvent, result: MatchResult): String {
 		val num = result["num"]?.run { value.trim().toIntOrNull() } ?: 1
-		var diceResult: DiceResult = cache[event.sender.id] ?: return "10分钟之内没有投任何骰子"
+		val id = event.sender.id
+		var diceResult: DiceResult = cache[id] ?: return "10分钟之内没有投任何骰子"
 		val dice: DiceResult = when (cheater) {
 			true -> DiceResult(num, diceResult.max)
 			false -> DiceResult.dice(num, diceResult.max)
 		}
 		diceResult += dice
-		cache[event.sender.id] = diceResult
+		cache[id] = diceResult
 		return """${dice.origin}：[${dice.list.joinToString(", ")}]=${dice.sum}
 			|[${diceResult.list.joinToString(", ")}]（${getRes(diceResult.list)}）
 		""".trimMargin()

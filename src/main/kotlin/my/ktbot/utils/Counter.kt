@@ -4,7 +4,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import my.ktbot.PluginMain
 import my.ktbot.database.*
-import my.ktbot.interfaces.Plug
 import net.mamoe.mirai.Bot
 import net.mamoe.mirai.contact.Contact
 import net.mamoe.mirai.event.events.GroupEvent
@@ -12,6 +11,7 @@ import net.mamoe.mirai.event.events.MessageEvent
 import net.mamoe.mirai.message.data.EmptyMessageChain
 import net.mamoe.mirai.message.data.ForwardMessageBuilder
 import net.mamoe.mirai.message.data.Message
+import net.mamoe.mirai.utils.MiraiLogger
 import org.ktorm.dsl.eq
 import java.time.Duration
 
@@ -22,6 +22,8 @@ import java.time.Duration
  * @date 2022/1/26
  */
 object Counter {
+	private val logger = MiraiLogger.Factory.create(Counter::class)
+
 	@JvmStatic
 	private val ttl = Duration.ofDays(1).toMillis() shr 1
 
@@ -49,7 +51,7 @@ object Counter {
 					save()
 				}
 				catch (e: Exception) {
-					Plug.logger.error(e)
+					logger.error(e)
 				}
 				System.gc()
 				delay(Duration.ofHours(6).toMillis())
@@ -60,14 +62,14 @@ object Counter {
 	@JvmStatic
 	fun save() {
 		members.size.also {
-			Plug.logger.info("保存开始（Members）：$it")
+			logger.info("保存开始（Members）：$it")
 			members.flash()
-			Plug.logger.info("保存结束（Members）：释放数量:${it - members.size},剩余数量:${members.size}")
+			logger.info("保存结束（Members）：释放数量:${it - members.size},剩余数量:${members.size}")
 		}
 		groups.size.also {
-			Plug.logger.info("保存开始（Groups）：$it")
+			logger.info("保存开始（Groups）：$it")
 			groups.flash()
-			Plug.logger.info("保存结束（Groups）：释放数量:${it - groups.size},剩余数量:${groups.size}")
+			logger.info("保存结束（Groups）：释放数量:${it - groups.size},剩余数量:${groups.size}")
 		}
 	}
 
@@ -105,8 +107,8 @@ object Counter {
 			}
 
 			fun Map<Long, Int>.toMSG(): List<String> = entries
-					.sortedByDescending(Map.Entry<Long, Int>::value)
-					.map { (id, num) -> "${id}：${num}次" }
+				.sortedByDescending(Map.Entry<Long, Int>::value)
+				.map { (id, num) -> "${id}：${num}次" }
 			for ((group, list) in groupMap) {
 				bot.says("群($group)：", list.toMSG())
 			}

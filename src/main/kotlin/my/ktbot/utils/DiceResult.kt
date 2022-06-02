@@ -14,7 +14,7 @@ class DiceResult(
 	operator fun plus(dice: DiceResult): DiceResult {
 		return DiceResult(
 			sum = sum + dice.sum,
-			max = max.coerceAtLeast(dice.max),
+			max = if (max == dice.max) max else error("max 需要相同"),
 			list = intArrayOf(*list, *dice.list)
 		)
 	}

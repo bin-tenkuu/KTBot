@@ -5,6 +5,7 @@ import my.ktbot.utils.Counter
 import my.ktbot.utils.toMessage
 import my.miraiplus.Caller
 import my.miraiplus.injector.Injector
+import net.mamoe.mirai.event.events.FriendMessageEvent
 import net.mamoe.mirai.event.events.GroupMessageEvent
 import net.mamoe.mirai.event.events.MessageEvent
 import net.mamoe.mirai.message.data.isContentBlank
@@ -25,6 +26,9 @@ annotation class SendAuto(
 	val recall: Long = 0
 ) {
 	object Inject : Injector.Message<SendAuto> {
+		override suspend fun doBefore(ann: SendAuto, event: MessageEvent, caller: Caller): Boolean {
+			return event is FriendMessageEvent || event is GroupMessageEvent
+		}
 
 		override suspend fun doAfter(ann: SendAuto, event: MessageEvent, caller: Caller, result: Any?) {
 			val message = result.toMessage()

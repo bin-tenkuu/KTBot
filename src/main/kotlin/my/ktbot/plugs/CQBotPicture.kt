@@ -1,24 +1,17 @@
 package my.ktbot.plugs
 
-import my.ktbot.PluginPerm
-import my.ktbot.PluginPerm.contains
-import my.ktbot.annotation.AutoCall
-import my.ktbot.annotation.MsgLength
-import my.miraiplus.annotation.RegexAnn
+import my.ktbot.annotation.*
 import my.ktbot.dao.Lolicon
 import my.ktbot.dao.LoliconRequest
-import my.ktbot.database.Gmt.Companion.add
 import my.ktbot.database.PixivPic
 import my.ktbot.database.TPixivPic
-import my.ktbot.interfaces.Plug
-import my.ktbot.utils.Counter
 import my.ktbot.utils.KtorUtils
 import my.ktbot.utils.Sqlite
+import my.ktbot.utils.get
+import my.miraiplus.annotation.MessageHandle
+import my.miraiplus.annotation.RegexAnn
 import my.sqlite.insertOrUpdate
-import net.mamoe.mirai.console.permission.AbstractPermitteeId
 import net.mamoe.mirai.contact.Contact
-import net.mamoe.mirai.event.events.FriendMessageEvent
-import net.mamoe.mirai.event.events.GroupMessageEvent
 import net.mamoe.mirai.event.events.MessageEvent
 import net.mamoe.mirai.message.code.CodableMessage
 import net.mamoe.mirai.message.data.EmptyMessageChain
@@ -26,6 +19,7 @@ import net.mamoe.mirai.message.data.Message
 import net.mamoe.mirai.message.data.toPlainText
 import net.mamoe.mirai.utils.ExternalResource.Companion.toExternalResource
 import net.mamoe.mirai.utils.ExternalResource.Companion.uploadAsImage
+import net.mamoe.mirai.utils.MiraiLogger
 import org.ktorm.dsl.eq
 import org.ktorm.entity.firstOrNull
 import org.ktorm.entity.sortedBy
@@ -36,17 +30,8 @@ import org.ktorm.entity.sortedBy
  * @since 1.0
  * @date 2022/1/13
  */
-object CQBotPicture : Plug(
-	name = "来点[<r18>][<key>]色图",
-	regex = Regex("^[来來发發给給l][张張个個幅点點份d](?<r18>r18的?)?(?<keyword>.*)?[涩色瑟铯s][图圖t]$"),
-	weight = 5.0,
-	help = """来点色图，需获取对应权限
-		|可选参数：r18，key
-	""".trimMargin().toPlainText(),
-	deleteMSG = 20 * 1000,
-	speedLimit = 5000,
-	msgLength = 4..20,
-) {
+object CQBotPicture {
+	private val logger = MiraiLogger.Factory.create(CQBotPicture::class)
 
 	@JvmStatic
 	val setuSet = mutableSetOf<String>()
@@ -72,17 +57,13 @@ object CQBotPicture : Plug(
 		}
 	}
 
-	override suspend fun invoke(event: FriendMessageEvent, result: MatchResult): Message {
-		val sender = event.sender
-		Counter.members[sender.id].add(-8.0)
-		return message(result, sender)
-	}
-
-	override suspend fun invoke(event: GroupMessageEvent, result: MatchResult): Message {
-		val group = event.group
-		if (AbstractPermitteeId.ExactGroup(group.id) in PluginPerm.setu) return EmptyMessageChain
-		Counter.groups[group.id].add(-5.0) || Counter.members[event.sender.id].add(-5.0)
-		return message(result, group)
+	@MessageHandle("来点[<r18>][<key>]色图")
+	@RegexAnn("^[来來发發给給l][张張个個幅点點份d](?<r18>r18的?)?(?<keyword>.*)?[涩色瑟铯s][图圖t]$")
+	@SendAuto
+	@LimitAll(1000 * 60 * 10)
+	@NeedExp(-8.0, -5.0)
+	suspend fun invoke(event: MessageEvent, result: MatchResult): Message {
+		return message(result, event.subject)
 	}
 
 	@JvmStatic
@@ -115,17 +96,11 @@ object CQBotPicture : Plug(
 		}
 	}
 
-	@AutoCall(
-		name = "来点[<r18>]色图",
-		regex = RegexAnn("^[来來发發给給l][张張个個幅点點份d](?<r18>r18的?)?[涩色瑟铯s][图圖t]$", RegexOption.IGNORE_CASE),
-		weight = 5.1,
-		deleteMSG = 20 * 1000,
-		needAdmin = true,
-		speedLimit = 500,
-		msgLength = MsgLength(4, 15),
-		expPrivate = -5.0,
-		expGroup = -3.0,
-	)
+	@MessageHandle("来点[<r18>]色图")
+	@RegexAnn("^[来來发發给給l][张張个個幅点點份d](?<r18>r18的?)?[涩色瑟铯s][图圖t]$", RegexOption.IGNORE_CASE)
+	@SendAuto(recall = 20 * 1000)
+	@LimitAll(1000 * 60 * 1)
+	@NeedExp(-5.0, -3.0)
 	@JvmStatic
 	private suspend fun setuCache(event: MessageEvent, result: MatchResult): Message {
 		return messageLocal(result, event.subject)
@@ -150,12 +125,10 @@ object CQBotPicture : Plug(
 		return image
 	}
 
-	@AutoCall(
-		name = ".色图失败列表",
-		regex = RegexAnn("^[.．。]色图失败列表$"),
-		weight = 3.0,
-		needAdmin = true
-	)
+	@MessageHandle(".色图失败列表")
+	@RegexAnn("^[.．。]色图失败列表$")
+	@NeedAdmin
+	@SendAuto
 	private val failList get() = setuSet.joinToString()
 
 }

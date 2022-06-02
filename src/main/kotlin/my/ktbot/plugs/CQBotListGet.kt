@@ -1,11 +1,10 @@
 package my.ktbot.plugs
 
-import my.ktbot.annotation.SendAuto
 import my.ktbot.annotation.Helper
 import my.ktbot.annotation.NeedAdmin
+import my.ktbot.annotation.SendAuto
 import my.ktbot.database.TGroup
 import my.ktbot.database.TMembers
-import my.ktbot.interfaces.Plug.Companion.plugs
 import my.ktbot.utils.Counter
 import my.ktbot.utils.Sqlite
 import my.ktbot.utils.calculator.Calculator
@@ -13,7 +12,9 @@ import my.ktbot.utils.get
 import my.miraiplus.annotation.MessageHandle
 import my.miraiplus.annotation.RegexAnn
 import net.mamoe.mirai.event.events.MessageEvent
-import net.mamoe.mirai.message.data.*
+import net.mamoe.mirai.message.data.EmptyMessageChain
+import net.mamoe.mirai.message.data.Message
+import net.mamoe.mirai.message.data.toPlainText
 import org.ktorm.dsl.eq
 import org.ktorm.entity.filter
 import org.ktorm.entity.joinTo
@@ -51,62 +52,62 @@ object CQBotListGet {
 		}
 	}
 
-	@MessageHandle(".插件[<id>]")
-	@RegexAnn("^[.．。]插件(?<id> *\\d*)$")
-	@NeedAdmin
-	@Helper("查看插件信息")
-	@SendAuto
-	@JvmStatic
-	private fun cqBotPluginInfo(result: MatchResult): Message {
-		val p = run {
-			val id = result["id"]?.run { value.trim().toIntOrNull() } ?: return@run null
-			plugs.getOrNull(id)
-		} ?: return plugs.mapIndexed { i, p ->
-			"$i (${p.isOpen}):${p.name}"
-		}.joinToString("\n").toPlainText()
-		return """
-			|名称：${p.name}
-			|匹配：${p.regex}
-			|权重：${p.weight}
-			|启用：${p.isOpen}
-			|群聊：${p.canGroup}
-			|私聊：${p.canPrivate}
-			|帮助：${p.help}
-			|长度限制：${p.msgLength}
-			|撤回延时：${p.deleteMSG}毫秒
-			|速度限制：${p.speedLimit}毫秒每次
-		""".trimMargin().toPlainText()
-	}
+	// @MessageHandle(".插件[<id>]")
+	// @RegexAnn("^[.．。]插件(?<id> *\\d*)$")
+	// @NeedAdmin
+	// @Helper("查看插件信息")
+	// @SendAuto
+	// @JvmStatic
+	// private fun cqBotPluginInfo(result: MatchResult): Message {
+	// 	val p = run {
+	// 		val id = result["id"]?.run { value.trim().toIntOrNull() } ?: return@run null
+	// 		plugs.getOrNull(id)
+	// 	} ?: return plugs.mapIndexed { i, p ->
+	// 		"$i (${p.isOpen}):${p.name}"
+	// 	}.joinToString("\n").toPlainText()
+	// 	return """
+	// 		|名称：${p.name}
+	// 		|匹配：${p.regex}
+	// 		|权重：${p.weight}
+	// 		|启用：${p.isOpen}
+	// 		|群聊：${p.canGroup}
+	// 		|私聊：${p.canPrivate}
+	// 		|帮助：${p.help}
+	// 		|长度限制：${p.msgLength}
+	// 		|撤回延时：${p.deleteMSG}毫秒
+	// 		|速度限制：${p.speedLimit}毫秒每次
+	// 	""".trimMargin().toPlainText()
+	// }
 
-	@MessageHandle(".插件<open><nums[]>")
-	@RegexAnn("^[.．。]插件(?<open>[开关])(?<nums>[\\d ]+)$")
-	@NeedAdmin
-	@Helper("设置插件状态")
-	@SendAuto
-	@JvmStatic
-	private fun cqBotPluginStatus(result: MatchResult): Message? {
-		val isOpen = when (result["open"]!!.value) {
-			"开" -> true
-			"关" -> false
-			else -> return null
-		}
-		val ids = result["nums"]!!.value.split(" ").mapNotNull {
-			it.trim().toIntOrNull()
-		}.mapNotNull {
-			plugs.getOrNull(it)
-		}
-		if (ids.isEmpty()) {
-			return "未知插件ID".toPlainText()
-		}
-		return buildMessageChain {
-			+"插件变动:"
-			ids.forEach {
-				it.isOpen = isOpen
-				+"\n"
-				+it.name
-			}
-		}
-	}
+	// @MessageHandle(".插件<open><nums[]>")
+	// @RegexAnn("^[.．。]插件(?<open>[开关])(?<nums>[\\d ]+)$")
+	// @NeedAdmin
+	// @Helper("设置插件状态")
+	// @SendAuto
+	// @JvmStatic
+	// private fun cqBotPluginStatus(result: MatchResult): Message? {
+	// 	val isOpen = when (result["open"]!!.value) {
+	// 		"开" -> true
+	// 		"关" -> false
+	// 		else -> return null
+	// 	}
+	// 	val ids = result["nums"]!!.value.split(" ").mapNotNull {
+	// 		it.trim().toIntOrNull()
+	// 	}.mapNotNull {
+	// 		plugs.getOrNull(it)
+	// 	}
+	// 	if (ids.isEmpty()) {
+	// 		return "未知插件ID".toPlainText()
+	// 	}
+	// 	return buildMessageChain {
+	// 		+"插件变动:"
+	// 		ids.forEach {
+	// 			it.isOpen = isOpen
+	// 			+"\n"
+	// 			+it.name
+	// 		}
+	// 	}
+	// }
 
 	@MessageHandle("日志")
 	@RegexAnn("^[.．。]日志$")

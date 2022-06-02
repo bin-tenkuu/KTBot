@@ -3,10 +3,12 @@ package my.ktbot.utils
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.serializer
 import my.ktbot.PlugConfig
-import my.ktbot.interfaces.Plug
+import net.mamoe.mirai.utils.MiraiLogger
 import java.io.*
 
 object NginxLogHandle {
+	private val logger = MiraiLogger.Factory.create(NginxLogHandle::class)
+
 	//	'$remote_addr - $remote_user [$time_iso8601] "$request"'
 	//	' $status,$body_bytes_sent "$http_referer" "$http_user_agent"'
 	//	',"$http_x_forwarded_for","$http_host"';
@@ -92,12 +94,12 @@ object NginxLogHandle {
 		if (logMap.size != 0) return logMap
 		for (file in getConfFileList(PlugConfig.nginxLogPath)) {
 			val name = file.name
-			Plug.logger.info("Read File: $name")
+			logger.info("Read File: $name")
 			BufferedReader(FileReader(file)).use {
 				for (line in it.lines()) {
 					val result = nginxRegex.find(line, 0)
 					if (result == null) {
-						Plug.logger.info("\tNot Match Line: $line")
+						logger.info("\tNot Match Line: $line")
 						continue
 					}
 					val element = LogNginx(result, name)
@@ -109,12 +111,14 @@ object NginxLogHandle {
 						black -= ip
 						logMap -= ip
 						continue
-					} else if (ip in black) continue
+					}
+					else if (ip in black) continue
 					else if (element.warn) {
 						black += ip
 						logMap -= ip
 						continue
-					} else logMap.computeIfAbsent(ip) { ArrayList() }.add(element)
+					}
+					else logMap.computeIfAbsent(ip) { ArrayList() }.add(element)
 				}
 			}
 		}
@@ -168,8 +172,9 @@ object NginxLogHandle {
 				val start = ProcessBuilder("ipset", "add", "banip", ip).start()
 				start.waitFor()
 				ip + " -> " + BufferedReader(InputStreamReader(start.errorStream)).use(BufferedReader::readLine)
-			} catch (e: Exception) {
-				Plug.logger.error(e)
+			}
+			catch (e: Exception) {
+				logger.error(e)
 				"执行出错：$ip"
 			}
 		}

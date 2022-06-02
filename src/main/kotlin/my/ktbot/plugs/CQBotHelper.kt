@@ -1,11 +1,12 @@
 package my.ktbot.plugs
 
-import my.ktbot.annotation.SendAuto
+import my.ktbot.PluginMain
 import my.ktbot.annotation.Helper
 import my.ktbot.annotation.NeedAdmin
-import my.ktbot.interfaces.Plug
+import my.ktbot.annotation.SendAuto
 import my.ktbot.utils.get
 import my.ktbot.utils.sendAdmin
+import my.miraiplus.Caller
 import my.miraiplus.annotation.MessageHandle
 import my.miraiplus.annotation.RegexAnn
 import net.mamoe.mirai.event.events.GroupMessageEvent
@@ -65,15 +66,15 @@ object CQBotHelper {
 		}""".trimMargin().toPlainText()
 		return """
 			|名称：${p.name}
-			|匹配：${p.regex}
-			|长度限制：${p.msgLength}
-			|撤回延时：${p.deleteMSG}毫秒
-			|速度限制：${p.speedLimit}毫秒每次
+			|匹配：{p.regex}
+			|长度限制：{p.msgLength}
+			|撤回延时：{p.deleteMSG}毫秒
+			|速度限制：{p.speedLimit}毫秒每次
 			|帮助：
-		""".trimMargin().toPlainText() + p.help!!
+		""".trimMargin().toPlainText()// + p.help!!
 	}
 
-	private fun get(): List<Plug> = Plug.plugs.filter { it.isOpen == true && !it.needAdmin && it.help !== null }
+	private fun get(): List<Caller> = PluginMain.callers
 
 	@MessageHandle(".ping")
 	@RegexAnn("^[.．。]ping$", RegexOption.IGNORE_CASE)

@@ -1,17 +1,20 @@
 package my.ktbot.plugs
 
-import my.ktbot.database.Gmt.Companion.add
-import my.ktbot.interfaces.Plug
-import my.ktbot.utils.Counter
+import my.ktbot.annotation.LimitAll
+import my.ktbot.annotation.NeedExp
+import my.ktbot.annotation.SendAuto
 import my.ktbot.utils.KtorUtils
+import my.ktbot.utils.get
+import my.miraiplus.annotation.MessageHandle
+import my.miraiplus.annotation.RegexAnn
 import net.mamoe.mirai.contact.Contact
-import net.mamoe.mirai.event.events.FriendMessageEvent
-import net.mamoe.mirai.event.events.GroupMessageEvent
+import net.mamoe.mirai.event.events.MessageEvent
 import net.mamoe.mirai.message.data.Message
 import net.mamoe.mirai.message.data.toMessageChain
 import net.mamoe.mirai.message.data.toPlainText
 import net.mamoe.mirai.utils.ExternalResource.Companion.toExternalResource
 import net.mamoe.mirai.utils.ExternalResource.Companion.uploadAsImage
+import net.mamoe.mirai.utils.MiraiLogger
 
 /**
  *
@@ -19,25 +22,17 @@ import net.mamoe.mirai.utils.ExternalResource.Companion.uploadAsImage
  * @since 1.0
  * @date 2022/1/13
  */
-object CQBotPixiv : Plug(
-	name = "看看p站<pid>[-<p>]",
-	regex = Regex("^看{1,2}p站(?<pid>\\d+)$"),
-	weight = 5.0,
-	help = "看看p站带上pid发送，可选参数：p".toPlainText(),
-	deleteMSG = 100 * 1000,
-	speedLimit = 2000,
-	msgLength = 5..20,
-) {
-	override suspend fun invoke(event: GroupMessageEvent, result: MatchResult): Message {
-		val pid: Int = result["pid"]?.run { value.trim().toIntOrNull() } ?: return "pid获取失败".toPlainText()
-		Counter.groups[event.group.id].add(-5.0) || Counter.members[event.sender.id].add(-5.0)
-		return this(pid, event.group)
-	}
+object CQBotPixiv {
+	private val logger = MiraiLogger.Factory.create(CQBotPixiv::class)
 
-	override suspend fun invoke(event: FriendMessageEvent, result: MatchResult): Message {
+	@MessageHandle("看看p站<pid>[-<p>]")
+	@RegexAnn("^看{1,2}p站(?<pid>\\d+)$", RegexOption.IGNORE_CASE)
+	@SendAuto
+	@LimitAll(1000 * 10)
+	@NeedExp(-8.0, -5.0)
+	suspend fun invoke(event: MessageEvent, result: MatchResult): Message {
 		val pid: Int = result["pid"]?.run { value.trim().toIntOrNull() } ?: return "pid获取失败".toPlainText()
-		Counter.members[event.sender.id].add(-8.0)
-		return this(pid, event.sender)
+		return this(pid, event.subject)
 	}
 
 	@JvmStatic
@@ -59,7 +54,8 @@ object CQBotPixiv : Plug(
 					.toExternalResource().toAutoCloseable().uploadAsImage(contact)
 			}
 			return "pid错误".toPlainText()
-		} catch (e: Exception) {
+		}
+		catch (e: Exception) {
 			logger.error(e)
 			return "网络请求错误或内部错误".toPlainText()
 		}
