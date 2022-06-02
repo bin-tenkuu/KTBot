@@ -26,22 +26,32 @@ sealed class Caller(
 		private val logger = MiraiLogger.Factory.create(Caller::class.java)
 	}
 
-	val name = messageHandle.name.ifEmpty { callable.toString() }
+	@JvmField
+	val fieldName = callable.toString()
+
+	@JvmField
+	val name = messageHandle.name.ifEmpty { fieldName }
+
+	@JvmField
 	val tmp = ObjectMap("tmp")
+
+	@JvmField
 	val eventClass = callable.parameters.mapNotNull {
 		it.type.classifier.safeCast<KClass<Event>>()
 	}.find(Event::class::isSuperclassOf) ?: messageHandle.eventType
 
+	@JvmField
 	val anns: List<Annotation> = callable.annotations
 
 	private val injects = ArrayList<Inject>()
 
 	init {
-		for (ann in anns) {
+		for (ann in callable.annotations) {
+			val injectors = injector[ann.annClass, eventClass] ?: continue
 			@Suppress("UNCHECKED_CAST")
-			injects.addAll(injector[ann.annClass, eventClass]?.map {
+			injectors.mapTo(injects) {
 				Inject(ann, it as Injector<Annotation, Event>)
-			} ?: emptyList())
+			}
 		}
 		injects.sort()
 	}
@@ -81,8 +91,15 @@ sealed class Caller(
 	private val <T : Annotation> T.annClass: Class<T>
 		get() = (this as java.lang.annotation.Annotation).annotationType() as Class<T>
 
-	override fun toString(): String {
-		return name
+	override fun toString(): String = fieldName
+
+	override fun hashCode(): Int = fieldName.hashCode()
+
+	override fun equals(other: Any?): Boolean = when {
+		this === other -> true
+		other !is Caller -> false
+		fieldName == other.fieldName -> true
+		else -> false
 	}
 
 	// region impl

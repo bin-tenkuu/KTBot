@@ -48,17 +48,25 @@ class InjectMap {
 	// region get
 
 	@Suppress("UNCHECKED_CAST")
-	operator fun <T : Annotation> get(annClass: Class<T>): MutableList<Injector<T, Event>>? {
-		return injectorMap[annClass] as MutableList<Injector<T, Event>>?
+	operator fun <T : Annotation> get(annClass: Class<T>): MutableList<Injector<T, out Event>>? {
+		return injectorMap[annClass] as MutableList<Injector<T, out Event>>?
+	}
+
+	@JvmName("getByEvent")
+	@Suppress("UNCHECKED_CAST")
+	operator fun <E : Event> get(event: KClass<E>): List<Injector<out Annotation, out E>> {
+		return injectorMap.values.flatten().filter {
+			event.isSuperclassOf(it.event)
+		}as List<Injector<out Annotation, out E>>
 	}
 
 	@Suppress("UNCHECKED_CAST")
 	operator fun <T : Annotation, E : Event> get(
 		annClass: Class<T>, event: KClass<E>
-	): MutableList<Injector<T, E>>? {
+	): MutableList<Injector<T, out E>>? {
 		return this[annClass]?.filter {
-			it.event.isSuperclassOf(event)
-		} as MutableList<Injector<T, E>>?
+			event.isSuperclassOf(it.event)
+		} as MutableList<Injector<T, out E>>?
 	}
 
 	@Suppress("UNCHECKED_CAST")

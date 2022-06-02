@@ -2,7 +2,8 @@ package my.ktbot.plugs
 
 import kotlinx.coroutines.launch
 import my.ktbot.PlugConfig
-import my.ktbot.annotation.*
+import my.ktbot.annotation.NeedAdmin
+import my.ktbot.annotation.SendAuto
 import my.ktbot.utils.NginxLogHandle
 import my.miraiplus.annotation.MessageHandle
 import my.miraiplus.annotation.RegexAnn
@@ -44,13 +45,6 @@ object CQNginxLogHandle {
 	private val ipRegex =
 		Regex("((\\d|[1-9]\\d|1\\d\\d|2[0-4]\\d|25[0-5])\\.){3}(\\d|[1-9]\\d|1\\d\\d|2[0-4]\\d|25[0-5])")
 
-	@AutoCall(
-		name = "添加banip",
-		regex = RegexAnn("^[.．。]banip(.+)$", RegexOption.IGNORE_CASE),
-		weight = 10.0,
-		msgLength = MsgLength(0, Int.MAX_VALUE),
-		needAdmin = true
-	)
 	@MessageHandle("添加banip")
 	@RegexAnn("^[.．。]banip(.+)$", RegexOption.IGNORE_CASE)
 	@SendAuto

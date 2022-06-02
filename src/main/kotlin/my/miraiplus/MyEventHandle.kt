@@ -19,6 +19,8 @@ class MyEventHandle(
 	@JvmField
 	val injector = InjectMap()
 
+	// region register
+
 	operator fun plus(obj: Any): MyEventHandle {
 		register(obj)
 		return this
@@ -32,6 +34,13 @@ class MyEventHandle(
 
 	fun register(obj: Any) {
 		for (member: KCallable<*> in obj::class.declaredMembers) register0(obj, member)
+	}
+
+	fun register(obj: Any, member: KCallable<*>) = register(obj, member.name)
+
+	fun register(obj: Any, member: String) {
+		val kCallable = obj::class.declaredMembers.find { it.name == member } ?: return
+		register0(obj, kCallable)
 	}
 
 	private fun register0(obj: Any, member: KCallable<*>) {
@@ -64,26 +73,39 @@ class MyEventHandle(
 		}
 		callers += caller
 		caller.init()
-		map[member.toString()] = plugin.globalEventChannel().subscribeAlways(
+		map[caller.fieldName] = plugin.globalEventChannel().subscribeAlways(
 			caller.eventClass, plugin.coroutineContext, messageHandle.concurrency, messageHandle.priority, caller
 		)
+		map[caller.fieldName]
 	}
 
-	fun register(obj: Any, member: KCallable<*>) = register(obj, member.name)
+	// endregion
 
-	fun register(obj: Any, member: String) {
-		val kCallable = obj::class.declaredMembers.find { it.name == member } ?: return
-		register0(obj, kCallable)
-	}
+	// region unregister
 
 	fun unregister(member: KCallable<*>) = unregister(member.toString())
 
-	fun unregister(member: String) {
+	fun unregister(caller: Caller) {
+		map.remove(caller.fieldName)?.complete()
+	}
+
+	private fun unregister(member: String) {
 		map.remove(member)?.complete()
 	}
 
 	fun unregisterAll() {
 		map.values.removeIf { it.complete(); true }
+	}
+
+	// endregion
+
+	fun isOpen(caller: Caller): Boolean {
+		val listener = map[caller.fieldName] ?: return false
+		if (listener.isCompleted) {
+			map.remove(caller.fieldName)
+			return false
+		}
+		return true
 	}
 
 	private fun KCallable<*>.MessageHandle() = annotations.filterIsInstance<MessageHandle>().firstOrNull()

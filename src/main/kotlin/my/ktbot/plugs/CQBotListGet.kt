@@ -1,8 +1,7 @@
 package my.ktbot.plugs
 
-import my.ktbot.annotation.Helper
-import my.ktbot.annotation.NeedAdmin
-import my.ktbot.annotation.SendAuto
+import my.ktbot.PluginMain
+import my.ktbot.annotation.*
 import my.ktbot.database.TGroup
 import my.ktbot.database.TMembers
 import my.ktbot.utils.Counter
@@ -52,32 +51,51 @@ object CQBotListGet {
 		}
 	}
 
-	// @MessageHandle(".插件[<id>]")
-	// @RegexAnn("^[.．。]插件(?<id> *\\d*)$")
-	// @NeedAdmin
-	// @Helper("查看插件信息")
-	// @SendAuto
-	// @JvmStatic
-	// private fun cqBotPluginInfo(result: MatchResult): Message {
-	// 	val p = run {
-	// 		val id = result["id"]?.run { value.trim().toIntOrNull() } ?: return@run null
-	// 		plugs.getOrNull(id)
-	// 	} ?: return plugs.mapIndexed { i, p ->
-	// 		"$i (${p.isOpen}):${p.name}"
-	// 	}.joinToString("\n").toPlainText()
-	// 	return """
-	// 		|名称：${p.name}
-	// 		|匹配：${p.regex}
-	// 		|权重：${p.weight}
-	// 		|启用：${p.isOpen}
-	// 		|群聊：${p.canGroup}
-	// 		|私聊：${p.canPrivate}
-	// 		|帮助：${p.help}
-	// 		|长度限制：${p.msgLength}
-	// 		|撤回延时：${p.deleteMSG}毫秒
-	// 		|速度限制：${p.speedLimit}毫秒每次
-	// 	""".trimMargin().toPlainText()
-	// }
+	@MessageHandle(".插件[<id>]")
+	@RegexAnn("^[.．。]插件(?<id> *\\d*)$")
+	@NeedAdmin
+	@Helper("查看插件信息")
+	@SendAuto
+	@JvmStatic
+	private fun cqBotPluginInfo(result: MatchResult): String {
+		val list = PluginMain.callers
+		val c = run {
+			val num = result["id"]?.run { value.trim().toIntOrNull() } ?: return@run null
+			list.getOrNull(num)
+		} ?: return list.mapIndexed { i, p ->
+			"$i :${p.name}"
+		}.joinToString("\n")
+
+		val sb = StringBuilder()
+		sb.append("名称：").append(c.name)
+		sb.append("\n事件类型：").append(c.eventClass.simpleName)
+		for (ann in c.anns) {
+			when (ann) {
+				is Helper -> sb.append("\n帮助：").append(ann.help)
+				is LimitAll -> sb.append("\n速度限制：").append(ann.time).append("毫秒/次")
+				is NeedAdmin -> sb.append("\n<需要管理员>")
+				is RegexAnn -> sb.append("\n正则匹配：").append(ann.pattern).apply {
+					ann.option.joinTo(sb, "、", "\n匹配规则：") {
+						when (it) {
+							RegexOption.IGNORE_CASE -> "忽略大小写"
+							RegexOption.MULTILINE -> "多行文本"
+							RegexOption.DOT_MATCHES_ALL -> "跨行匹配"
+							else -> ""
+						}
+					}
+				}
+				is SendAuto -> sb.append("\n撤回延时：").append(ann.recall).append("\n<发送至上下文>")
+				is SendAdmin -> sb.append("\n<发送至管理员>")
+				is SendGroup -> sb.append("\n<发送至群聊>")
+			}
+		}
+		return sb.toString()
+		// return """
+		// 	|帮助：${c.help}
+		// 	|撤回延时：${c.deleteMSG}毫秒
+		// 	|速度限制：${c.speedLimit}毫秒每次
+		// """.trimMargin().toPlainText()
+	}
 
 	// @MessageHandle(".插件<open><nums[]>")
 	// @RegexAnn("^[.．。]插件(?<open>[开关])(?<nums>[\\d ]+)$")

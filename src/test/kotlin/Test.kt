@@ -1,10 +1,11 @@
+
+import net.mamoe.mirai.event.Event
+
 object Test {
 	@JvmStatic
 	fun main(args: Array<String>) {
 		fun <T : Any?> T.p() = println(this)
-		A::class.java.isAssignableFrom(B::class.java).p()
+		val k = Event::class
 	}
 
-	interface A
-	interface B : A
 }

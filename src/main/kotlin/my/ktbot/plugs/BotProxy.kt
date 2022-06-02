@@ -35,7 +35,7 @@ object BotProxy {
 	}
 
 	@MessageHandle(".c转发具体消息")
-	@RegexAnn("^[.．。]c (?<msg>.*)", RegexOption.IGNORE_CASE, RegexOption.MULTILINE)
+	@RegexAnn("^[.．。]c (?<msg>.*)", RegexOption.IGNORE_CASE, RegexOption.MULTILINE, RegexOption.DOT_MATCHES_ALL)
 	@SendAuto
 	suspend fun cProxy(event: FriendMessageEvent, result: MatchResult): String {
 		val gId = this.groupId ?: return "无具体转发群"

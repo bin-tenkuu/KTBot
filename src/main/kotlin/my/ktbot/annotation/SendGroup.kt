@@ -15,6 +15,8 @@ import kotlin.reflect.KClass
  */
 annotation class SendGroup {
 	object Inject : Injector<SendGroup, GroupEvent> {
+		override val weight: Double
+			get() = 1.0
 		override val event: KClass<GroupEvent> = GroupEvent::class
 		override suspend fun doAfter(ann: SendGroup, event: GroupEvent, caller: Caller, result: Any?) {
 			val message = result.toMessage()

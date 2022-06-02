@@ -1,9 +1,7 @@
 package my.ktbot.plugs
 
 import my.ktbot.PluginMain
-import my.ktbot.annotation.Helper
-import my.ktbot.annotation.NeedAdmin
-import my.ktbot.annotation.SendAuto
+import my.ktbot.annotation.*
 import my.ktbot.utils.get
 import my.ktbot.utils.sendAdmin
 import my.miraiplus.Caller
@@ -11,7 +9,6 @@ import my.miraiplus.annotation.MessageHandle
 import my.miraiplus.annotation.RegexAnn
 import net.mamoe.mirai.event.events.GroupMessageEvent
 import net.mamoe.mirai.event.events.MessageEvent
-import net.mamoe.mirai.message.data.Message
 import net.mamoe.mirai.message.data.toPlainText
 
 /**
@@ -25,56 +22,42 @@ object CQBotHelper {
 	@RegexAnn("^[.．。](?:help|帮助)(?<num> ?\\d+)?$", RegexOption.IGNORE_CASE)
 	@Helper("帮助专用功能\n.help后附带下标数字查看对应功能详情")
 	@SendAuto(recall = 30 * 1000)
-	fun invoke(/* event: MessageEvent, */ result: MatchResult): Message {
-		/*
-		kotlin.run {
-			val list = PluginMain.myEventHandle.callers.filter {
-				it.anns.any { ann -> ann is Helper }
-					&& it.anns.none { ann -> ann is NeedAdmin }
-			}
-			event.sendAdmin(
-				"发送下标\n${
-					list.mapIndexed { i, c ->
-						"$i :${c.name}"
-					}.joinToString("\n")
-				}"
-			)
-			val index = event.selectMessages {
-				default {
-					Regex("(\\d)").find(it)?.run { groupValues[0].toInt() } ?: 0
-				}
-				timeout(30 * 1000) {
-					null as Int?
-				}
-			}
-			if (index === null) return@run
-			val caller = list.getOrNull(index) ?: return@run
-			val s = caller.anns.filterIsInstance<Helper>().firstOrNull()?.help ?: return@run
-			return s.toPlainText()
-		}
-		*/
-		val plugs = this.get()
-		val p = run {
+	fun invoke(result: MatchResult): String {
+		val list = get()
+		val c = run {
 			val num = result["num"]?.run { value.trim().toIntOrNull() } ?: return@run null
-			plugs.getOrNull(num)
-		} ?: return """
-			|.help后附带下标数字查看对应功能详情
-			|${
-			plugs.mapIndexed { i, p ->
-				"$i :${p.name}"
-			}.joinToString("\n")
-		}""".trimMargin().toPlainText()
-		return """
-			|名称：${p.name}
-			|匹配：{p.regex}
-			|长度限制：{p.msgLength}
-			|撤回延时：{p.deleteMSG}毫秒
-			|速度限制：{p.speedLimit}毫秒每次
-			|帮助：
-		""".trimMargin().toPlainText()// + p.help!!
+			list.getOrNull(num)
+		} ?: return ".help后附带下标数字查看对应功能详情${
+			list.mapIndexed { i, p ->
+				"\n$i :${p.name}"
+			}.joinToString("")
+		}"
+		val sb = StringBuilder()
+		sb.append("名称：").append(c.name)
+		for (ann in c.anns) {
+			when (ann) {
+				is Helper -> sb.append("\n帮助：").append(ann.help)
+				is LimitAll -> sb.append("\n速度限制：").append(ann.time).append("毫秒/次")
+				is NeedAdmin -> sb.append("\n<需要管理员>")
+				is RegexAnn -> sb.append("\n正则匹配：").append(ann.pattern).apply {
+					ann.option.joinTo(sb, "、", "\n匹配规则：") {
+						when (it) {
+							RegexOption.IGNORE_CASE -> "忽略大小写"
+							RegexOption.MULTILINE -> "多行文本"
+							RegexOption.DOT_MATCHES_ALL -> "跨行匹配"
+							else -> ""
+						}
+					}
+				}
+				is SendAuto -> sb.append("\n撤回延时：").append(ann.recall)
+			}
+		}
+		return sb.toString()
 	}
 
-	private fun get(): List<Caller> = PluginMain.callers
+	private fun get(): List<Caller> = PluginMain.callers.filter {
+		it.anns.any { ann -> ann is Helper } && it.anns.none { ann -> ann is NeedAdmin }
+	}
 
 	@MessageHandle(".ping")
 	@RegexAnn("^[.．。]ping$", RegexOption.IGNORE_CASE)

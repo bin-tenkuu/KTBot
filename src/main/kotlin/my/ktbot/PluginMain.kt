@@ -1,6 +1,5 @@
 package my.ktbot
 
-import kotlinx.coroutines.CompletableJob
 import my.ktbot.annotation.*
 import my.ktbot.plugs.*
 import my.ktbot.utils.Counter
@@ -11,7 +10,7 @@ import net.mamoe.mirai.console.extension.PluginComponentStorage
 import net.mamoe.mirai.console.plugin.jvm.JvmPlugin
 import net.mamoe.mirai.console.plugin.jvm.JvmPluginDescription
 import net.mamoe.mirai.console.plugin.jvm.KotlinPlugin
-import net.mamoe.mirai.event.*
+import net.mamoe.mirai.event.Event
 
 /**
  * 插件入口
@@ -26,14 +25,8 @@ object PluginMain : KotlinPlugin(
 	}
 ), JvmPlugin {
 
-	@JvmField
-	val eventChannel: EventChannel<Event> = GlobalEventChannel.parentScope(this).exceptionHandler(logger::error)
-
 	private val myEventHandle = MyEventHandle(this)
 	val callers: List<Caller> get() = myEventHandle.callers
-
-	@JvmStatic
-	private val eventListeners: ArrayList<CompletableJob> = ArrayList()
 
 	override fun PluginComponentStorage.onLoad() {
 		PlugConfig.reload()
@@ -41,6 +34,7 @@ object PluginMain : KotlinPlugin(
 		logger.warning("管理员QQ群：${PlugConfig.adminGroup}")
 		myEventHandle.injector + SendAuto.Inject + NeedAdmin.Inject + RegexAnn.Inject() +
 			SendGroup.Inject + SendAdmin.Inject + NeedExp.Inject
+		println(myEventHandle.injector[Event::class].joinToString(" -> ") { it.javaClass.name })
 	}
 
 	override fun onEnable() {
@@ -49,7 +43,7 @@ object PluginMain : KotlinPlugin(
 
 		myEventHandle += arrayOf(
 			CQBotCOC, CQBotSBI, BotProxy,
-			CQBotRepeat, AddExp, MemberExp, CQBotBan,
+			CQBotRepeat, MemberExp, CQBotBan,
 			//	CQBotPixiv, CQBotPicture,
 			CQBotPerm, CQBotHelper, CQBotListGet, CQBotMemeAI,
 			CQNginxLogHandle
@@ -57,24 +51,12 @@ object PluginMain : KotlinPlugin(
 		myEventHandle += arrayOf(
 			BotEventHandle
 		)
-		println(callers.joinToString(",") { it.name })
+		logger.info(callers.mapIndexed { i, c -> "\n$i :${c.name}" }.joinToString(""))
 	}
 
 	override fun onDisable() {
 		myEventHandle.unregisterAll()
-		eventListeners.removeIf { it.complete();true }
 		Counter.save()
-	}
-
-	@JvmStatic
-	private inline fun <reified E : Event> subscribeAlways(
-		concurrency: ConcurrencyKind = ConcurrencyKind.CONCURRENT,
-		priority: EventPriority = EventPriority.NORMAL,
-		noinline handler: suspend E.(E) -> Unit,
-	): Listener<E> {
-		return eventChannel.subscribeAlways(E::class, coroutineContext, concurrency, priority, handler).also {
-			eventListeners += it
-		}
 	}
 
 	inline fun <T> catch(block: () -> T): T? {

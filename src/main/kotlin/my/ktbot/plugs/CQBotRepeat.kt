@@ -17,7 +17,7 @@ object CQBotRepeat {
 	@JvmStatic
 	private val cache = CacheMap<Long, RepeatCache>()
 
-	@MessageHandle("(复读)", priority = EventPriority.LOW)
+	@MessageHandle("(复读)", priority = EventPriority.LOWEST)
 	@SendAuto
 	fun invoke(event: GroupMessageEvent): Message? {
 		val node = cache[event.group.id]

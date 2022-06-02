@@ -32,7 +32,7 @@ object CQBotMemeAI {
 		"吗" to "",
 	)
 
-	@MessageHandle(priority = EventPriority.LOW)
+	@MessageHandle("(玩梗用自动回复)", priority = EventPriority.LOWEST)
 	@SendAuto
 	fun invoke(event: GroupMessageEvent): Message {
 		val message = event.message

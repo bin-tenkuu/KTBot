@@ -23,7 +23,7 @@ annotation class MessageHandle(
 	 */
 	val concurrency: ConcurrencyKind = ConcurrencyKind.CONCURRENT,
 	/**
-	 * [EventPriority]
+	 * 事件优先级.[EventPriority]
 	 */
 	val priority: EventPriority = EventPriority.NORMAL,
 	/**
