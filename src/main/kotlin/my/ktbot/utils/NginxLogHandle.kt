@@ -99,7 +99,7 @@ object NginxLogHandle {
 				for (line in it.lines()) {
 					val result = nginxRegex.find(line, 0)
 					if (result == null) {
-						logger.info("\tNot Match Line: $line")
+						// logger.info("\tNot Match Line: $line")
 						continue
 					}
 					val element = LogNginx(result, name)

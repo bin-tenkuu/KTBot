@@ -65,12 +65,13 @@ sealed class Caller(
 	protected abstract suspend operator fun invoke(): Any?
 
 	override suspend fun invoke(event: Event, p2: Event) {
-		val name1 = name
+		val name = name
 		tmp + event
 		for (inj in injects) {
 			if (inj.doBefore(event)) continue
 			return
 		}
+		logger.debug("$name 开始执行")
 		val any: Any? = try {
 			invoke()
 		}
@@ -78,13 +79,13 @@ sealed class Caller(
 			e.printStackTrace()
 			null
 		}
+		logger.debug("$name 结束执行")
 
 		val iterator = injects.listIterator(injects.size)
 		while (iterator.hasPrevious()) {
 			iterator.previous().doAfter(event, any)
 		}
 		tmp.clear()
-		name1.length
 	}
 
 	@Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN", "UNCHECKED_CAST")

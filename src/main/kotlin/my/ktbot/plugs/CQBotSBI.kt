@@ -37,7 +37,7 @@ object CQBotSBI {
 	private val split = Regex("[ ,]+")
 
 	@MessageHandle("骰子SBI：结果处理")
-	@RegexAnn("^[.．。]s +(?<nums>[\\d ,]+)", RegexOption.IGNORE_CASE)
+	@RegexAnn("^[.．。]stest(?<nums>[\\d ,]+)", RegexOption.IGNORE_CASE)
 	@Helper("10分钟之内加投骰")
 	@SendAuto
 	@JvmStatic
