@@ -100,10 +100,9 @@ object CQBotCOC {
 			origin = num.toString(),
 			max = 0
 		)
-		val dices: DiceResult = when (cheater) {
-			true -> DiceResult(num, max)
-			false -> DiceResult.dice(num, max)
-		}
+		val dices: DiceResult = if (cheater) DiceResult(num, max)
+		else DiceResult.dice(num, max)
+
 		return Calc(op = op, sum = dices.sum, list = dices.list, max = dices.max, origin = dices.origin)
 	}
 
@@ -136,7 +135,7 @@ object CQBotCOC {
 		abstract operator fun invoke(sc: Pair<Long, Long>, num: Long): Pair<Long, Long>
 	}
 
-	@MessageHandle("骰子:打开全1模式")
+	@MessageHandle("骰子：打开全1模式")
 	@RegexAnn("^[.．。]dall1$", IGNORE_CASE)
 	@SendAuto
 	@JvmStatic
@@ -192,10 +191,9 @@ object CQBotCOC {
 	private fun addedDice(event: MessageEvent, result: MatchResult): String {
 		val num = result["num"]?.run { value.trim().toIntOrNull() } ?: 1
 		var cacheResult: DiceResult = cache[event.sender.id] ?: return "10分钟之内没有投任何骰子"
-		val dice: DiceResult = when (cheater) {
-			true -> DiceResult(num, cacheResult.max)
-			false -> DiceResult.dice(num, cacheResult.max)
-		}
+		val dice: DiceResult = if (cheater) DiceResult(num, cacheResult.max)
+		else DiceResult.dice(num, cacheResult.max)
+
 		cacheResult += dice
 		cache[event.sender.id] = cacheResult
 		return """${dice.origin}：[${dice.list.joinToString(", ")}]=${dice.sum}

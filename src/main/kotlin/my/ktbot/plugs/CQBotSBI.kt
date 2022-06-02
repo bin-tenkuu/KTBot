@@ -19,7 +19,7 @@ object CQBotSBI {
 	@JvmStatic
 	val cheater: Boolean get() = CQBotCOC.cheater
 
-	@MessageHandle("骰子：SBI特化功能")
+	@MessageHandle("骰子SBI：主功能")
 	@RegexAnn("^[.．。]s +(?<num>\\d*)d(?<max>\\d*)", RegexOption.IGNORE_CASE)
 	@Helper("SBI骰子主功能")
 	@SendAuto
@@ -27,12 +27,23 @@ object CQBotSBI {
 	private fun invoke(event: MessageEvent, result: MatchResult): Message? {
 		val num = (result["num"]?.value?.toIntOrNull() ?: return null).coerceAtLeast(3)
 		val max = result["max"]?.value?.toIntOrNull() ?: return null
-		val diceResult = when (cheater) {
-			true -> DiceResult(num, max)
-			false -> DiceResult.dice(num, max)
-		}
+		val diceResult = if (cheater) DiceResult(num, max)
+		else DiceResult.dice(num, max)
 		cache[event.sender.id] = diceResult
 		return "${diceResult.origin}：[${diceResult.list.joinToString()}]（${getRes(diceResult.list)}）".toPlainText()
+	}
+
+
+	private val split = Regex("[ ,]+")
+
+	@MessageHandle("骰子SBI：结果处理")
+	@RegexAnn("^[.．。]s +(?<nums>[\\d ,]+)", RegexOption.IGNORE_CASE)
+	@Helper("10分钟之内加投骰")
+	@SendAuto
+	@JvmStatic
+	private fun test(event: MessageEvent, result: MatchResult): String? {
+		val s = result["nums"]?.value ?: return null
+		return getRes(s.split(split).map { it.toInt() }.toIntArray())
 	}
 
 	private fun getRes(list: IntArray): String {
@@ -58,7 +69,7 @@ object CQBotSBI {
 		return "失败"
 	}
 
-	@MessageHandle("骰子：SBI加骰")
+	@MessageHandle("骰子SBI：加骰")
 	@RegexAnn("^[.．。]sp(?<num> ?\\d*)", RegexOption.IGNORE_CASE)
 	@Helper("10分钟之内加投骰")
 	@SendAuto
@@ -67,10 +78,8 @@ object CQBotSBI {
 		val num = result["num"]?.run { value.trim().toIntOrNull() } ?: 1
 		val id = event.sender.id
 		var diceResult: DiceResult = cache[id] ?: return "10分钟之内没有投任何骰子"
-		val dice: DiceResult = when (cheater) {
-			true -> DiceResult(num, diceResult.max)
-			false -> DiceResult.dice(num, diceResult.max)
-		}
+		val dice: DiceResult = if (cheater) DiceResult(num, diceResult.max)
+		else DiceResult.dice(num, diceResult.max)
 		diceResult += dice
 		cache[id] = diceResult
 		return """${dice.origin}：[${dice.list.joinToString(", ")}]=${dice.sum}
