@@ -41,7 +41,7 @@ object CQBotSBI {
 	@Helper("10分钟之内加投骰")
 	@SendAuto
 	@JvmStatic
-	private fun test(event: MessageEvent, result: MatchResult): String? {
+	private fun test(result: MatchResult): String? {
 		val s = result["nums"]?.value ?: return null
 		return getRes(s.split(split).map { it.toInt() }.toIntArray())
 	}
