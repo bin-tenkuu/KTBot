@@ -19,6 +19,8 @@ class DiceResult(
 		)
 	}
 
+	override fun toString(): String = "<$origin>"
+
 	companion object {
 		@JvmStatic
 		fun dice(times: Int, max: Int): DiceResult {

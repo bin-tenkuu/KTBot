@@ -1,6 +1,7 @@
 package my.miraiplus.injector
 
 import my.miraiplus.Caller
+import my.miraiplus.ObjectMap
 import net.mamoe.mirai.event.Event
 import net.mamoe.mirai.event.events.MessageEvent
 import kotlin.reflect.KClass
@@ -30,7 +31,7 @@ interface Injector<T : Annotation, E : Event> {
 	 * @param caller Caller
 	 * @return Boolean true-继续执行，false-取消后续执行
 	 */
-	suspend fun doBefore(ann: T, event: E, caller: Caller): Boolean = true
+	suspend fun doBefore(ann: T, event: E, tmpMap: ObjectMap, caller: Caller): Boolean = true
 
 	/**
 	 * 在方法执行之后执行，运行顺序为[weight]倒序
@@ -38,7 +39,7 @@ interface Injector<T : Annotation, E : Event> {
 	 * @param event Event 事件实例
 	 * @param caller Caller
 	 */
-	suspend fun doAfter(ann: T, event: E, caller: Caller, result: Any?) {}
+	suspend fun doAfter(ann: T, event: E, tmpMap: ObjectMap, caller: Caller, result: Any?) {}
 
 	interface Message<T : Annotation> : Injector<T, MessageEvent> {
 		override val event: KClass<MessageEvent>

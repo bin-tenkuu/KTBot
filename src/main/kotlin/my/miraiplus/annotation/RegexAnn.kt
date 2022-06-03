@@ -1,6 +1,7 @@
 package my.miraiplus.annotation
 
 import my.miraiplus.Caller
+import my.miraiplus.ObjectMap
 import my.miraiplus.injector.Injector
 import net.mamoe.mirai.event.events.MessageEvent
 import org.intellij.lang.annotations.Language
@@ -26,9 +27,9 @@ annotation class RegexAnn(
 			map[caller.name] = Regex(ann.pattern, ann.option.toSet())
 		}
 
-		override suspend fun doBefore(ann: RegexAnn, event: MessageEvent, caller: Caller): Boolean {
+		override suspend fun doBefore(ann: RegexAnn, event: MessageEvent, tmpMap: ObjectMap, caller: Caller): Boolean {
 			val result = map[caller.name]?.find(event.message.contentToString()) ?: return false
-			caller.tmp + result
+			tmpMap + result
 			return true
 		}
 	}

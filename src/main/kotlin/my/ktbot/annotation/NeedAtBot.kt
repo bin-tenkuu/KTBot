@@ -1,6 +1,7 @@
 package my.ktbot.annotation
 
 import my.miraiplus.Caller
+import my.miraiplus.ObjectMap
 import my.miraiplus.injector.Injector
 import net.mamoe.mirai.event.events.MessageEvent
 import net.mamoe.mirai.message.data.At
@@ -12,7 +13,7 @@ import net.mamoe.mirai.message.data.At
  */
 annotation class NeedAtBot {
 	object Inject : Injector.Message<NeedAtBot> {
-		override suspend fun doBefore(ann: NeedAtBot, event: MessageEvent, caller: Caller): Boolean {
+		override suspend fun doBefore(ann: NeedAtBot, event: MessageEvent, tmpMap: ObjectMap, caller: Caller): Boolean {
 			return event.message.contains(At(event.bot.id))
 		}
 	}

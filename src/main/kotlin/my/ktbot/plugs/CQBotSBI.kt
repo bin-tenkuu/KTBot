@@ -33,7 +33,6 @@ object CQBotSBI {
 		return "${diceResult.origin}：[${diceResult.list.joinToString()}]（${getRes(diceResult.list)}）".toPlainText()
 	}
 
-
 	private val split = Regex("[ ,]+")
 
 	@MessageHandle("骰子SBI：结果处理")

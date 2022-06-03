@@ -33,9 +33,6 @@ sealed class Caller(
 	val name = messageHandle.name.ifEmpty { fieldName }
 
 	@JvmField
-	val tmp = ObjectMap("tmp")
-
-	@JvmField
 	val eventClass = callable.parameters.mapNotNull {
 		it.type.classifier.safeCast<KClass<Event>>()
 	}.find(Event::class::isSuperclassOf) ?: messageHandle.eventType
@@ -43,7 +40,7 @@ sealed class Caller(
 	@JvmField
 	val anns: List<Annotation> = callable.annotations
 
-	private val injects = ArrayList<Inject>()
+	private val injects = java.util.ArrayList<Inject>()
 
 	init {
 		for (ann in callable.annotations) {
@@ -60,31 +57,31 @@ sealed class Caller(
 		for (injector in injects) injector.init()
 	}
 
-	protected fun Pair<Class<out Any>, String?>.get() = tmp[first, second] ?: ObjectMap.global[first, second]
+	protected fun Pair<Class<out Any>, String?>.get(tmp: ObjectMap) =
+		tmp[first, second] ?: ObjectMap.global[first, second]
 
-	protected abstract suspend operator fun invoke(): Any?
+	protected abstract suspend operator fun invoke(tmp: ObjectMap): Any?
 
 	override suspend fun invoke(event: Event, p2: Event) {
 		val name = name
-		tmp + event
-		for (inj in injects) {
-			if (inj.doBefore(event)) continue
+		val tmp = ObjectMap("tmp") + event
+		val iterator = injects.listIterator()
+		while (iterator.hasNext()) {
+			if (iterator.next().doBefore(event, tmp)) continue
 			return
 		}
 		logger.debug("$name 开始执行")
 		val any: Any? = try {
-			invoke()
+			invoke(tmp)
 		}
 		catch (e: Exception) {
 			e.printStackTrace()
 			null
 		}
-		logger.debug("$name 结束执行")
-
-		val iterator = injects.listIterator(injects.size)
 		while (iterator.hasPrevious()) {
-			iterator.previous().doAfter(event, any)
+			iterator.previous().doAfter(event, tmp, any)
 		}
+		logger.debug("$name 结束执行")
 		tmp.clear()
 	}
 
@@ -122,10 +119,10 @@ sealed class Caller(
 				it.annotations.filterIsInstance<Qualifier>().firstOrNull()?.name
 		}
 
-		override suspend operator fun invoke(): Any? {
+		override suspend operator fun invoke(tmp: ObjectMap): Any? {
 			try {
 				return callable.invoke(obj, *Array(args.size) {
-					args[it].get() ?: return null
+					args[it].get(tmp) ?: return null
 				})
 			}
 			catch (e: Exception) {
@@ -150,10 +147,10 @@ sealed class Caller(
 				it.annotations.filterIsInstance<Qualifier>().firstOrNull()?.name
 		}
 
-		override suspend operator fun invoke(): Any? {
+		override suspend operator fun invoke(tmp: ObjectMap): Any? {
 			try {
 				return property.callSuspend(obj, *Array(args.size) {
-					args[it].get() ?: return null
+					args[it].get(tmp) ?: return null
 				})
 			}
 			catch (e: Exception) {
@@ -175,7 +172,7 @@ sealed class Caller(
 			callable.isAccessible = true
 		}
 
-		override suspend operator fun invoke(): Any? = callable.get(obj)
+		override suspend operator fun invoke(tmp: ObjectMap): Any? = callable.get(obj)
 	}
 
 	class Property1(
@@ -190,7 +187,7 @@ sealed class Caller(
 			callable.isAccessible = true
 		}
 
-		override suspend operator fun invoke(): Any? = callable.call(obj)
+		override suspend operator fun invoke(tmp: ObjectMap): Any? = callable.call(obj)
 	}
 
 	class Property2(
@@ -209,8 +206,8 @@ sealed class Caller(
 			type.classifier.cast<KClass<*>>().java to annotations.filterIsInstance<Qualifier>().firstOrNull()?.name
 		}
 
-		override suspend operator fun invoke(): Any? {
-			return callable.call(obj, arg.get() ?: return null)
+		override suspend operator fun invoke(tmp: ObjectMap): Any? {
+			return callable.call(obj, arg.get(tmp) ?: return null)
 		}
 	}
 
@@ -222,7 +219,7 @@ sealed class Caller(
 	) : Comparable<Inject> {
 		override fun compareTo(other: Inject): Int = inj.weight.compareTo(other.inj.weight)
 		fun init() = inj.init(ann, this@Caller)
-		suspend fun doBefore(e: Event) = inj.doBefore(ann, e, this@Caller)
-		suspend fun doAfter(e: Event, any: Any?) = inj.doAfter(ann, e, this@Caller, any)
+		suspend fun doBefore(e: Event, tmp: ObjectMap) = inj.doBefore(ann, e, tmp, this@Caller)
+		suspend fun doAfter(e: Event, tmp: ObjectMap, any: Any?) = inj.doAfter(ann, e, tmp, this@Caller, any)
 	}
 }

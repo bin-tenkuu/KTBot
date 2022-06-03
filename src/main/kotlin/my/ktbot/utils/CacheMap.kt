@@ -21,6 +21,8 @@ class CacheMap<K, V>(
 		var time: Long = timeout + System.currentTimeMillis()
 
 		fun isBeOverdue(time: Long = System.currentTimeMillis()) = time >= this.time
+
+		override fun toString(): String = "${if (isBeOverdue()) "timeout" else "waiting"}:${v}"
 	}
 
 	private val map = HashMap<K, Node>(initialCapacity)

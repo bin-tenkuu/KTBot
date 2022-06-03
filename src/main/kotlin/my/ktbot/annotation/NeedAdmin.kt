@@ -2,6 +2,7 @@ package my.ktbot.annotation
 
 import my.ktbot.PlugConfig
 import my.miraiplus.Caller
+import my.miraiplus.ObjectMap
 import my.miraiplus.injector.Injector
 import net.mamoe.mirai.event.events.MessageEvent
 
@@ -18,7 +19,7 @@ annotation class NeedAdmin {
 		override val weight: Double
 			get() = -10.0
 
-		override suspend fun doBefore(ann: NeedAdmin, event: MessageEvent, caller: Caller): Boolean {
+		override suspend fun doBefore(ann: NeedAdmin, event: MessageEvent, tmpMap: ObjectMap, caller: Caller): Boolean {
 			return PlugConfig.isAdmin(event)
 		}
 	}

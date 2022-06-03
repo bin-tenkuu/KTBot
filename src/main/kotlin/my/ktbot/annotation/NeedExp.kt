@@ -3,6 +3,7 @@ package my.ktbot.annotation
 import my.ktbot.database.Gmt.Companion.add
 import my.ktbot.utils.Counter
 import my.miraiplus.Caller
+import my.miraiplus.ObjectMap
 import my.miraiplus.injector.Injector
 import net.mamoe.mirai.event.events.FriendMessageEvent
 import net.mamoe.mirai.event.events.GroupMessageEvent
@@ -17,7 +18,7 @@ annotation class NeedExp(val private: Double, val group: Double) {
 	object Inject : Injector.Message<NeedExp> {
 		override val weight: Double
 			get() = -5.0
-		override suspend fun doBefore(ann: NeedExp, event: MessageEvent, caller: Caller): Boolean {
+		override suspend fun doBefore(ann: NeedExp, event: MessageEvent, tmpMap: ObjectMap, caller: Caller): Boolean {
 			return when (event) {
 				is FriendMessageEvent -> ann.private > 0
 					|| Counter.members[event.sender.id].exp > 0
@@ -28,7 +29,7 @@ annotation class NeedExp(val private: Double, val group: Double) {
 			}
 		}
 
-		override suspend fun doAfter(ann: NeedExp, event: MessageEvent, caller: Caller, result: Any?) {
+		override suspend fun doAfter(ann: NeedExp, event: MessageEvent, tmpMap: ObjectMap, caller: Caller, result: Any?) {
 			when (event) {
 				is FriendMessageEvent -> {
 					Counter.members[event.sender.id].add(ann.private)
