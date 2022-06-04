@@ -11,9 +11,13 @@ import kotlin.reflect.full.declaredMembers
 import kotlin.reflect.jvm.javaField
 
 class MyEventHandle(
-	private val plugin: KotlinPlugin
+	private val plugin: KotlinPlugin,
 ) {
+	/**
+	 * key:[KCallable.toString]
+	 */
 	private val map = HashMap<String, Listener<*>>()
+	@JvmField
 	val callers = ArrayList<Caller>()
 
 	@JvmField
@@ -83,17 +87,13 @@ class MyEventHandle(
 
 	// region unregister
 
-	fun unregister(member: KCallable<*>) = unregister(member.toString())
-
 	fun unregister(caller: Caller) {
+		callers.remove(caller)
 		map.remove(caller.fieldName)?.complete()
 	}
 
-	private fun unregister(member: String) {
-		map.remove(member)?.complete()
-	}
-
 	fun unregisterAll() {
+		callers.clear()
 		map.values.removeIf { it.complete(); true }
 	}
 

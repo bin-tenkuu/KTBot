@@ -16,7 +16,7 @@ annotation class LimitAll(val time: Long) {
 	object Inject : Injector.Message<LimitAll> {
 		private val map = HashMap<String, Mutex>()
 		private val timer = Timer("", true)
-		override fun init(ann: LimitAll, caller: Caller) {
+		override fun doInit(ann: LimitAll, caller: Caller) {
 			map[caller.name] = Mutex()
 		}
 
@@ -24,11 +24,17 @@ annotation class LimitAll(val time: Long) {
 			return map[caller.name]?.tryLock(caller.name) ?: false
 		}
 
-		override suspend fun doAfter(ann: LimitAll, event: MessageEvent, tmpMap: ObjectMap, caller: Caller, result: Any?) {
+		override suspend fun doAfter(
+			ann: LimitAll, event: MessageEvent, tmpMap: ObjectMap, caller: Caller, result: Any?,
+		) {
 			timer.schedule(Unlock(caller.name), ann.time)
 		}
 
-		class Unlock(private val name: String) : TimerTask() {
+		override fun doDestroy(ann: LimitAll, caller: Caller) {
+			map -= caller.name
+		}
+
+		private class Unlock(private val name: String) : TimerTask() {
 			override fun run() {
 				map[name]?.unlock(name)
 			}

@@ -20,17 +20,21 @@ annotation class RegexAnn(
 	vararg val option: RegexOption = [],
 ) {
 	class Inject(
-		override val weight: Double = -10.0
+		override val weight: Double = -10.0,
 	) : Injector.Message<RegexAnn> {
 		val map = HashMap<String, Regex>()
-		override fun init(ann: RegexAnn, caller: Caller) {
-			map[caller.name] = Regex(ann.pattern, ann.option.toSet())
+		override fun doInit(ann: RegexAnn, caller: Caller) {
+			map[caller.fieldName] = Regex(ann.pattern, ann.option.toSet())
 		}
 
 		override suspend fun doBefore(ann: RegexAnn, event: MessageEvent, tmpMap: ObjectMap, caller: Caller): Boolean {
-			val result = map[caller.name]?.find(event.message.contentToString()) ?: return false
+			val result = map[caller.fieldName]?.find(event.message.contentToString()) ?: return false
 			tmpMap + result
 			return true
+		}
+
+		override fun doDestroy(ann: RegexAnn, caller: Caller) {
+			map -= caller.fieldName
 		}
 	}
 }

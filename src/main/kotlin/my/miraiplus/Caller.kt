@@ -40,7 +40,7 @@ sealed class Caller(
 	@JvmField
 	val anns: List<Annotation> = callable.annotations
 
-	private val injects = java.util.ArrayList<Inject>()
+	private val injects = ArrayList<Inject>()
 
 	init {
 		for (ann in callable.annotations) {
@@ -55,6 +55,10 @@ sealed class Caller(
 
 	internal fun init() {
 		for (injector in injects) injector.init()
+	}
+
+	internal fun destroy() {
+		for (injector in injects) injector.destory()
 	}
 
 	protected fun Pair<Class<out Any>, String?>.get(tmp: ObjectMap) =
@@ -215,11 +219,12 @@ sealed class Caller(
 
 	private inner class Inject(
 		val ann: Annotation,
-		val inj: Injector<Annotation, Event>
+		val inj: Injector<Annotation, Event>,
 	) : Comparable<Inject> {
 		override fun compareTo(other: Inject): Int = inj.weight.compareTo(other.inj.weight)
-		fun init() = inj.init(ann, this@Caller)
+		fun init() = inj.doInit(ann, this@Caller)
 		suspend fun doBefore(e: Event, tmp: ObjectMap) = inj.doBefore(ann, e, tmp, this@Caller)
 		suspend fun doAfter(e: Event, tmp: ObjectMap, any: Any?) = inj.doAfter(ann, e, tmp, this@Caller, any)
+		fun destory() = inj.doDestroy(ann, this@Caller)
 	}
 }

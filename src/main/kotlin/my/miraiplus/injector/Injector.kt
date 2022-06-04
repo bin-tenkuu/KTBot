@@ -18,11 +18,11 @@ interface Injector<T : Annotation, E : Event> {
 	val event: KClass<E>
 
 	/**
-	 * 初始化方法，将会在具体运行方法实例化完成之后调用，运行顺序为[weight]顺序
+	 * 初始化方法，将会在[caller]实例化完成之后调用一次，运行顺序为[weight]顺序
 	 * @param ann T
 	 * @param caller Caller
 	 */
-	fun init(ann: T, caller: Caller) {}
+	fun doInit(ann: T, caller: Caller) {}
 
 	/**
 	 * 在方法执行之前执行，运行顺序为[weight]顺序
@@ -40,6 +40,13 @@ interface Injector<T : Annotation, E : Event> {
 	 * @param caller Caller
 	 */
 	suspend fun doAfter(ann: T, event: E, tmpMap: ObjectMap, caller: Caller, result: Any?) {}
+
+	/**
+	 * 即将销毁方法，将会在[caller]准备销毁之前调用一次，运行顺序为[weight]顺序
+	 * @param ann T
+	 * @param caller Caller
+	 */
+	fun doDestroy(ann: T, caller: Caller) {}
 
 	interface Message<T : Annotation> : Injector<T, MessageEvent> {
 		override val event: KClass<MessageEvent>

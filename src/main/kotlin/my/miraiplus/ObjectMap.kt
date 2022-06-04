@@ -1,11 +1,10 @@
 package my.miraiplus
 
-import java.util.*
 import kotlin.reflect.KClass
 
 @Suppress("UNCHECKED_CAST")
 class ObjectMap(name: String? = null) : Cloneable {
-	private val map = HashMap<Class<*>, PriorityQueue<SortObject<*>>>()
+	private val list = ArrayList<SortObject<*>>()
 
 	init {
 		set(name, this)
@@ -13,76 +12,46 @@ class ObjectMap(name: String? = null) : Cloneable {
 
 	// region getter, setter, remove
 
-	operator fun <T : Any> get(kClass: KClass<out T>, name: String? = null) = this[kClass.java, name]
+	operator fun <T : Any> get(kClass: KClass<out T>, name: String? = null) = this[kClass.javaObjectType, name]
 	operator fun <T : Any> get(clazz: Class<out T>, name: String? = null): T? {
-		val queue = map[clazz] ?: return null
-		if (name == null) return queue.firstOrNull()?.obj as T?
-		return queue.firstOrNull { name == it.name }?.obj as T?
+		return list.filter {
+			clazz.isInstance(it.obj) && (name == null || name == it.name)
+		}.minOrNull()?.obj as T?
 	}
 
-	private fun get0(clazz: Class<*>): PriorityQueue<SortObject<*>> {
-		return map.computeIfAbsent(clazz) { PriorityQueue<SortObject<*>>(1) }
-	}
+	operator fun <T : Any> plusAssign(value: T) = this.add(value).run { }
+	operator fun <T : Any> plus(value: T) = this.add(value)
+	operator fun <T : Any> set(name: String?, value: T) = this.add(value, name)
 
-	operator fun <T : Any> plusAssign(value: T) = this.plus(value).run { }
-	operator fun <T : Any> plus(value: T) = this.set(value::class.java as Class<T>, value)
-	operator fun <T : Any> set(name: String?, value: T) = this.set(value::class.java as Class<T>, name, value)
-	operator fun <T : Any> set(kClass: KClass<T>, value: T) = this.set(kClass.java, null, value)
-	operator fun <T : Any> set(clazz: Class<T>, value: T) = this.set(clazz, null, value)
-	operator fun <T : Any> set(kClass: KClass<T>, name: String?, value: T) = this.set(kClass.java, name, value)
-	operator fun <T : Any> set(clazz: Class<T>, name: String?, value: T) = set(clazz, value, name, 0)
-	fun <T : Any> set(clazz: Class<T>, value: T, name: String?, initWeight: Int = 0): ObjectMap {
-		val set = HashSet<Class<*>>()
-		var tmp: Class<*>? = clazz
-		var weight = initWeight
-		while (tmp != null) {
-			get0(tmp).add(SortObject(value, weight, name))
-			for (iclazz: Class<*> in tmp.interfaces) {
-				if (set.add(iclazz)) {
-					get0(iclazz).add(SortObject(value, weight, name))
-				}
-			}
-			tmp = tmp.superclass
-			weight++
-		}
+	fun <T : Any> add(value: T, name: String? = null, weight: Int = 0): ObjectMap {
+		list.add(SortObject(value, weight, name))
 		return this
 	}
 
 	fun <T : Any> remove(value: T) {
-		val function: (SortObject<*>) -> Boolean = { it.obj === value || it.obj == value }
-		val set = HashSet<Class<*>>()
-		var tmp: Class<*>? = value::class.java
-		while (tmp != null) {
-			map[tmp]?.removeIf(function)
-			for (iclazz: Class<*> in tmp.interfaces) {
-				if (set.add(iclazz)) {
-					map[iclazz]?.removeIf(function)
-				}
-			}
-			tmp = tmp.superclass
+		list.removeIf {
+			it.obj == value
 		}
 	}
 	// endregion
 
-	fun clear() = map.clear()
+	fun clear() = list.clear()
 
 	public override fun clone(): ObjectMap {
 		return ObjectMap().also {
-			for ((clazz, list) in map) {
-				it.get0(clazz).addAll(list)
-			}
+			it.list.addAll(list)
 		}
 	}
 
 	override fun toString(): String {
-		return "ObjectMap(mapSize=${map.size})"
+		return "ObjectMap(mapSize=${list.size})"
 	}
 
 	private inner class SortObject<T : Any>(
 		@JvmField
 		val obj: T,
 		private val weight: Int,
-		val name: String?
+		val name: String?,
 	) : Comparable<SortObject<*>> {
 		override operator fun compareTo(other: SortObject<*>) = weight.compareTo(other.weight)
 		override fun hashCode() = obj.hashCode()
