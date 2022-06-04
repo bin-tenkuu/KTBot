@@ -57,12 +57,12 @@ class InjectMap {
 	operator fun <E : Event> get(event: KClass<E>): List<Injector<out Annotation, out E>> {
 		return injectorMap.values.flatten().filter {
 			event.isSubclassOf(it.event)
-		}as List<Injector<out Annotation, out E>>
+		} as List<Injector<out Annotation, out E>>
 	}
 
 	@Suppress("UNCHECKED_CAST")
 	operator fun <T : Annotation, E : Event> get(
-		annClass: Class<T>, event: KClass<E>
+		annClass: Class<T>, event: KClass<E>,
 	): MutableList<Injector<T, out E>>? {
 		return this[annClass]?.filter {
 			event.isSubclassOf(it.event)

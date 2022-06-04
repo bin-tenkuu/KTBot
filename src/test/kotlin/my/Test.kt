@@ -1,3 +1,5 @@
+package my
+
 import my.miraiplus.ObjectMap
 
 object Test {

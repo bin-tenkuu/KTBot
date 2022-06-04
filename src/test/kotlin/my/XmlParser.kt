@@ -1,3 +1,5 @@
+package my
+
 import my.parser.xml.Node
 import my.parser.xml.XmlHandler
 import javax.xml.parsers.SAXParserFactory
