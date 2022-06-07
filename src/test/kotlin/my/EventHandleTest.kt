@@ -9,10 +9,9 @@ import my.miraiplus.MyEventHandle
  *  @author bin
  *  @version 1.0.0
  */
-object EventHandleTest {
+object EventHandleTest : Print {
 	@JvmStatic
 	fun main(args: Array<String>) {
-		fun <T : Any?> T.p() = println(this)
 		MyEventHandle(PluginMain) + object {
 			private val a: Int = 0
 			private val b: Int get() = 1

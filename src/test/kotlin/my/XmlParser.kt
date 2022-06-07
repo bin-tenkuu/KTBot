@@ -9,7 +9,7 @@ import javax.xml.parsers.SAXParserFactory
  *  @author bin
  *  @version 1.0.0
  */
-object XmlParser {
+object XmlParser : Print {
 	@JvmStatic
 	fun main(vararg args: String) {
 		val instance = SAXParserFactory.newInstance()
@@ -19,7 +19,7 @@ object XmlParser {
 			xmlReader.parse(it, xmlHandler)
 		}
 		Node.printTree(xmlHandler.result ?: kotlin.run {
-			println("没有识别到")
+			"没有识别到".pl()
 			return
 		})
 	}

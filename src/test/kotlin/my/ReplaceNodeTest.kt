@@ -2,7 +2,7 @@ package my
 
 import my.ktbot.utils.ReplaceNode
 
-object ReplaceNodeTest {
+object ReplaceNodeTest : Print {
 	@JvmStatic
 	fun main(vararg args: String) {
 		val root = ReplaceNode() + mapOf(

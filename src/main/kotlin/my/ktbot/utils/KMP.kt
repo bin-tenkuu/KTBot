@@ -51,7 +51,7 @@ object KMP {
 	}
 
 	private fun <T : Comparable<T>> toNextMap(l: List<T>): IntArray {
-		val array = IntArray(l.size) { 0 }
+		val array = IntArray(l.size)
 		var i = 1
 		var last = 0
 		while (i < l.size) {
@@ -63,7 +63,7 @@ object KMP {
 			}
 			last = array[last]
 			if (last == 0) {
-				i++;
+				i++
 				continue
 			}
 		}
@@ -71,7 +71,7 @@ object KMP {
 	}
 
 	private fun <T : Comparable<T>> toNextMap(l: Array<T>): IntArray {
-		val array = IntArray(l.size) { 0 }
+		val array = IntArray(l.size)
 		var i = 1
 		var last = 0
 		while (i < l.size) {
@@ -83,7 +83,7 @@ object KMP {
 			}
 			last = array[last]
 			if (last == 0) {
-				i++;
+				i++
 				continue
 			}
 		}

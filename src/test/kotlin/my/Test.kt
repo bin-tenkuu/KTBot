@@ -1,14 +1,10 @@
 package my
 
-import my.miraiplus.ObjectMap
-
-object Test {
+object Test : Print {
 	@JvmStatic
 	fun main(args: Array<String>) {
-		fun <T : Any?> T.p() = println(this)
-		val map = ObjectMap() + 1L
-		map[Long::class].p()
-		map[Long::class.javaObjectType].p()
+		IntArray::class.java.pl()
+		Array<Array<Int>>::class.java.pl()
 	}
 
 }

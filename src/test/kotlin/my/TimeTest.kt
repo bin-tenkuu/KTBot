@@ -7,11 +7,9 @@ import kotlin.reflect.jvm.isAccessible
 import kotlin.reflect.jvm.javaField
 import kotlin.reflect.jvm.javaGetter
 
-object TimeTest {
+object TimeTest : Print {
 	@JvmStatic
 	fun main(vararg args: String) {
-		fun <T : Any?> T.p() = println(this)
-		fun <T : Any?> T.pl() = print(this)
 		fun Long.ofMillis(start: Long) = Duration.ofNanos(this - start)
 		val obj = object {
 			private val a: Int = 0
@@ -25,28 +23,28 @@ object TimeTest {
 
 		for (kCallable in v) {
 			kCallable as KProperty<Any>
-			kCallable.p()
+			kCallable.pl()
 			kCallable.isAccessible = true
 			val param = if (kCallable.parameters.size == 2) arrayOf("abc")
 			else arrayOf()
 
-			"kotlin：".pl()
+			"kotlin：".p()
 			start = System.nanoTime()
 			for (i in range) kCallable.call(obj, *param)
 			end = System.nanoTime()
-			end.ofMillis(start).p()
-			"java：".pl()
+			end.ofMillis(start).pl()
+			"java：".p()
 			kCallable.javaField?.let {
 				start = System.nanoTime()
 				for (i in range) it.get(obj)
 				end = System.nanoTime()
-				end.ofMillis(start).p()
+				end.ofMillis(start).pl()
 			}
 			kCallable.javaGetter?.let {
 				start = System.nanoTime()
 				for (i in range) it.invoke(obj, *param)
 				end = System.nanoTime()
-				end.ofMillis(start).p()
+				end.ofMillis(start).pl()
 			}
 		}
 	}
