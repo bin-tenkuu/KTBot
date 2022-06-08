@@ -3,7 +3,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
 	val kotlinVersion = "1.6.21"
 	kotlin("jvm") version kotlinVersion
-	kotlin("plugin.spring") version kotlinVersion
+	// kotlin("plugin.spring") version kotlinVersion
 	kotlin("plugin.serialization") version kotlinVersion
 
 	// id("org.springframework.boot") version "2.7.0"
