@@ -9,7 +9,6 @@ import my.ktbot.utils.get
 import my.miraiplus.annotation.MessageHandle
 import my.miraiplus.annotation.RegexAnn
 import net.mamoe.mirai.event.EventPriority
-import net.mamoe.mirai.event.events.FriendMessageEvent
 import net.mamoe.mirai.event.events.GroupMessageEvent
 import net.mamoe.mirai.event.events.MessageEvent
 import net.mamoe.mirai.message.data.*
@@ -31,17 +30,13 @@ object MemberExp {
 	private fun invoke() {
 	}
 
-	@MessageHandle("qq活跃(好友)")
+	@MessageHandle("qq活跃")
 	@RegexAnn("^[.．。]state(?<qq> ?\\d{5,12})?$", RegexOption.IGNORE_CASE)
-	@Helper("查看自己/<qq>的信息")
+	@Helper("查看自己/<qq>的信息，群聊限时1次/分钟")
 	@SendAuto
-	fun invoke(event: FriendMessageEvent, result: MatchResult): Message {
-		return invoke(event, result, false)
-	}
-
-	fun invoke(event: MessageEvent, result: MatchResult, limit: Boolean): Message {
+	fun invoke(event: MessageEvent, result: MatchResult): Message {
 		val qq = result["qq"]?.value?.toLongOrNull() ?: event.sender.id
-		if (!cache.getOrInit(event.subject.id, ::HashSet).add(qq) && limit) {
+		if (!cache.getOrInit(event.subject.id, ::HashSet).add(qq) && event is GroupMessageEvent) {
 			return EmptyMessageChain
 		}
 		val exp = Counter.members[qq].exp
@@ -49,13 +44,5 @@ object MemberExp {
 			+At(event.sender)
 			+"$exp"
 		}
-	}
-
-	@MessageHandle("qq活跃(群聊)")
-	@RegexAnn("^[.．。]state(?<qq> ?\\d{5,12})?$", RegexOption.IGNORE_CASE)
-	@Helper("查看自己/<qq>的信息,限时1次/分钟")
-	@SendAuto
-	fun invoke(event: GroupMessageEvent, result: MatchResult): Message {
-		return invoke(event as MessageEvent, result, true)
 	}
 }

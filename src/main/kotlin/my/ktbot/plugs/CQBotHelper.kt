@@ -18,7 +18,7 @@ import net.mamoe.mirai.message.data.toPlainText
  * @date 2022/1/13
  */
 object CQBotHelper {
-	@MessageHandle(".(help|帮助)[<id>]")
+	@MessageHandle(".help[<id>]")
 	@RegexAnn("^[.．。](?:help|帮助)(?<num> ?\\d+)?$", RegexOption.IGNORE_CASE)
 	@Helper("帮助专用功能\n.help后附带下标数字查看对应功能详情")
 	@SendAuto(recall = 30 * 1000)
