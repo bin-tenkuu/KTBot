@@ -12,7 +12,7 @@ import net.mamoe.mirai.message.data.At
  *  @version 1.0.0
  */
 annotation class NeedAtBot {
-	object Inject : Injector.Message<NeedAtBot> {
+	companion object Inject : Injector.Message<NeedAtBot> {
 		override suspend fun doBefore(ann: NeedAtBot, event: MessageEvent, tmpMap: ObjectMap, caller: Caller): Boolean {
 			return event.message.contains(At(event.bot.id))
 		}

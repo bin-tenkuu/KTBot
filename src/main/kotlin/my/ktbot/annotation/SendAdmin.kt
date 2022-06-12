@@ -15,7 +15,7 @@ import net.mamoe.mirai.message.data.isContentBlank
  *  @version 1.0.0
  */
 annotation class SendAdmin {
-	object Inject : Injector<SendAdmin, BotEvent> {
+	companion object Inject : Injector<SendAdmin, BotEvent> {
 		override val event = BotEvent::class
 		override suspend fun doAfter(ann: SendAdmin, event: BotEvent, tmpMap: ObjectMap, caller: Caller, result: Any?) {
 			val message = result.toMessage()

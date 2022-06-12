@@ -15,7 +15,7 @@ import net.mamoe.mirai.event.events.MessageEvent
  *  @version 1.0.0
  */
 annotation class NeedExp(val private: Double, val group: Double) {
-	object Inject : Injector.Message<NeedExp> {
+	companion object Inject : Injector.Message<NeedExp> {
 		override val weight: Double
 			get() = -5.0
 		override suspend fun doBefore(ann: NeedExp, event: MessageEvent, tmpMap: ObjectMap, caller: Caller): Boolean {

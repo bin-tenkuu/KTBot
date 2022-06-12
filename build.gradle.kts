@@ -29,10 +29,6 @@ dependencies {
 	implementation("io.ktor", "ktor-client-serialization-jvm", "1.6.8")
 	compileOnly("org.jetbrains:annotations:23.0.0")
 	// implementation("net.mamoe:mirai-logging-slf4j-logback:2.10.3")
-	// implementation("org.fusesource.jansi:jansi:2.4.0")
-	// implementation("org.apache.logging.log4j:log4j-api:2.17.1")
-	// implementation("org.apache.logging.log4j:log4j-core:2.17.1")
-	// api("net.mamoe:mirai-logging-log4j2:2.9.2")
 	// implementation("org.reflections:reflections:0.10.2")
 
 	// implementation("net.mamoe:mirai-core-all:2.11.1")
@@ -41,7 +37,8 @@ dependencies {
 	// implementation("org.springframework.boot:spring-boot-starter") {
 	// 	exclude("")
 	// }
-	implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+	// implementation("org.jetbrains.kotlin:kotlin-stdlib")
+	api("net.mamoe:mirai-console-compiler-annotations-jvm:2.11.1")
 }
 
 mirai {

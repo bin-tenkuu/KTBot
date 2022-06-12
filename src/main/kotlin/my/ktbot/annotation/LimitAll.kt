@@ -13,7 +13,7 @@ import java.util.*
  *  @version 1.0.0
  */
 annotation class LimitAll(val time: Long) {
-	object Inject : Injector.Message<LimitAll> {
+	companion object Inject : Injector.Message<LimitAll> {
 		private val map = HashMap<String, Mutex>()
 		private val timer = Timer("", true)
 		override fun doInit(ann: LimitAll, caller: Caller) {

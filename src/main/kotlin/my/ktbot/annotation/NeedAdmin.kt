@@ -15,7 +15,7 @@ import net.mamoe.mirai.event.events.MessageEvent
 @Retention
 @MustBeDocumented
 annotation class NeedAdmin {
-	object Inject : Injector.Message<NeedAdmin> {
+	companion object Inject : Injector.Message<NeedAdmin> {
 		override val weight: Double
 			get() = -10.0
 

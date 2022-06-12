@@ -1,8 +1,6 @@
 package my.ktbot.plugs
 
-import my.ktbot.annotation.LimitAll
-import my.ktbot.annotation.NeedExp
-import my.ktbot.annotation.SendAuto
+import my.ktbot.annotation.*
 import my.ktbot.utils.KtorUtils
 import my.ktbot.utils.get
 import my.miraiplus.annotation.MessageHandle
@@ -27,6 +25,7 @@ object CQBotPixiv {
 
 	@MessageHandle("看看p站<pid>[-<p>]")
 	@RegexAnn("^看{1,2}p站(?<pid>\\d+)$", RegexOption.IGNORE_CASE)
+	@NeedAdmin
 	@SendAuto
 	@LimitAll(1000 * 10)
 	@NeedExp(-8.0, -5.0)

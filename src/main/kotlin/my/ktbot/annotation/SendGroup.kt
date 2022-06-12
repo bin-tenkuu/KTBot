@@ -15,7 +15,7 @@ import kotlin.reflect.KClass
  *  @version 1.0.0
  */
 annotation class SendGroup {
-	object Inject : Injector<SendGroup, GroupEvent> {
+	companion object Inject : Injector<SendGroup, GroupEvent> {
 		override val weight: Double
 			get() = 1.0
 		override val event: KClass<GroupEvent> = GroupEvent::class

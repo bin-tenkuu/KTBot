@@ -27,7 +27,7 @@ annotation class SendAuto(
 	 */
 	val recall: Long = 0,
 ) {
-	object Inject : Injector.Message<SendAuto> {
+	companion object Inject : Injector.Message<SendAuto> {
 		override val weight: Double
 			get() = 1.0
 

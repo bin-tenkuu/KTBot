@@ -32,8 +32,8 @@ object PluginMain : KotlinPlugin(
 		PlugConfig.reload()
 		logger.warning("管理员QQ：${PlugConfig.adminId}")
 		logger.warning("管理员QQ群：${PlugConfig.adminGroup}")
-		myEventHandle.injector + SendAuto.Inject + NeedAdmin.Inject + RegexAnn.Inject() +
-			SendGroup.Inject + SendAdmin.Inject + NeedExp.Inject + NeedAtBot.Inject
+		myEventHandle.injector + SendAuto + NeedAdmin + RegexAnn.Inject() +
+			SendGroup + SendAdmin + NeedExp + NeedAtBot + HasPerm.Inject
 		println(myEventHandle.injector[Event::class].joinToString(" -> ") { it.javaClass.name })
 	}
 
@@ -44,14 +44,14 @@ object PluginMain : KotlinPlugin(
 		myEventHandle += arrayOf(
 			CQBotCOC, CQBotSBI, BotProxy,
 			CQBotRepeat, MemberExp, CQBotBan,
-			//	CQBotPixiv, CQBotPicture,
+			CQBotPixiv, CQBotPicture,
 			CQBotPerm, CQBotHelper, CQBotListGet, CQBotMemeAI,
 			CQNginxLogHandle
 		)
 		myEventHandle += arrayOf(
 			BotEventHandle
 		)
-		logger.info(callers.mapIndexed { i, c -> "\n$i :${c.name}" }.joinToString(""))
+		logger.info(callers.mapIndexed { i, c -> "\t$i :${c.name}" }.joinToString(""))
 	}
 
 	override fun onDisable() {

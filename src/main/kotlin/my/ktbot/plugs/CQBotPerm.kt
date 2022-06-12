@@ -4,6 +4,7 @@ import my.ktbot.PluginPerm
 import my.ktbot.PluginPerm.minusAssign
 import my.ktbot.PluginPerm.plusAssign
 import my.ktbot.annotation.Helper
+import my.ktbot.annotation.NeedAdmin
 import my.ktbot.annotation.SendAuto
 import my.ktbot.utils.get
 import my.miraiplus.annotation.MessageHandle
@@ -14,6 +15,7 @@ import net.mamoe.mirai.message.data.*
 object CQBotPerm {
 	@MessageHandle("添加删除权限")
 	@RegexAnn("^[.．。]权限(?<op>[^ ]{2})(?<groupid>\\d+)(?<permid>\\w+)$")
+	@NeedAdmin
 	@Helper("添加/删除")
 	@SendAuto
 	fun invoke(result: MatchResult): Message {

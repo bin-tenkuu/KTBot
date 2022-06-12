@@ -10,7 +10,7 @@ import kotlin.reflect.jvm.javaGetter
 object TimeTest : Print {
 	@JvmStatic
 	fun main(vararg args: String) {
-		fun Long.ofMillis(start: Long) = Duration.ofNanos(this - start)
+		fun Long.ofNanos(start: Long) = Duration.ofNanos(this - start)
 		val obj = object {
 			private val a: Int = 0
 			private val b: Int get() = 1
@@ -22,6 +22,7 @@ object TimeTest : Print {
 		val range = 0..1_0000_0000
 
 		for (kCallable in v) {
+			@Suppress("UNCHECKED_CAST")
 			kCallable as KProperty<Any>
 			kCallable.pl()
 			kCallable.isAccessible = true
@@ -32,19 +33,19 @@ object TimeTest : Print {
 			start = System.nanoTime()
 			for (i in range) kCallable.call(obj, *param)
 			end = System.nanoTime()
-			end.ofMillis(start).pl()
+			end.ofNanos(start).pl()
 			"java：".p()
 			kCallable.javaField?.let {
 				start = System.nanoTime()
 				for (i in range) it.get(obj)
 				end = System.nanoTime()
-				end.ofMillis(start).pl()
+				end.ofNanos(start).pl()
 			}
 			kCallable.javaGetter?.let {
 				start = System.nanoTime()
 				for (i in range) it.invoke(obj, *param)
 				end = System.nanoTime()
-				end.ofMillis(start).pl()
+				end.ofNanos(start).pl()
 			}
 		}
 	}

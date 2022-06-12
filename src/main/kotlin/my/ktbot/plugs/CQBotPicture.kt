@@ -58,6 +58,7 @@ object CQBotPicture {
 	}
 
 	@MessageHandle("来点[<r18>][<key>]色图")
+	@HasPerm("my.ktbot.binbot:setu")
 	@RegexAnn("^[来來发發给給l][张張个個幅点點份d](?<r18>r18的?)?(?<keyword>.*)?[涩色瑟铯s][图圖t]$")
 	@SendAuto
 	@LimitAll(1000 * 60 * 10)
@@ -97,6 +98,7 @@ object CQBotPicture {
 	}
 
 	@MessageHandle("来点[<r18>]色图")
+	@HasPerm("my.ktbot.binbot:setu")
 	@RegexAnn("^[来來发發给給l][张張个個幅点點份d](?<r18>r18的?)?[涩色瑟铯s][图圖t]$", RegexOption.IGNORE_CASE)
 	@SendAuto(recall = 20 * 1000)
 	@LimitAll(1000 * 60 * 1)
