@@ -33,7 +33,7 @@ object PluginMain : KotlinPlugin(
 		logger.warning("管理员QQ：${PlugConfig.adminId}")
 		logger.warning("管理员QQ群：${PlugConfig.adminGroup}")
 		myEventHandle.injector + SendAuto + NeedAdmin + RegexAnn.Inject() +
-			SendGroup + SendAdmin + NeedExp + NeedAtBot + HasPerm.Inject
+			SendGroup + SendAdmin + NeedExp + NeedAtBot + HasPerm
 		println(myEventHandle.injector[Event::class].joinToString(" -> ") { it.javaClass.name })
 	}
 
@@ -44,7 +44,7 @@ object PluginMain : KotlinPlugin(
 		myEventHandle += arrayOf(
 			CQBotCOC, CQBotSBI, BotProxy,
 			CQBotRepeat, MemberExp, CQBotBan,
-			CQBotPixiv, CQBotPicture,
+			CQBotPicture, CQBotPixiv,
 			CQBotPerm, CQBotHelper, CQBotListGet, CQBotMemeAI,
 			CQNginxLogHandle
 		)

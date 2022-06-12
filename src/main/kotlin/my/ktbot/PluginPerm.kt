@@ -5,10 +5,18 @@ import net.mamoe.mirai.console.permission.PermissionService
 import net.mamoe.mirai.console.permission.PermitteeId
 
 object PluginPerm {
+	@JvmField
 	@Suppress("UNCHECKED_CAST")
 	val instance: PermissionService<Permission> = PermissionService.INSTANCE as PermissionService<Permission>
+
+	@JvmField
 	val root: Permission = instance.rootPermission
+
+	@JvmField
 	val setu: Permission = instance.register(PluginMain.permissionId("setu"), "色图调用权限")
+
+	@JvmField
+	val map = HashMap<String, Permission>()
 
 	operator fun Permission.minusAssign(permitteeId: PermitteeId) {
 		if (permitteeId in this) {

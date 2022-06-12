@@ -19,18 +19,16 @@ annotation class HasPerm(
 	@ResolveContext(ResolveContext.Kind.PERMISSION_ID)
 	val permId: String,
 ) {
-	object Inject : Injector.Message<HasPerm> {
-		private val map = HashMap<String, Permission>()
-
+	companion object Inject : Injector.Message<HasPerm> {
 		override fun doInit(ann: HasPerm, caller: Caller) {
-			map[ann.permId] = PluginPerm.instance[PermissionId.parseFromString(ann.permId)]
+			PluginPerm.map[ann.permId] = PluginPerm.instance[PermissionId.parseFromString(ann.permId)]
 				?: error("need register before: ${ann.permId}")
 		}
 
 		override suspend fun doBefore(
 			ann: HasPerm, event: MessageEvent, tmpMap: ObjectMap, caller: Caller,
 		): Boolean {
-			val permission = map[ann.permId]!!
+			val permission = PluginPerm.map[ann.permId]!!
 			return when (event) {
 				is GroupMessageEvent -> AbstractPermitteeId.ExactGroup(event.group.id) in permission
 				is FriendMessageEvent -> AbstractPermitteeId.ExactUser(event.sender.id) in permission
