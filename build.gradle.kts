@@ -23,8 +23,8 @@ repositories {
 
 dependencies {
 	implementation("org.xerial:sqlite-jdbc:3.36.0.3")
-	implementation("org.ktorm:ktorm-core:3.4.1")
-	implementation("org.ktorm:ktorm-support-sqlite:3.4.1")
+	implementation("org.ktorm:ktorm-core:3.5.0")
+	implementation("org.ktorm:ktorm-support-sqlite:3.5.0")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	implementation("io.ktor", "ktor-client-serialization-jvm", "1.6.8")
 	compileOnly("org.jetbrains:annotations:23.0.0")

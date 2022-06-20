@@ -1,5 +1,6 @@
 package my.ktbot.plugs
 
+// import my.sqlite.insertOrUpdate
 import my.ktbot.annotation.*
 import my.ktbot.dao.Lolicon
 import my.ktbot.dao.LoliconRequest
@@ -7,10 +8,11 @@ import my.ktbot.database.PixivPic
 import my.ktbot.database.TPixivPic
 import my.ktbot.utils.KtorUtils
 import my.ktbot.utils.Sqlite
+import my.ktbot.utils.Sqlite.insertOrUpdate
+import my.ktbot.utils.Sqlite.setExcluded
 import my.ktbot.utils.get
 import my.miraiplus.annotation.MessageHandle
 import my.miraiplus.annotation.RegexAnn
-import my.sqlite.insertOrUpdate
 import net.mamoe.mirai.contact.Contact
 import net.mamoe.mirai.event.events.MessageEvent
 import net.mamoe.mirai.message.code.CodableMessage

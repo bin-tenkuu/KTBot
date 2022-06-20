@@ -1,15 +1,13 @@
 package my.ktbot.utils
 
 import my.ktbot.PluginMain
-import my.sqlite.SQLiteCostom
 import org.ktorm.database.Database
 import org.ktorm.entity.EntitySequence
 import org.ktorm.entity.sequenceOf
 import org.ktorm.expression.ArgumentExpression
 import org.ktorm.expression.FunctionExpression
-import org.ktorm.schema.BaseTable
-import org.ktorm.schema.BooleanSqlType
-import org.ktorm.schema.LongSqlType
+import org.ktorm.schema.*
+import org.ktorm.support.sqlite.*
 import kotlin.io.path.div
 
 /**
@@ -25,7 +23,7 @@ object Sqlite {
 		driver = "org.sqlite.JDBC",
 		user = null,
 		password = null,
-		dialect = SQLiteCostom,
+		dialect = SQLiteDialect(),
 		logger = LoggerBridge(PluginMain.logger),
 		alwaysQuoteIdentifiers = true,
 		generateSqlInUpperCase = true
@@ -43,5 +41,13 @@ object Sqlite {
 	operator fun invoke(boolean: Boolean): ArgumentExpression<Boolean> {
 		return ArgumentExpression(boolean, BooleanSqlType)
 	}
+
+	fun <E : Any, T : BaseTable<E>> EntitySequence<E, T>.insertOrUpdate(
+		block: InsertOrUpdateStatementBuilder.(T) -> Unit,
+	): Int {
+		return database.insertOrUpdate(sourceTable, block)
+	}
+
+	fun <T : Any> InsertOrUpdateOnConflictClauseBuilder.setExcluded(column: Column<T>) = set(column, excluded(column))
 
 }
