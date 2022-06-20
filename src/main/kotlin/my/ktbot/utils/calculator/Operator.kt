@@ -43,7 +43,7 @@ enum class Operator2Enum(
 	override val priority: Int,
 ) : Operator2 {
 	Dice("d", 20) {
-		override fun invoke(l: IValue, r: IValue): IValue = DiceNode(DiceResult.dice(l.v.toInt(), r.v.toInt()))
+		override fun invoke(l: IValue, r: IValue): IValue = DiceNode(DiceResult(l.v.toInt(), r.v.toInt()).dice())
 	},
 	Pow("**", 16) {
 		override fun invoke(l: IValue, r: IValue): IValue = NumberNode(l.v.toDouble().pow(r.v.toDouble()))

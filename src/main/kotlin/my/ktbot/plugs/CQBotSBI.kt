@@ -27,8 +27,8 @@ object CQBotSBI {
 	private fun invoke(event: MessageEvent, result: MatchResult): Message? {
 		val num = (result["num"]?.value?.toIntOrNull() ?: return null).coerceAtLeast(3)
 		val max = result["max"]?.value?.toIntOrNull() ?: return null
-		val diceResult = if (cheater) DiceResult(num, max)
-		else DiceResult.dice(num, max)
+		val diceResult = DiceResult(num, max)
+		if (!cheater) diceResult.dice()
 		cache[event.sender.id] = diceResult
 		return "${diceResult.origin}：[${diceResult.list.joinToString()}]（${getRes(diceResult.list)}）".toPlainText()
 	}
@@ -77,8 +77,8 @@ object CQBotSBI {
 		val num = result["num"]?.run { value.trim().toIntOrNull() } ?: 1
 		val id = event.sender.id
 		var diceResult: DiceResult = cache[id] ?: return "10分钟之内没有投任何骰子"
-		val dice: DiceResult = if (cheater) DiceResult(num, diceResult.max)
-		else DiceResult.dice(num, diceResult.max)
+		val dice = DiceResult(num, diceResult.max)
+		if (!cheater) dice.dice()
 		diceResult += dice
 		cache[id] = diceResult
 		return """${dice.origin}：[${dice.list.joinToString(", ")}]=${dice.sum}

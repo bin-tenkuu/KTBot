@@ -101,7 +101,7 @@ object CQBotCOC {
 			max = 0
 		)
 		val dices: DiceResult = if (cheater) DiceResult(num, max)
-		else DiceResult.dice(num, max)
+		else DiceResult(num, max).dice()
 
 		return Calc(op = op, sum = dices.sum, list = dices.list, max = dices.max, origin = dices.origin)
 	}
@@ -191,9 +191,8 @@ object CQBotCOC {
 	private fun addedDice(event: MessageEvent, result: MatchResult): String {
 		val num = result["num"]?.run { value.trim().toIntOrNull() } ?: 1
 		var cacheResult: DiceResult = cache[event.sender.id] ?: return "10分钟之内没有投任何骰子"
-		val dice: DiceResult = if (cheater) DiceResult(num, cacheResult.max)
-		else DiceResult.dice(num, cacheResult.max)
-
+		val dice = DiceResult(num, cacheResult.max)
+		if (!cheater) dice.dice()
 		cacheResult += dice
 		cache[event.sender.id] = cacheResult
 		return """${dice.origin}：[${dice.list.joinToString(", ")}]=${dice.sum}
