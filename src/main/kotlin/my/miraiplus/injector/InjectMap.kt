@@ -32,7 +32,7 @@ class InjectMap {
 
 	fun <T : Annotation> remove(annClass: KClass<T>, injector: Injector<T, Event>) = remove(annClass.java, injector)
 
-	inline fun <reified T : Annotation> remove(injector: Injector<T, Event>) = remove(T::class.java, injector)
+	inline fun <reified T : Annotation> remove(injector: Injector<T, Event>) = remove(T::class, injector)
 
 	inline operator fun <reified T : Annotation> minus(injector: Injector<T, Event>): InjectMap {
 		remove(T::class.java, injector)
@@ -55,18 +55,9 @@ class InjectMap {
 	@JvmName("getByEvent")
 	@Suppress("UNCHECKED_CAST")
 	operator fun <E : Event> get(event: KClass<E>): List<Injector<out Annotation, out E>> {
-		return injectorMap.values.flatten().filter {
-			event.isSubclassOf(it.event)
-		} as List<Injector<out Annotation, out E>>
-	}
-
-	@Suppress("UNCHECKED_CAST")
-	operator fun <T : Annotation, E : Event> get(
-		annClass: Class<T>, event: KClass<E>,
-	): MutableList<Injector<T, out E>>? {
-		return this[annClass]?.filter {
-			event.isSubclassOf(it.event)
-		} as MutableList<Injector<T, out E>>?
+		return injectorMap.values.flatMap { list ->
+			list.filter { event.isSubclassOf(it.event) } as List<Injector<out Annotation, out E>>
+		}
 	}
 
 	@Suppress("UNCHECKED_CAST")

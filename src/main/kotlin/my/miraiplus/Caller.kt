@@ -44,11 +44,9 @@ sealed class Caller(
 
 	init {
 		for (ann in callable.annotations) {
-			val injectors = injector[ann.annClass, eventClass] ?: continue
+			val injectors = injector[ann.annClass] ?: continue
 			@Suppress("UNCHECKED_CAST")
-			injectors.mapTo(injects) {
-				Inject(ann, it as Injector<Annotation, Event>)
-			}
+			injectors.mapTo(injects) { Inject(ann, it as Injector<Annotation, Event>) }
 		}
 		injects.sort()
 	}
@@ -69,10 +67,12 @@ sealed class Caller(
 	override suspend fun invoke(event: Event, p2: Event) {
 		val name = name
 		val tmp = ObjectMap("tmp") + event
-		val iterator = injects.listIterator()
-		while (iterator.hasNext()) {
-			if (iterator.next().doBefore(event, tmp)) continue
-			return
+		val list = injects.filterTo(ArrayList(injects.size)) f@{
+			if (it.can(event)) {
+				if (it.doBefore(event, tmp)) return@f true
+				return
+			}
+			return@f false
 		}
 		logger.debug("$name 开始执行")
 		val any: Any? = try {
@@ -82,9 +82,7 @@ sealed class Caller(
 			e.printStackTrace()
 			null
 		}
-		while (iterator.hasPrevious()) {
-			iterator.previous().doAfter(event, tmp, any)
-		}
+		while (list.size > 0) list.removeAt(list.size - 1).doAfter(event, tmp, any)
 		logger.debug("$name 结束执行")
 		tmp.clear()
 	}
@@ -223,6 +221,7 @@ sealed class Caller(
 	) : Comparable<Inject> {
 		override fun compareTo(other: Inject): Int = inj.weight.compareTo(other.inj.weight)
 		fun init() = inj.doInit(ann, this@Caller)
+		fun can(e: Event) = inj.event.isInstance(e)
 		suspend fun doBefore(e: Event, tmp: ObjectMap) = inj.doBefore(ann, e, tmp, this@Caller)
 		suspend fun doAfter(e: Event, tmp: ObjectMap, any: Any?) = inj.doAfter(ann, e, tmp, this@Caller, any)
 		fun destory() = inj.doDestroy(ann, this@Caller)
