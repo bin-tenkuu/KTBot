@@ -12,6 +12,9 @@ class ObjectMap(name: String? = null) : Cloneable {
 
 	// region getter, setter, remove
 
+	operator fun <T : Any> get(name: String? = null, defaultValue: T) =
+		this[defaultValue::class.javaObjectType, name] ?: defaultValue
+
 	operator fun <T : Any> get(kClass: KClass<out T>, name: String? = null) = this[kClass.javaObjectType, name]
 	operator fun <T : Any> get(clazz: Class<out T>, name: String? = null): T? {
 		return list.filter {
