@@ -8,9 +8,7 @@ import net.mamoe.mirai.Bot
 import net.mamoe.mirai.contact.Contact
 import net.mamoe.mirai.event.events.GroupEvent
 import net.mamoe.mirai.event.events.MessageEvent
-import net.mamoe.mirai.message.data.EmptyMessageChain
-import net.mamoe.mirai.message.data.ForwardMessageBuilder
-import net.mamoe.mirai.message.data.Message
+import net.mamoe.mirai.message.data.*
 import net.mamoe.mirai.utils.MiraiLogger
 import org.ktorm.dsl.eq
 import java.time.Duration
@@ -83,7 +81,7 @@ object Counter {
 	@JvmStatic
 	fun state(context: Contact): Message {
 		if (groupMap.isEmpty() && memberMap.isEmpty()) {
-			return EmptyMessageChain
+			return emptyMessageChain()
 		}
 		return ForwardMessageBuilder(context, 2).apply {
 			val bot = context.bot

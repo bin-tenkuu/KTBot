@@ -8,7 +8,7 @@ plugins {
 
 	// id("org.springframework.boot") version "2.7.0"
 	// id("io.spring.dependency-management") version "1.0.11.RELEASE"
-	id("net.mamoe.mirai-console") version "2.11.1"
+	id("net.mamoe.mirai-console") version "2.12.0"
 }
 
 group = "my.ktbot"

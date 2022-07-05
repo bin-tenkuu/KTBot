@@ -11,9 +11,7 @@ import my.ktbot.utils.get
 import my.miraiplus.annotation.MessageHandle
 import my.miraiplus.annotation.RegexAnn
 import net.mamoe.mirai.event.events.MessageEvent
-import net.mamoe.mirai.message.data.EmptyMessageChain
-import net.mamoe.mirai.message.data.Message
-import net.mamoe.mirai.message.data.toPlainText
+import net.mamoe.mirai.message.data.*
 import org.ktorm.dsl.eq
 import org.ktorm.entity.filter
 import org.ktorm.entity.joinTo
@@ -142,7 +140,7 @@ object CQBotListGet {
 	@SendAuto
 	@JvmStatic
 	private fun cqBotCalculate(result: MatchResult): Message {
-		val calc = result["calc"]?.value ?: return EmptyMessageChain
+		val calc = result["calc"]?.value ?: return emptyMessageChain()
 		return try {
 			"结果为${Calculator(calc).v}".toPlainText()
 		}

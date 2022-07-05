@@ -53,7 +53,7 @@ fun Any?.toMessage(): Message? {
 		null -> null
 		Unit -> null
 		is Message -> this
-		is CharSequence -> if (isEmpty()) EmptyMessageChain else PlainText(this)
+		is CharSequence -> if (isEmpty()) emptyMessageChain() else PlainText(this)
 		is Array<*> -> buildMessageChain {
 			addAll(this@toMessage.mapNotNull(Any?::toMessage))
 		}

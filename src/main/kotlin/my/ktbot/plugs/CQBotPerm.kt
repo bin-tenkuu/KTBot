@@ -19,9 +19,9 @@ object CQBotPerm {
 	@Helper("添加/删除")
 	@SendAuto
 	fun invoke(result: MatchResult): Message {
-		val op = result["op"]?.value ?: return EmptyMessageChain
-		val groupid = result["groupid"]?.value?.toLongOrNull() ?: return EmptyMessageChain
-		val permid = result["permid"]?.value ?: return EmptyMessageChain
+		val op = result["op"]?.value ?: return emptyMessageChain()
+		val groupid = result["groupid"]?.value?.toLongOrNull() ?: return emptyMessageChain()
+		val permid = result["permid"]?.value ?: return emptyMessageChain()
 		val permission = PluginPerm[permid] ?: return PlainText("未知的权限ID: ${permid}")
 		return when (op) {
 			"添加" -> {
@@ -32,7 +32,7 @@ object CQBotPerm {
 				permission -= AbstractPermitteeId.ExactGroup(groupid)
 				"群 ${groupid} 删除 ${permid} 权限成功".toPlainText()
 			}
-			else -> return EmptyMessageChain
+			else -> return emptyMessageChain()
 		}
 	}
 }

@@ -28,7 +28,7 @@ object CQBotRepeat {
 			return null
 		}
 		node += event.sender.id
-		if (node.size != 4) return EmptyMessageChain
+		if (node.size != 4) return emptyMessageChain()
 		val msg: String = event.message.filterIsInstance<PlainText>().joinToString("") {
 			it.contentToString()
 		}

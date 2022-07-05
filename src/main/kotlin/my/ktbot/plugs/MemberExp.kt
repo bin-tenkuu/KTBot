@@ -37,7 +37,7 @@ object MemberExp {
 	fun invoke(event: MessageEvent, result: MatchResult): Message {
 		val qq = result["qq"]?.value?.toLongOrNull() ?: event.sender.id
 		if (!cache.getOrInit(event.subject.id, ::HashSet).add(qq) && event is GroupMessageEvent) {
-			return EmptyMessageChain
+			return emptyMessageChain()
 		}
 		val exp = Counter.members[qq].exp
 		return buildMessageChain {
