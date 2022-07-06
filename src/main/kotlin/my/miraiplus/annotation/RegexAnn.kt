@@ -37,4 +37,17 @@ annotation class RegexAnn(
 			map -= caller.fieldName
 		}
 	}
+
+	companion object {
+		fun RegexAnn.joinToString(): String {
+			return option.joinTo(StringBuilder(), "、") {
+				when (it) {
+					RegexOption.IGNORE_CASE -> "忽略大小写"
+					RegexOption.MULTILINE -> "多行文本"
+					RegexOption.DOT_MATCHES_ALL -> "跨行匹配"
+					else -> ""
+				}
+			}.toString()
+		}
+	}
 }

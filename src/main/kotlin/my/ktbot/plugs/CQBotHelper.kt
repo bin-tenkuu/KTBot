@@ -7,6 +7,7 @@ import my.ktbot.utils.sendAdmin
 import my.miraiplus.Caller
 import my.miraiplus.annotation.MessageHandle
 import my.miraiplus.annotation.RegexAnn
+import my.miraiplus.annotation.RegexAnn.Companion.joinToString
 import net.mamoe.mirai.event.events.GroupMessageEvent
 import net.mamoe.mirai.event.events.MessageEvent
 import net.mamoe.mirai.message.data.toPlainText
@@ -39,16 +40,8 @@ object CQBotHelper {
 				is Helper -> sb.append("\n帮助：").append(ann.help)
 				is LimitAll -> sb.append("\n速度限制：").append(ann.time).append("毫秒/次")
 				is NeedAdmin -> sb.append("\n<需要管理员>")
-				is RegexAnn -> sb.append("\n正则匹配：").append(ann.pattern).apply {
-					ann.option.joinTo(sb, "、", "\n匹配规则：") {
-						when (it) {
-							RegexOption.IGNORE_CASE -> "忽略大小写"
-							RegexOption.MULTILINE -> "多行文本"
-							RegexOption.DOT_MATCHES_ALL -> "跨行匹配"
-							else -> ""
-						}
-					}
-				}
+				is RegexAnn -> sb.append("\n正则匹配：").append(ann.pattern)
+					.append("\n匹配规则：").append(ann.joinToString())
 				is SendAuto -> sb.append("\n撤回延时：").append(ann.recall)
 			}
 		}
