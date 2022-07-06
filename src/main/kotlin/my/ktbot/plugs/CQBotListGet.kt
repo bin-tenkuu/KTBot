@@ -83,11 +83,6 @@ object CQBotListGet {
 			}
 		}
 		return sb.toString()
-		// return """
-		// 	|帮助：${c.help}
-		// 	|撤回延时：${c.deleteMSG}毫秒
-		// 	|速度限制：${c.speedLimit}毫秒每次
-		// """.trimMargin().toPlainText()
 	}
 
 	// @MessageHandle(".插件<open><nums[]>")

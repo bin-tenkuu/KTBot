@@ -16,7 +16,9 @@ import my.miraiplus.annotation.RegexAnn
 import net.mamoe.mirai.contact.Contact
 import net.mamoe.mirai.event.events.MessageEvent
 import net.mamoe.mirai.message.code.CodableMessage
-import net.mamoe.mirai.message.data.*
+import net.mamoe.mirai.message.data.Message
+import net.mamoe.mirai.message.data.emptyMessageChain
+import net.mamoe.mirai.message.data.toPlainText
 import net.mamoe.mirai.utils.ExternalResource.Companion.toExternalResource
 import net.mamoe.mirai.utils.ExternalResource.Companion.uploadAsImage
 import net.mamoe.mirai.utils.MiraiLogger
