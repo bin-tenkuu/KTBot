@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-	val kotlinVersion = "1.6.21"
+	val kotlinVersion = "1.7.10"
 	kotlin("jvm") version kotlinVersion
 	// kotlin("plugin.spring") version kotlinVersion
 	kotlin("plugin.serialization") version kotlinVersion
@@ -26,7 +26,8 @@ dependencies {
 	implementation("org.ktorm:ktorm-core:3.5.0")
 	implementation("org.ktorm:ktorm-support-sqlite:3.5.0")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
-	implementation("io.ktor", "ktor-client-serialization-jvm", "1.6.8")
+	@Suppress("GradlePackageUpdate")
+	implementation("io.ktor:ktor-client-serialization-jvm:1.6.8")
 	compileOnly("org.jetbrains:annotations:23.0.0")
 	// implementation("net.mamoe:mirai-logging-slf4j-logback:2.10.3")
 	// implementation("org.reflections:reflections:0.10.2")
