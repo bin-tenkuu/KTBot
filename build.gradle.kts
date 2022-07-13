@@ -1,14 +1,13 @@
+import org.jetbrains.kotlin.gradle.plugin.getKotlinPluginVersion
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
 	val kotlinVersion = "1.7.10"
-	kotlin("jvm") version kotlinVersion
-	// kotlin("plugin.spring") version kotlinVersion
-	kotlin("plugin.serialization") version kotlinVersion
+	kotlin("jvm").version(kotlinVersion)
+	kotlin("plugin.serialization").version(kotlinVersion)
 
-	// id("org.springframework.boot") version "2.7.0"
-	// id("io.spring.dependency-management") version "1.0.11.RELEASE"
-	id("net.mamoe.mirai-console") version "2.12.0"
+	id("net.mamoe.mirai-console").version("2.12.0")
+	id("com.google.devtools.ksp").version("1.7.0-RC2-1.0.5")
 }
 
 group = "my.ktbot"
@@ -19,27 +18,33 @@ repositories {
 	mavenLocal()
 	maven("https://maven.aliyun.com/repository/public") // 阿里云国内代理仓库
 	mavenCentral()
+	maven("https://maven.google.com")
 }
 
 dependencies {
+	// kotlin
+	implementation("org.jetbrains.kotlin:kotlin-stdlib:${getKotlinPluginVersion()}")
+	implementation("org.jetbrains.kotlin:kotlin-reflect:${getKotlinPluginVersion()}")
+	compileOnly("org.jetbrains:annotations:23.0.0")
+	// sqlite
 	implementation("org.xerial:sqlite-jdbc:3.36.0.3")
 	implementation("org.ktorm:ktorm-core:3.5.0")
 	implementation("org.ktorm:ktorm-support-sqlite:3.5.0")
-	implementation("org.jetbrains.kotlin:kotlin-reflect")
+	// ktorm-ksp
+	implementation("org.ktorm:ktorm-ksp-api:1.0.0-RC2")
+	ksp("org.ktorm:ktorm-ksp-compiler:1.0.0-RC2")
+	// ktor
 	@Suppress("GradlePackageUpdate")
 	implementation("io.ktor:ktor-client-serialization-jvm:1.6.8")
-	compileOnly("org.jetbrains:annotations:23.0.0")
-	// implementation("net.mamoe:mirai-logging-slf4j-logback:2.10.3")
-	// implementation("org.reflections:reflections:0.10.2")
-
-	// implementation("net.mamoe:mirai-core-all:2.11.1")
-	// implementation("net.mamoe:mirai-console:2.11.1")
-	// implementation("net.mamoe:mirai-console-terminal:2.11.1")
-	// implementation("org.springframework.boot:spring-boot-starter") {
-	// 	exclude("")
-	// }
-	// implementation("org.jetbrains.kotlin:kotlin-stdlib")
+	// ??
 	api("net.mamoe:mirai-console-compiler-annotations-jvm:2.11.1")
+}
+// ksp 加入编译
+kotlin {
+	sourceSets {
+		main { kotlin.srcDir("build/generated/ksp/main/kotlin") }
+		test { kotlin.srcDir("build/generated/ksp/test/kotlin") }
+	}
 }
 
 mirai {
@@ -82,7 +87,7 @@ tasks.create("build2Jar") {
 			if (it.isFile) {
 				println("Delete File: ${it.name}")
 				if (!delete(it)) {
-					println("Cannot Delete File:${it.name}")
+					error("Cannot Delete File:${it.name}")
 				}
 			}
 		}

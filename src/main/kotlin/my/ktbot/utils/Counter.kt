@@ -11,6 +11,8 @@ import net.mamoe.mirai.event.events.MessageEvent
 import net.mamoe.mirai.message.data.*
 import net.mamoe.mirai.utils.MiraiLogger
 import org.ktorm.dsl.eq
+import org.ktorm.schema.Column
+import org.ktorm.schema.Table
 import java.time.Duration
 
 /**
@@ -26,10 +28,10 @@ object Counter {
 	private val ttl = Duration.ofDays(1).toMillis() shr 1
 
 	@JvmStatic
-	val groups = CacheSql(TGroup)
+	val groups = CacheSql(TGroup, TGroup.id)
 
 	@JvmStatic
-	val members = CacheSql(TMembers)
+	val members = CacheSql(TMember, TMember.id)
 
 	/**
 	 * 群聊事件统计
@@ -120,12 +122,15 @@ object Counter {
 		memberMap.clear()
 	}
 
-	class CacheSql<E : Gmt<E>, T : TGmt<E>>(private val table: T) {
+	class CacheSql<E : Gmt<E>, T : Table<E>>(
+		private val table: T,
+		private val id: Column<Long>,
+	) {
 		private val cacheMap = mutableMapOf<Long, E>()
 		operator fun get(id: Long): E {
 			var members = cacheMap[id]
 			if (members === null) {
-				members = Sqlite[table].findOrAdd({ it.id eq id }) { this.id = id }
+				members = Sqlite[table].findOrAdd({ this.id eq id }) { this.id = id }
 				cacheMap[id] = members
 			}
 			return members

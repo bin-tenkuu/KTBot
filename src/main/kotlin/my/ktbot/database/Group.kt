@@ -1,7 +1,7 @@
 package my.ktbot.database
 
 import org.ktorm.entity.Entity
-import org.ktorm.schema.long
+import org.ktorm.ksp.api.Table
 
 /**
  *
@@ -9,10 +9,7 @@ import org.ktorm.schema.long
  * @since 2022/1/6
  */
 
-object TGroup : TGmt<Group>("tb_group") {
-	val invited = long("invited").bindTo { it.invited }
-}
-
+@Table(tableName = "tb_group", tableClassName = "TGroup")
 interface Group : Gmt<Group> {
 	var name: String
 	var invited: Long

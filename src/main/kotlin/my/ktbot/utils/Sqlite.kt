@@ -5,8 +5,9 @@ import org.ktorm.database.Database
 import org.ktorm.entity.EntitySequence
 import org.ktorm.entity.sequenceOf
 import org.ktorm.expression.ArgumentExpression
-import org.ktorm.expression.FunctionExpression
-import org.ktorm.schema.*
+import org.ktorm.schema.BaseTable
+import org.ktorm.schema.BooleanSqlType
+import org.ktorm.schema.Column
 import org.ktorm.support.sqlite.*
 import kotlin.io.path.div
 
@@ -35,7 +36,7 @@ object Sqlite {
 	}
 
 	@JvmStatic
-	val random = FunctionExpression("random", emptyList(), LongSqlType, true)
+	val random = random()
 
 	@JvmStatic
 	operator fun invoke(boolean: Boolean): ArgumentExpression<Boolean> {

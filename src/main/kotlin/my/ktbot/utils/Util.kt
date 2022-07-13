@@ -11,7 +11,7 @@ import org.ktorm.schema.ColumnDeclaring
 import org.ktorm.schema.Table
 
 @Suppress("UNCHECKED_CAST")
-fun <E : Entity<E>, T : Table<E>> EntitySequence<E, T>.findOrAdd(
+inline fun <E : Entity<E>, T : Table<E>> EntitySequence<E, T>.findOrAdd(
 	predicate: (T) -> ColumnDeclaring<Boolean>,
 	block: E.() -> Unit,
 ): E {

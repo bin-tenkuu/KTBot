@@ -3,7 +3,7 @@ package my.ktbot.plugs
 import my.ktbot.PluginMain
 import my.ktbot.annotation.*
 import my.ktbot.database.TGroup
-import my.ktbot.database.TMembers
+import my.ktbot.database.TMember
 import my.ktbot.utils.Counter
 import my.ktbot.utils.Sqlite
 import my.ktbot.utils.calculator.Calculator
@@ -46,7 +46,7 @@ object CQBotListGet {
 			"ban" -> return StringBuilder("群：\n").also { b ->
 				Sqlite[TGroup].filter { it.isBaned eq true }.joinTo(b, "\n") { it.id.toString() }
 			}.append("\n人：\n").also { b ->
-				Sqlite[TMembers].filter { it.isBaned eq true }.joinTo(b, "\n") { it.id.toString() }
+				Sqlite[TMember].filter { it.isBaned eq true }.joinTo(b, "\n") { it.id.toString() }
 			}.toString().toPlainText()
 			else -> return null
 		}

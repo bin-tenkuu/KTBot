@@ -1,21 +1,14 @@
 package my.ktbot.database
 
 import org.ktorm.entity.Entity
-import org.ktorm.schema.*
-
-abstract class TGmt<T : Gmt<T>>(tableName: String) : Table<T>(tableName) {
-	val id = long("id").primaryKey().bindTo { it.id }
-	val exp = double("exp").bindTo { it.exp }
-	val gmtModified = long("gmt_modified").bindTo { it.gmtModified }
-	val gmtCreate = long("gmt_create").bindTo { it.gmtCreate }
-	val isBaned = boolean("is_baned").bindTo { it.isBaned }
-}
+import org.ktorm.ksp.api.PrimaryKey
 
 interface Gmt<T : Gmt<T>> : Entity<T> {
+	@PrimaryKey
 	var id: Long
+	var exp: Double
 	var gmtModified: Long
 	var gmtCreate: Long
-	var exp: Double
 	var isBaned: Boolean
 
 	companion object {

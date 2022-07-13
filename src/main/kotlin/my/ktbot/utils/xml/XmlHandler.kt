@@ -1,4 +1,4 @@
-package my.parser.xml
+package my.ktbot.utils.xml
 
 import org.xml.sax.Attributes
 import org.xml.sax.SAXParseException

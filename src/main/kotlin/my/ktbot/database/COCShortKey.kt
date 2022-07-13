@@ -1,19 +1,16 @@
 package my.ktbot.database
 
 import org.ktorm.entity.Entity
-import org.ktorm.schema.Table
-import org.ktorm.schema.varchar
+import org.ktorm.ksp.api.PrimaryKey
+import org.ktorm.ksp.api.Table
 
 /**
  * @since 2022/1/7
  * @author bin
  */
-object TCOCShortKey : Table<COCShortKey>("COCShortKey") {
-	val key = varchar("key").primaryKey().bindTo { it.key }
-	val value = varchar("value").bindTo { it.value }
-}
-
+@Table(tableName = "COCShortKey", tableClassName = "TCOCShortKey")
 interface COCShortKey : Entity<COCShortKey> {
+	@PrimaryKey
 	var key: String
 	var value: String
 
