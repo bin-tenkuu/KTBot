@@ -42,11 +42,10 @@ class DiceResult(
 			else -> max
 		}
 		var sum: Long = 0
-		for (i in 0..list.size) {
-			range.random().also {
-				list[i] = it
-				sum += it
-			}
+		for (i in list.indices) {
+			val it = range.random()
+			list[i] = it
+			sum += it
 		}
 		this.sum = sum
 		return this

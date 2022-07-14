@@ -11,7 +11,6 @@ import org.ktorm.ksp.api.Table
 
 @Table(tableName = "tb_group", tableClassName = "TGroup")
 interface Group : Gmt<Group> {
-	var name: String
 	var invited: Long
 
 	companion object : Entity.Factory<Group>()
