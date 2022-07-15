@@ -9,110 +9,106 @@ import oshi.software.os.OSFileStore
 import oshi.software.os.OperatingSystem
 import oshi.util.FormatUtil.formatBytes
 import oshi.util.FormatUtil.formatBytesDecimal
-import java.util.*
 
 object SystemInfoUtil {
-	val systemInfo: SystemInfo get() = SystemInfo()
+	/**
+	 * 操作系统
+	 */
+	val os: OperatingSystem
+
+	/**
+	 * 硬件抽象层。提供对处理器、内存、电池和磁盘等硬件项目的访问
+	 */
+	val hal: HardwareAbstractionLayer
+
+	init {
+		val systemInfo = SystemInfo()
+		hal = systemInfo.hardware
+		os = systemInfo.operatingSystem
+	}
+
+	/**
+	 * 硬件：BIOS/固件和主板、逻辑板等组件
+	 */
+	val computerSystem: ComputerSystem = hal.computerSystem
+
+	/**
+	 * 硬件：CPU
+	 */
+	val cpu: CentralProcessor = hal.processor
+
+	/**
+	 * 硬件：内存
+	 */
+	val memory: GlobalMemory = hal.memory
+
+	/**
+	 * 硬件：硬盘或其他类似的存储设备
+	 */
+	val diskStores: List<HWDiskStore> = hal.diskStores
+
+	/**
+	 * 文件系统
+	 */
+	val fileSystem: FileSystem = os.fileSystem
 
 	@JvmStatic
 	fun main(vararg args: String) {
-		val si = systemInfo
-		val hal: HardwareAbstractionLayer = si.hardware
-		val os: OperatingSystem = si.operatingSystem
-
 		println(os)
 
 		println("Checking computer system...")
-		hal.computerSystem.printComputerSystem()
-
-		println("Checking Processor...")
-		hal.processor.printProcessor()
-
-		println("Checking Memory...")
-		hal.memory.printMemory()
+		computerSystem.printComputerSystem()
 
 		println("Checking CPU...")
-		printCpu(hal.processor)
+		cpu.printProcessor()
 
-		println("Checking Sensors...")
-		hal.sensors.printSensors()
+		println("Checking Memory...")
+		memory.printMemory()
 
 		println("Checking Disks...")
-		printDisks(hal.diskStores)
+		printDisks(diskStores)
 
 		println("Checking File System...")
-		printFileSystem(os.fileSystem)
-
+		printFileSystem(fileSystem)
 	}
 
 	private fun ComputerSystem.printComputerSystem() {
-		run {
-			println("manufacturer: $manufacturer")
-			println("model: $model")
-			println("serialnumber: $serialNumber")
-		}
+		println("manufacturer: $manufacturer")
 		firmware.run {
 			println("firmware:")
 			println("  manufacturer: $manufacturer")
-			println("  name: $name")
-			println("  description: $description")
 			println("  version: $version")
 		}
 		baseboard.run {
 			println("baseboard:")
 			println("  manufacturer: $manufacturer")
-			println("  model: $model")
 			println("  version: $version")
-			println("  serialnumber: $serialNumber")
 		}
 	}
 
 	private fun CentralProcessor.printProcessor() {
-		println(this)
-		println(" $physicalPackageCount physical CPU package(s)")
-		println(" $physicalProcessorCount physical CPU core(s)")
-		println(" $logicalProcessorCount logical CPU(s)")
-		println("Identifier: $processorIdentifier")
-		println("ProcessorID: ${processorIdentifier.processorID}")
-	}
-
-	private fun GlobalMemory.printMemory() {
-		println("Memory: ${formatBytes(available)}/${formatBytes(total)}")
-		println(
-			"Swap used: ${formatBytes(virtualMemory.swapUsed)}/${formatBytes(virtualMemory.swapTotal)}"
-		)
-	}
-
-	private fun printCpu(processor: CentralProcessor) {
-		println("Context Switches/Interrupts: ${processor.contextSwitches} / ${processor.interrupts}")
-		val prevTicks = processor.systemCpuLoadTicks
+		println("Identifier: ${processorIdentifier.name}")
+		println("  $physicalPackageCount physical CPU package(s)")
+		println("  $physicalProcessorCount physical CPU core(s)")
+		println("  $logicalProcessorCount logical CPU(s)")
+		println("Context Switches/Interrupts: $contextSwitches / $interrupts")
+		val prevTicks = systemCpuLoadTicks
 		// Wait a second...
 		runBlocking {
 			delay(1000)
 		}
-		val ticks = processor.systemCpuLoadTicks
-		val pcpu = ticks.zip(prevTicks) { l, r -> l - r }
-		val totalCpu = pcpu.sum()
-		System.out.format(
-			"User: %.1f%% Nice: %.1f%% System: %.1f%% Idle: %.1f%% IOwait: %.1f%% IRQ: %.1f%% SoftIRQ: %.1f%% Steal: %.1f%%%n",
-			*pcpu.map { 100.0 * it / totalCpu }.toTypedArray()
-		)
-		System.out.format(
-			"CPU load: %.1f%% (counting ticks)%n", processor.getSystemCpuLoadBetweenTicks(prevTicks) * 100
-		)
+		System.out.format("CPU load: %.1f%% (counting ticks)%n", getSystemCpuLoadBetweenTicks(prevTicks) * 100)
 	}
 
-	private fun Sensors.printSensors() {
-		println("Sensors:")
-		System.out.format(" CPU Temperature: %.1f°C%n", cpuTemperature)
-		println(" Fan Speeds: ${Arrays.toString(fanSpeeds)}")
-		System.out.format(" CPU Voltage: %.1fV%n", cpuVoltage)
+	private fun GlobalMemory.printMemory() {
+		println("Memory: ${formatBytes(available)}/${formatBytes(total)}")
+		println("Swap used: ${formatBytes(virtualMemory.swapUsed)}/${formatBytes(virtualMemory.swapTotal)}")
 	}
 
 	private fun printDisks(list: List<HWDiskStore>) {
 		println("Disks:")
 		for (disk: HWDiskStore in list) {
-			print(" ${disk.name}: (model: ${disk.model} - S/N: ${disk.serial}) size: ")
+			print(" ${disk.name}: (model: ${disk.model}) size: ")
 			print(if (disk.size > 0) formatBytesDecimal(disk.size) else "?")
 			print(", ")
 			if (disk.reads > 0 || disk.writes > 0) println(
@@ -123,10 +119,9 @@ object SystemInfoUtil {
 				}), xfer: ${disk.transferTime} ms"
 			)
 			else println("reads: ? (?), writes: ? (?), xfer: ? ms")
-			// TODO Remove when all OS's implemented
 			for (part: HWPartition in disk.partitions ?: continue) {
 				println(
-					" |-- ${part.identification}: ${part.name} (${part.type}) " +
+					" |- ${part.identification}: ${part.name} (${part.type}) " +
 						"Maj:Min=${part.major}:${part.minor}, " +
 						"size: ${formatBytesDecimal(part.size)}" +
 						if (part.mountPoint.isEmpty()) "" else " @ ${part.mountPoint}"
@@ -142,7 +137,7 @@ object SystemInfoUtil {
 			val usable = fs.usableSpace
 			val total = fs.totalSpace
 			println(
-				" ${fs.name} (${fs.description.ifEmpty { "file system" }}) [${fs.type}] " +
+				"  ${fs.name} (${fs.description.ifEmpty { "file system" }}) [${fs.type}] " +
 					"${formatBytes(usable)} of ${formatBytes(fs.totalSpace)} " +
 					"free (${String.format("%.1f", 100.0 * usable / total)}%) " +
 					"mounted at ${fs.mount}"
