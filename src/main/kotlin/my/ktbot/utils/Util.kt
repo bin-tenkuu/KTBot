@@ -1,3 +1,5 @@
+@file:JvmName("Util")
+
 package my.ktbot.utils
 
 import my.ktbot.PlugConfig

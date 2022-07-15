@@ -38,6 +38,8 @@ dependencies {
 	implementation("io.ktor:ktor-client-serialization-jvm:1.6.8")
 	// ??
 	api("net.mamoe:mirai-console-compiler-annotations-jvm:2.11.1")
+	// 系统状况读取
+	implementation("com.github.oshi:oshi-core-java11:6.2.1")
 }
 // ksp 加入编译
 kotlin {
