@@ -4,7 +4,6 @@ package my.ktbot.utils
 
 import my.ktbot.PlugConfig
 import my.ktbot.PluginMain
-import my.ktbot.database.Gmt
 import net.mamoe.mirai.event.events.BotEvent
 import net.mamoe.mirai.message.data.*
 import net.mamoe.mirai.utils.error
@@ -26,17 +25,6 @@ inline fun <E : Entity<E>, T : Table<E>> EntitySequence<E, T>.findOrAdd(
 operator fun MatchResult.get(key: String): MatchGroup? {
 	return groups[key]
 }
-
-fun <T : Gmt<T>> T.update(block: (T.() -> Unit) = {}) {
-	block()
-	gmtModified = System.currentTimeMillis()
-	flushChanges()
-}
-
-/**
- * 给管理员发送消息
- */
-suspend fun BotEvent.sendAdmin(msg: CharSequence) = sendAdmin(PlainText(msg))
 
 /**
  * 给管理员发送消息

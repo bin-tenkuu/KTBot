@@ -8,22 +8,31 @@ interface Gmt<T : Gmt<T>> : Entity<T> {
 	@PrimaryKey
 	var id: Long
 	var exp: Double
+
 	@Column(columnName = "gmt_modified")
 	var gmtModified: Long
+
 	@Column(columnName = "gmt_create")
 	var gmtCreate: Long
+
 	@Column(columnName = "is_baned")
 	var isBaned: Boolean
 
 	companion object {
-		infix fun <T : Gmt<T>> Gmt<T>.add(exp: Double): Boolean {
+		fun Gmt<*>.modify() {
+			gmtModified = System.currentTimeMillis()
+		}
+
+		fun Gmt<*>.add(exp: Double): Boolean {
 			if (exp < 0 && this.exp < -exp) return false
 			modify()
 			this.exp = this.exp + exp; return true
 		}
 
-		fun <T : Gmt<T>> Gmt<T>.modify() {
-			gmtModified = System.currentTimeMillis()
+		inline fun <T : Gmt<T>> T.update(block: (T.() -> Unit) = {}) {
+			block()
+			modify()
+			flushChanges()
 		}
 	}
 }

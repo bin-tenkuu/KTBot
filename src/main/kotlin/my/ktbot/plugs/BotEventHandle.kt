@@ -5,9 +5,9 @@ import my.ktbot.PlugConfig
 import my.ktbot.PluginMain
 import my.ktbot.annotation.SendAdmin
 import my.ktbot.annotation.SendGroup
+import my.ktbot.database.Gmt.Companion.update
 import my.ktbot.utils.CacheMap
 import my.ktbot.utils.Counter
-import my.ktbot.utils.update
 import my.miraiplus.annotation.MessageHandle
 import net.mamoe.mirai.Bot
 import net.mamoe.mirai.contact.nameCardOrNick

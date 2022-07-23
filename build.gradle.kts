@@ -7,7 +7,7 @@ plugins {
 	kotlin("plugin.serialization").version(kotlinVersion)
 
 	id("net.mamoe.mirai-console").version("2.12.0")
-	id("com.google.devtools.ksp").version("1.7.0-RC2-1.0.5")
+	id("com.google.devtools.ksp").version("1.7.10-1.0.6")
 }
 
 group = "my.ktbot"

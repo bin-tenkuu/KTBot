@@ -3,9 +3,9 @@ package my.ktbot.plugs
 import my.ktbot.annotation.SendAuto
 import my.ktbot.annotation.Helper
 import my.ktbot.annotation.NeedAdmin
+import my.ktbot.database.Gmt.Companion.update
 import my.ktbot.utils.Counter
 import my.ktbot.utils.get
-import my.ktbot.utils.update
 import my.miraiplus.annotation.MessageHandle
 import my.miraiplus.annotation.RegexAnn
 import net.mamoe.mirai.message.data.Message
