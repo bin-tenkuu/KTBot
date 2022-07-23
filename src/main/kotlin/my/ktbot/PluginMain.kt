@@ -42,7 +42,7 @@ object PluginMain : KotlinPlugin(
 		logger.warning(Counter.members[2938137849].toString())
 
 		myEventHandle += arrayOf(
-			CQBotCOC, CQBotSBI, BotProxy,
+			CQBotCOC, CQBotCOCSBI, BotProxy,
 			CQBotRepeat, MemberExp, CQBotBan,
 			CQBotPicture, CQBotPixiv,
 			CQBotPerm, CQBotHelper, CQBotListGet, CQBotMemeAI,

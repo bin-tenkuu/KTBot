@@ -11,7 +11,7 @@ import net.mamoe.mirai.event.events.MessageEvent
 import net.mamoe.mirai.message.data.Message
 import net.mamoe.mirai.message.data.toPlainText
 
-object CQBotSBI {
+object CQBotCOCSBI {
 
 	@JvmStatic
 	val cache = CacheMap<Long, DiceResult>()
