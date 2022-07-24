@@ -35,7 +35,11 @@ dependencies {
 	ksp("org.ktorm:ktorm-ksp-compiler:1.0.0-RC2")
 	// ktor
 	@Suppress("GradlePackageUpdate")
-	implementation("io.ktor:ktor-client-serialization-jvm:1.6.8")
+	implementation("io.ktor:ktor-client-okhttp:1.6.8")
+	@Suppress("GradlePackageUpdate")
+    implementation("io.ktor:ktor-client-json:1.6.8")
+	@Suppress("GradlePackageUpdate")
+	implementation("io.ktor:ktor-client-serialization:1.6.8")
 	// ??
 	api("net.mamoe:mirai-console-compiler-annotations-jvm:2.11.1")
 	// 系统状况读取
