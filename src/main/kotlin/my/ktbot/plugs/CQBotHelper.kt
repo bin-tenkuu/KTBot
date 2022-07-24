@@ -2,6 +2,7 @@ package my.ktbot.plugs
 
 import my.ktbot.PluginMain
 import my.ktbot.annotation.*
+import my.ktbot.utils.KtorUtils
 import my.ktbot.utils.get
 import my.ktbot.utils.sendAdmin
 import my.miraiplus.Caller
@@ -95,5 +96,13 @@ object CQBotHelper {
 		return "已发送"
 	}
 
+	@MessageHandle("夸我")
+	@RegexAnn("^夸我$")
+	@Helper("彩虹屁")
+	@SendAuto
+	@JvmStatic
+	private suspend fun rainbowFart(): String {
+		return KtorUtils.rainbowFart()
+	}
 
 }

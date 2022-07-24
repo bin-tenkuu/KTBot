@@ -18,6 +18,8 @@ import my.ktbot.dao.blibili.RoomInit
 import java.nio.charset.StandardCharsets
 
 object KtorUtils {
+	const val UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36 Edg/96.0.1054.57"
+
 	@JvmStatic
 	val json = Json {
 		encodeDefaults = false
@@ -89,19 +91,47 @@ object KtorUtils {
 	 */
 	@JvmStatic
 	suspend fun bilibiliLive(id: Int): List<String> {
-		val baseApi = get(
-			"https://api.live.bilibili.com/room/v1/Room/room_init"
-		) { parameter("id", id) }.receive<BaseApi<RoomInit>>()
+		val baseApi = get("https://api.live.bilibili.com/room/v1/Room/room_init") {
+			parameter("id", id)
+		}.receive<BaseApi<RoomInit>>()
 		if (baseApi.code != 0) return listOf(baseApi.message)
 		else if (baseApi.data.liveStatus != 1) return listOf("bilibili $id 未开播")
 		val roomId = baseApi.data.roomId
-		val durl = get(
-			"https://api.live.bilibili.com/room/v1/Room/playUrl"
-		) {
+		val durl = get("https://api.live.bilibili.com/room/v1/Room/playUrl") {
 			parameter("cid", roomId)
 			parameter("qn", 10000)
 			parameter("platform", "web")
 		}.receive<BaseApi<LiveData>>().data.durl
 		return durl.map(LiveData.Durl::url)
+	}
+
+	/**
+	 * 祖安
+	 * @param max [Boolean] 火力全开
+	 * @return [String]
+	 */
+	@Deprecated("接口无法调用")
+	suspend fun zuan(max: Boolean = false): String {
+		val url = if (max) "https://zuanbot.com/api.php?lang=zh_cn"
+		else "https://zuanbot.com/api.php?lang=zh_cn&level=min"
+		return get(url) {
+			header("Accept", "*/*")
+			header("Referer", "https://zuanbot.com/")
+			header("User-Agent", UserAgent)
+		}.receive()
+	}
+
+	suspend fun rainbowFart(): String {
+		val regex = Regex("(?<=\"text\":\")[^\"]+")
+		val receive = get("https://api.shadiao.pro/chp") {
+			header("origin", "https://chp.shadiao.app")
+			header("referer", "https://chp.shadiao.app/")
+			header("User-Agent", UserAgent)
+		}.receive<String>()
+		val text = regex.find(receive)?.value ?: ""
+		val string = String(text.split("\\u").mapNotNull {
+			if (it.isNotBlank()) it.toInt(16).toChar() else null
+		}.toCharArray())
+		return string
 	}
 }
