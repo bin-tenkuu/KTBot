@@ -7,6 +7,7 @@ import my.ktbot.dao.LoliconRequest
 import my.ktbot.database.PixivPic
 import my.ktbot.database.TPixivPic
 import my.ktbot.utils.KtorUtils
+import my.ktbot.utils.KtorUtils.body
 import my.ktbot.utils.Sqlite
 import my.ktbot.utils.Sqlite.insertOrUpdate
 import my.ktbot.utils.Sqlite.setExcluded
@@ -89,7 +90,7 @@ object CQBotPicture {
 			runCatching { savePic(lolicon) }
 			val image = KtorUtils.get(
 				lolicon.urls.values.firstOrNull() ?: return "未找到图片链接".toPlainText()
-			).receive<ByteArray>().toExternalResource().toAutoCloseable().uploadAsImage(contact)
+			).body<ByteArray>().toExternalResource().toAutoCloseable().uploadAsImage(contact)
 			contact.sendMessage("作者：${lolicon.uid}\n原图p${lolicon.p}：${lolicon.pid}")
 			return image
 		}
@@ -124,7 +125,7 @@ object CQBotPicture {
 		val pic = getRandomPic(r18) ?: return emptyMessageChain()
 		val image = KtorUtils.get(pic.url) {
 			headers.append("referer", "https://www.pixiv.net/")
-		}.receive<ByteArray>().toExternalResource().toAutoCloseable().uploadAsImage(contact)
+		}.body<ByteArray>().toExternalResource().toAutoCloseable().uploadAsImage(contact)
 		contact.sendMessage("作者：${pic.uid}\n原图p${pic.p}：${pic.pid}")
 		return image
 	}

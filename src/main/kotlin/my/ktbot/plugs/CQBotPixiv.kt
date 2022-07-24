@@ -2,6 +2,7 @@ package my.ktbot.plugs
 
 import my.ktbot.annotation.*
 import my.ktbot.utils.KtorUtils
+import my.ktbot.utils.KtorUtils.body
 import my.ktbot.utils.get
 import my.miraiplus.annotation.MessageHandle
 import my.miraiplus.annotation.RegexAnn
@@ -44,12 +45,12 @@ object CQBotPixiv {
 			}
 			if (cat.multiple && cat.originalUrlsProxy !== null) {
 				return Array(cat.originalUrlsProxy.size) {
-					KtorUtils.get(cat.originalUrlsProxy[it]).receive<ByteArray>()
+					KtorUtils.get(cat.originalUrlsProxy[it]).body<ByteArray>()
 						.toExternalResource().toAutoCloseable().uploadAsImage(contact)
 				}.toMessageChain()
 			}
 			else if (cat.originalUrlProxy !== null) {
-				return KtorUtils.get(cat.originalUrlProxy).receive<ByteArray>()
+				return KtorUtils.get(cat.originalUrlProxy).body<ByteArray>()
 					.toExternalResource().toAutoCloseable().uploadAsImage(contact)
 			}
 			return "pid错误".toPlainText()

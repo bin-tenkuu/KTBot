@@ -34,12 +34,25 @@ dependencies {
 	implementation("org.ktorm:ktorm-ksp-api:1.0.0-RC2")
 	ksp("org.ktorm:ktorm-ksp-compiler:1.0.0-RC2")
 	// ktor
-	@Suppress("GradlePackageUpdate")
-	implementation("io.ktor:ktor-client-okhttp:1.6.8")
-	@Suppress("GradlePackageUpdate")
-    implementation("io.ktor:ktor-client-json:1.6.8")
-	@Suppress("GradlePackageUpdate")
-	implementation("io.ktor:ktor-client-serialization:1.6.8")
+	val ktorVersion = "1.6.8"
+		kotlin.run {
+		implementation("io.ktor:ktor-client-okhttp:${ktorVersion}")
+		implementation("io.ktor:ktor-client-json:${ktorVersion}")
+		implementation("io.ktor:ktor-client-serialization:${ktorVersion}")
+		implementation("io.ktor:ktor-client-logging:$ktorVersion")
+	}
+	// @Suppress("GradlePackageUpdate")
+	// implementation("io.ktor:ktor-client-okhttp:${ktorVersion}")
+	// @Suppress("GradlePackageUpdate")
+	// implementation("io.ktor:ktor-client-json:${ktorVersion}")
+	// @Suppress("GradlePackageUpdate")
+	// implementation("io.ktor:ktor-client-serialization:${ktorVersion}")
+	// val ktorVersion = "2.0.3"
+	// implementation("io.ktor:ktor-client-core:${ktorVersion}")
+	// implementation("io.ktor:ktor-client-okhttp:${ktorVersion}")
+	// implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
+	// implementation("io.ktor:ktor-client-json:${ktorVersion}")
+	// implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
 	// ??
 	api("net.mamoe:mirai-console-compiler-annotations-jvm:2.11.1")
 	// 系统状况读取
