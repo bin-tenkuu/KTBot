@@ -82,7 +82,7 @@ object CQBotHelper {
 	}
 
 	@MessageHandle(".send[g]<qq> <txt>")
-	@RegexAnn("^[.．。]send(?<g>g)?(?<qq>\\d+) (?<txt>.+)$", RegexOption.IGNORE_CASE)
+	@RegexAnn("^[.．。]send(?<g>g)? ?(?<qq>\\d+) (?<txt>.+)$", RegexOption.IGNORE_CASE)
 	@NeedAdmin
 	@Helper("bot代理发送消息")
 	@SendAuto
