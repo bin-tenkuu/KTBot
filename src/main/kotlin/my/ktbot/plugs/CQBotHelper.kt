@@ -97,7 +97,7 @@ object CQBotHelper {
 	}
 
 	@MessageHandle("夸我")
-	@RegexAnn("^夸我$")
+	@RegexAnn("^[夸舔]我$")
 	@Helper("彩虹屁")
 	@SendAuto
 	@JvmStatic
