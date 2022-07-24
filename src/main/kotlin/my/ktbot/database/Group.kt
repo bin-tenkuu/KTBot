@@ -9,7 +9,7 @@ import org.ktorm.ksp.api.Table
  * @since 2022/1/6
  */
 
-@Table(tableName = "tb_group", tableClassName = "TGroup")
+@Table(tableName = "QQGroup", tableClassName = "TGroup")
 interface Group : Gmt<Group> {
 	var invited: Long
 

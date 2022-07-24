@@ -49,6 +49,12 @@ object Sqlite {
 		return database.insertOrUpdate(sourceTable, block)
 	}
 
+	fun <E : Any, T : BaseTable<E>> EntitySequence<E, T>.limit(
+		limit: Int,
+	): EntitySequence<E, T> {
+		return withExpression(expression.copy(limit = limit))
+	}
+
 	fun <T : Any> InsertOrUpdateOnConflictClauseBuilder.setExcluded(column: Column<T>) = set(column, excluded(column))
 
 }

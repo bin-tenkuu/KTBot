@@ -6,7 +6,6 @@ import io.ktor.client.engine.okhttp.*
 import io.ktor.client.features.*
 import io.ktor.client.features.json.*
 import io.ktor.client.features.json.serializer.*
-import io.ktor.client.features.logging.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
@@ -58,10 +57,6 @@ object KtorUtils {
 			this.requestTimeoutMillis = 30_0000
 			this.connectTimeoutMillis = 30_0000
 			this.socketTimeoutMillis = 30_0000
-		}
-		install(Logging) {
-			logger = LoggerBridge(MyLogger.create(KtorUtils::class))
-			level = LogLevel.INFO
 		}
 	}
 

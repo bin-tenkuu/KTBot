@@ -2,9 +2,9 @@ package my.ktbot.plugs
 
 import my.ktbot.PluginMain
 import my.ktbot.annotation.*
-import my.ktbot.utils.KtorUtils
-import my.ktbot.utils.get
-import my.ktbot.utils.sendAdmin
+import my.ktbot.database.TJeffJoke
+import my.ktbot.utils.*
+import my.ktbot.utils.Sqlite.limit
 import my.miraiplus.Caller
 import my.miraiplus.annotation.MessageHandle
 import my.miraiplus.annotation.RegexAnn
@@ -12,6 +12,8 @@ import my.miraiplus.annotation.RegexAnn.Companion.joinToString
 import net.mamoe.mirai.event.events.GroupMessageEvent
 import net.mamoe.mirai.event.events.MessageEvent
 import net.mamoe.mirai.message.data.toPlainText
+import org.ktorm.entity.firstOrNull
+import org.ktorm.entity.sortedBy
 
 /**
  *
@@ -20,7 +22,7 @@ import net.mamoe.mirai.message.data.toPlainText
  * @date 2022/1/13
  */
 object CQBotHelper {
-	@MessageHandle(".help[<id>]")
+	@MessageHandle("help[<id>]")
 	@RegexAnn("^[.．。](?:help|帮助)(?<num> ?\\d+)?$", RegexOption.IGNORE_CASE)
 	@Helper("帮助专用功能\n.help后附带下标数字查看对应功能详情")
 	@SendAuto(recall = 30 * 1000)
@@ -53,7 +55,7 @@ object CQBotHelper {
 		it.anns.any { ann -> ann is Helper } && it.anns.none { ann -> ann is NeedAdmin }
 	}
 
-	@MessageHandle(".ping")
+	@MessageHandle("ping")
 	@RegexAnn("^[.．。]ping$", RegexOption.IGNORE_CASE)
 	@Helper("测试bot是否连接正常")
 	@SendAuto
@@ -69,7 +71,7 @@ object CQBotHelper {
 		|轮子github：mamoe/mirai
 	""".trimMargin()
 
-	@MessageHandle(".report <txt>")
+	@MessageHandle("report <txt>")
 	@RegexAnn("^[.．。]report(?<txt>.+)$", RegexOption.IGNORE_CASE)
 	@Helper("附上消息发送给开发者")
 	@SendAuto
@@ -81,7 +83,7 @@ object CQBotHelper {
 		return "收到"
 	}
 
-	@MessageHandle(".send[g]<qq> <txt>")
+	@MessageHandle("send[g]<qq> <txt>")
 	@RegexAnn("^[.．。]send(?<g>g)? ?(?<qq>\\d+) (?<txt>.+)$", RegexOption.IGNORE_CASE)
 	@NeedAdmin
 	@Helper("bot代理发送消息")
@@ -105,4 +107,22 @@ object CQBotHelper {
 		return KtorUtils.rainbowFart()
 	}
 
+	/**
+	 * 来源 [https://mirai.mamoe.net/topic/1269/%E7%AE%80%E6%98%93jeff%E7%AC%91%E8%AF%9D%E7%94%9F%E6%88%90%E5%99%A8]
+	 * @param event [MessageEvent]
+	 * @param result [MatchResult]
+	 * @return [String]?
+	 */
+	@MessageHandle("jeffJoke")
+	@RegexAnn("^[.．。]joke(?<name> *.+)?$", RegexOption.IGNORE_CASE)
+	@Helper("简易Jeff笑话生成，参数：<name> ：名字；<times>：次数")
+	@SendAuto
+	@JvmStatic
+	private fun jeffJoke(event: MessageEvent, result: MatchResult): String? {
+		val joke = Sqlite[TJeffJoke].limit(1).sortedBy {
+			Sqlite.random
+		}.firstOrNull()?.text ?: return null
+		val name = result["name"]?.value?.trim() ?: event.senderName
+		return joke.replace("%s", name)
+	}
 }

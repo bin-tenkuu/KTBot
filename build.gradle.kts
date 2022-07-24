@@ -39,7 +39,6 @@ dependencies {
 		implementation("io.ktor:ktor-client-okhttp:${ktorVersion}")
 		implementation("io.ktor:ktor-client-json:${ktorVersion}")
 		implementation("io.ktor:ktor-client-serialization:${ktorVersion}")
-		implementation("io.ktor:ktor-client-logging:$ktorVersion")
 	}
 	// @Suppress("GradlePackageUpdate")
 	// implementation("io.ktor:ktor-client-okhttp:${ktorVersion}")

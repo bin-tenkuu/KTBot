@@ -10,6 +10,7 @@ import my.ktbot.utils.KtorUtils
 import my.ktbot.utils.KtorUtils.body
 import my.ktbot.utils.Sqlite
 import my.ktbot.utils.Sqlite.insertOrUpdate
+import my.ktbot.utils.Sqlite.limit
 import my.ktbot.utils.Sqlite.setExcluded
 import my.ktbot.utils.get
 import my.miraiplus.annotation.MessageHandle
@@ -113,7 +114,7 @@ object CQBotPicture {
 
 	@JvmStatic
 	private fun getRandomPic(r18: Boolean): PixivPic? {
-		return Sqlite[TPixivPic].sortedBy { Sqlite.random }.firstOrNull { it.r18 eq r18 }
+		return Sqlite[TPixivPic].limit(1).sortedBy { Sqlite.random }.firstOrNull { it.r18 eq r18 }
 	}
 
 	@JvmStatic
