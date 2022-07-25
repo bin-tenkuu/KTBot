@@ -25,5 +25,3 @@ logging:
   level:
     root: info
     org.springframework: warn
-    springfox.documentation: warn
-    com.om: debug

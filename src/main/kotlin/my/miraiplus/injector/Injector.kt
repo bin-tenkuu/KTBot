@@ -8,7 +8,7 @@ import kotlin.reflect.KClass
 
 /**
  *
- * @param T : Annotation 注解处理类
+ * @param T : [Annotation] 注解处理类
  */
 interface Injector<T : Annotation, E : Event> {
 	/**
@@ -19,32 +19,32 @@ interface Injector<T : Annotation, E : Event> {
 
 	/**
 	 * 初始化方法，将会在[caller]实例化完成之后调用一次，运行顺序为[weight]顺序
-	 * @param ann T
-	 * @param caller Caller
+	 * @param ann [T]
+	 * @param caller [Caller]
 	 */
 	fun doInit(ann: T, caller: Caller) {}
 
 	/**
 	 * 在方法执行之前执行，运行顺序为[weight]顺序
-	 * @param ann T 注解实例
-	 * @param event Event 事件实例
-	 * @param caller Caller
-	 * @return Boolean true-继续执行，false-取消后续执行
+	 * @param ann [T] 注解实例
+	 * @param event [Event] 事件实例
+	 * @param caller [Caller]
+	 * @return [Boolean] true-继续执行，false-取消后续执行
 	 */
 	suspend fun doBefore(ann: T, event: E, tmpMap: ObjectMap, caller: Caller): Boolean = true
 
 	/**
 	 * 在方法执行之后执行，运行顺序为[weight]倒序
-	 * @param ann T 注解实例
-	 * @param event Event 事件实例
-	 * @param caller Caller
+	 * @param ann [T] 注解实例
+	 * @param event [Event] 事件实例
+	 * @param caller [Caller]
 	 */
 	suspend fun doAfter(ann: T, event: E, tmpMap: ObjectMap, caller: Caller, result: Any?) {}
 
 	/**
 	 * 即将销毁方法，将会在[caller]准备销毁之前调用一次，运行顺序为[weight]顺序
-	 * @param ann T
-	 * @param caller Caller
+	 * @param ann [T]
+	 * @param caller [Caller]
 	 */
 	fun doDestroy(ann: T, caller: Caller) {}
 

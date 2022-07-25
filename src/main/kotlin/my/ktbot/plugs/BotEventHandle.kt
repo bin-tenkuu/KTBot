@@ -8,13 +8,13 @@ import my.ktbot.annotation.SendGroup
 import my.ktbot.database.Gmt.Companion.update
 import my.ktbot.utils.CacheMap
 import my.ktbot.utils.Counter
+import my.ktbot.utils.createLogger
 import my.miraiplus.annotation.MessageHandle
 import net.mamoe.mirai.Bot
 import net.mamoe.mirai.contact.nameCardOrNick
 import net.mamoe.mirai.event.events.*
 import net.mamoe.mirai.message.data.isContentEmpty
 import net.mamoe.mirai.utils.MiraiExperimentalApi
-import net.mamoe.mirai.utils.MiraiLogger
 import java.time.Duration
 
 /**
@@ -23,7 +23,7 @@ import java.time.Duration
  *  @version 1.0.0
  */
 object BotEventHandle {
-	private val logger = MiraiLogger.Factory.create(BotEventHandle::class)
+	private val logger = createLogger<BotEventHandle>()
 
 	@JvmStatic
 	private var tasker: Job? = null

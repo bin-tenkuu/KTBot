@@ -21,7 +21,7 @@ class MyLogger : MiraiLogger.Factory by MyLogger {
 		fun getLogger(requester: KClass<*>, identity: String? = null): Logger = getLogger(requester.java, identity)
 
 		override fun create(requester: Class<*>, identity: String?): MiraiLogger {
-			// MiraiLogger.Factory.create(requester)
+			// createLogger(requester)
 			// return DirectoryLogger(identity ?: requester.simpleName ?: requester.name, File("./logs"),
 			// 	Duration.ofDays(10).toMillis())
 			return getLogger(requester, identity).asMiraiLogger()

@@ -3,11 +3,10 @@ package my.ktbot.utils
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.serializer
 import my.ktbot.PlugConfig
-import net.mamoe.mirai.utils.MiraiLogger
 import java.io.*
 
 object NginxLogHandle {
-	private val logger = MiraiLogger.Factory.create(NginxLogHandle::class)
+	private val logger = createLogger<NginxLogHandle>()
 
 	//	'$remote_addr - $remote_user [$time_iso8601] "$request"'
 	//	' $status,$body_bytes_sent "$http_referer" "$http_user_agent"'

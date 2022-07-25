@@ -2,12 +2,9 @@ package my.ktbot.utils
 
 import my.ktbot.PluginMain
 import org.ktorm.database.Database
-import org.ktorm.entity.EntitySequence
-import org.ktorm.entity.sequenceOf
+import org.ktorm.entity.*
 import org.ktorm.expression.ArgumentExpression
-import org.ktorm.schema.BaseTable
-import org.ktorm.schema.BooleanSqlType
-import org.ktorm.schema.Column
+import org.ktorm.schema.*
 import org.ktorm.support.sqlite.*
 import kotlin.io.path.div
 
@@ -31,7 +28,7 @@ object Sqlite {
 	)
 
 	@JvmStatic
-	operator fun <E : Any, T : BaseTable<E>> get(table: T): EntitySequence<E, T> {
+	operator fun <E : Entity<E>, T : BaseTable<E>> get(table: T): EntitySequence<E, T> {
 		return database.sequenceOf(table)
 	}
 
@@ -56,5 +53,16 @@ object Sqlite {
 	}
 
 	fun <T : Any> InsertOrUpdateOnConflictClauseBuilder.setExcluded(column: Column<T>) = set(column, excluded(column))
+
+	@Suppress("UNCHECKED_CAST")
+	inline fun <E : Entity<E>, T : Table<E>> EntitySequence<E, T>.findOrAdd(
+		predicate: (T) -> ColumnDeclaring<Boolean>,
+		block: E.() -> Unit,
+	): E {
+		return firstOrNull(predicate) ?: (Entity.create(sourceTable.entityClass!!) as E).also {
+			block(it)
+			add(it)
+		}
+	}
 
 }

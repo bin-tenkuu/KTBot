@@ -3,6 +3,7 @@ package my.ktbot.plugs
 import my.ktbot.annotation.*
 import my.ktbot.utils.KtorUtils
 import my.ktbot.utils.KtorUtils.body
+import my.ktbot.utils.createLogger
 import my.ktbot.utils.get
 import my.miraiplus.annotation.MessageHandle
 import my.miraiplus.annotation.RegexAnn
@@ -13,7 +14,6 @@ import net.mamoe.mirai.message.data.toMessageChain
 import net.mamoe.mirai.message.data.toPlainText
 import net.mamoe.mirai.utils.ExternalResource.Companion.toExternalResource
 import net.mamoe.mirai.utils.ExternalResource.Companion.uploadAsImage
-import net.mamoe.mirai.utils.MiraiLogger
 
 /**
  *
@@ -22,7 +22,7 @@ import net.mamoe.mirai.utils.MiraiLogger
  * @date 2022/1/13
  */
 object CQBotPixiv {
-	private val logger = MiraiLogger.Factory.create(CQBotPixiv::class)
+	private val logger = createLogger<CQBotPixiv>()
 
 	@MessageHandle("看看p站<pid>[-<p>]")
 	@RegexAnn("^看{1,2}p站(?<pid>\\d+)$", RegexOption.IGNORE_CASE)

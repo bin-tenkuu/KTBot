@@ -6,13 +6,11 @@ import my.ktbot.dao.Lolicon
 import my.ktbot.dao.LoliconRequest
 import my.ktbot.database.PixivPic
 import my.ktbot.database.TPixivPic
-import my.ktbot.utils.KtorUtils
+import my.ktbot.utils.*
 import my.ktbot.utils.KtorUtils.body
-import my.ktbot.utils.Sqlite
 import my.ktbot.utils.Sqlite.insertOrUpdate
 import my.ktbot.utils.Sqlite.limit
 import my.ktbot.utils.Sqlite.setExcluded
-import my.ktbot.utils.get
 import my.miraiplus.annotation.MessageHandle
 import my.miraiplus.annotation.RegexAnn
 import net.mamoe.mirai.contact.Contact
@@ -23,7 +21,6 @@ import net.mamoe.mirai.message.data.emptyMessageChain
 import net.mamoe.mirai.message.data.toPlainText
 import net.mamoe.mirai.utils.ExternalResource.Companion.toExternalResource
 import net.mamoe.mirai.utils.ExternalResource.Companion.uploadAsImage
-import net.mamoe.mirai.utils.MiraiLogger
 import org.ktorm.dsl.eq
 import org.ktorm.entity.firstOrNull
 import org.ktorm.entity.sortedBy
@@ -35,7 +32,7 @@ import org.ktorm.entity.sortedBy
  * @date 2022/1/13
  */
 object CQBotPicture {
-	private val logger = MiraiLogger.Factory.create(CQBotPicture::class)
+	private val logger = createLogger<CQBotPicture>()
 
 	@JvmStatic
 	val setuSet = mutableSetOf<String>()

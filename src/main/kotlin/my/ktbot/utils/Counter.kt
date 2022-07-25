@@ -4,12 +4,12 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import my.ktbot.PluginMain
 import my.ktbot.database.*
+import my.ktbot.utils.Sqlite.findOrAdd
 import net.mamoe.mirai.Bot
 import net.mamoe.mirai.contact.Contact
 import net.mamoe.mirai.event.events.GroupEvent
 import net.mamoe.mirai.event.events.MessageEvent
 import net.mamoe.mirai.message.data.*
-import net.mamoe.mirai.utils.MiraiLogger
 import org.ktorm.dsl.eq
 import org.ktorm.schema.Column
 import org.ktorm.schema.Table
@@ -22,7 +22,7 @@ import java.time.Duration
  * @date 2022/1/26
  */
 object Counter {
-	private val logger = MiraiLogger.Factory.create(Counter::class)
+	private val logger = createLogger<Counter>()
 
 	@JvmStatic
 	private val ttl = Duration.ofDays(1).toMillis() shr 1

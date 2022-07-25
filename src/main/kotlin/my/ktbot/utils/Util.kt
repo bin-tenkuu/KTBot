@@ -6,21 +6,8 @@ import my.ktbot.PlugConfig
 import my.ktbot.PluginMain
 import net.mamoe.mirai.event.events.BotEvent
 import net.mamoe.mirai.message.data.*
+import net.mamoe.mirai.utils.MiraiLogger
 import net.mamoe.mirai.utils.error
-import org.ktorm.entity.*
-import org.ktorm.schema.ColumnDeclaring
-import org.ktorm.schema.Table
-
-@Suppress("UNCHECKED_CAST")
-inline fun <E : Entity<E>, T : Table<E>> EntitySequence<E, T>.findOrAdd(
-	predicate: (T) -> ColumnDeclaring<Boolean>,
-	block: E.() -> Unit,
-): E {
-	return firstOrNull(predicate) ?: (Entity.create(sourceTable.entityClass!!) as E).also {
-		block(it)
-		add(it)
-	}
-}
 
 operator fun MatchResult.get(key: String): MatchGroup? {
 	return groups[key]
@@ -53,3 +40,5 @@ fun Any?.toMessage(): Message? {
 		else -> PlainText(toString())
 	}
 }
+
+inline fun <reified T> createLogger(identity: String? = null) = MiraiLogger.Factory.create(T::class, identity)
