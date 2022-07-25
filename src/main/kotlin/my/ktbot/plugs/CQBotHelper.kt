@@ -61,7 +61,7 @@ object CQBotHelper {
 	@SendAuto
 	private val Ping = ".pong!"
 
-	@MessageHandle(".data")
+	@MessageHandle("data")
 	@RegexAnn("^[.．。]data$", RegexOption.IGNORE_CASE)
 	@Helper("开发者信息")
 	@SendAuto(recall = 90 * 1000)

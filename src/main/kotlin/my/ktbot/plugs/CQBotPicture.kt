@@ -128,7 +128,7 @@ object CQBotPicture {
 		return image
 	}
 
-	@MessageHandle(".色图失败列表")
+	@MessageHandle("色图失败列表")
 	@RegexAnn("^[.．。]色图失败列表$")
 	@NeedAdmin
 	@SendAuto

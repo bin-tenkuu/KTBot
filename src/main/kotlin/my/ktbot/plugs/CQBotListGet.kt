@@ -26,7 +26,7 @@ import org.ktorm.entity.joinTo
  * @date 2022/1/13
  */
 object CQBotListGet {
-	@MessageHandle(".获取<type>列表")
+	@MessageHandle("获取<type>列表")
 	@RegexAnn("^[.．。]获取(?<type>[^ ]+)列表$")
 	@NeedAdmin
 	@SendAuto
@@ -52,7 +52,7 @@ object CQBotListGet {
 		}
 	}
 
-	@MessageHandle(".插件[<id>]")
+	@MessageHandle("插件[<id>]")
 	@RegexAnn("^[.．。]插件(?<id> *\\d*)$")
 	@NeedAdmin
 	@Helper("查看插件信息")
