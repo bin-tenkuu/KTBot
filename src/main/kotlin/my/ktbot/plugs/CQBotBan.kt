@@ -1,8 +1,8 @@
 package my.ktbot.plugs
 
-import my.ktbot.annotation.SendAuto
 import my.ktbot.annotation.Helper
 import my.ktbot.annotation.NeedAdmin
+import my.ktbot.annotation.SendAuto
 import my.ktbot.database.Gmt.Companion.update
 import my.ktbot.utils.Counter
 import my.ktbot.utils.get
@@ -32,7 +32,7 @@ object CQBotBan {
 
 		/**true为ban，false为unban*/
 		val type = result["type"] === null
-		val ids = (result["other"] ?: return null).value.split(empty).mapNotNull(String::toLongOrNull)
+		val ids = (result["other"] ?: return null).value.split(empty).mapNotNull { it.toLongOrNull() }
 		buildMessageChain {
 			+"已"
 			if (type) +"un"

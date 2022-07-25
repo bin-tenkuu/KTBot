@@ -1,7 +1,7 @@
 package my.ktbot.utils
 
 class ReplaceNode(
-	private val escape: Boolean = true
+	private val escape: Boolean = true,
 ) {
 
 	private val children = HashMap<Char, ReplaceNode>()
@@ -16,7 +16,7 @@ class ReplaceNode(
 	}
 
 	private fun addAll(map: Map<String, String>): ReplaceNode {
-		map.forEach(::set)
+		map.forEach { set(it.key, it.value) }
 		return this
 	}
 

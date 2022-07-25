@@ -51,7 +51,7 @@ object CQNginxLogHandle {
 	@NeedAdmin
 	private fun addIP(result: MatchResult): String {
 		val s = result.groups[1]?.value ?: return "未匹配到ip"
-		val list = ipRegex.findAll(s).map(MatchResult::value).toMutableList()
+		val list = ipRegex.findAll(s).map { it.value }.toMutableList()
 		if (list.isEmpty()) {
 			return "未匹配到ip"
 		}

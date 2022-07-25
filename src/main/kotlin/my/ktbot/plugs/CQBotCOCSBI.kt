@@ -49,13 +49,13 @@ object CQBotCOCSBI {
 		if (list.size < 3) return "数量过少"
 		setOf(list[0], list[1], list[2]).sorted().apply {
 			if (size == 1) return "大失败"
-			if (size == 3 && sum() == 6) return "大成功，成功度${list.count(1::equals)}"
+			if (size == 3 && sum() == 6) return "大成功，成功度${list.count { 1 == it }}"
 		}
 		val intArray = list.toSortedSet().toIntArray()
 		val arr = intArrayOf(intArray[0], 0)
 		for (i in intArray) {
 			if (i - arr[0] == 1) {
-				if (arr[1] == 1) return "成功，成功度${list.count(1::equals)}"
+				if (arr[1] == 1) return "成功，成功度${list.count { 1 == it }}"
 				else arr[1] = 1
 			}
 			else arr[1] = 0

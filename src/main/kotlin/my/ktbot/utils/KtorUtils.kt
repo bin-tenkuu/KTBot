@@ -105,7 +105,7 @@ object KtorUtils {
 			parameter("qn", 10000)
 			parameter("platform", "web")
 		}.body<BaseApi<LiveData>>().data.durl
-		return durl.map(LiveData.Durl::url)
+		return durl.map { it.url }
 	}
 
 	/**

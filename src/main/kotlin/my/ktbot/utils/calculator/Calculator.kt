@@ -20,11 +20,11 @@ object Calculator {
 
 	/**二元运算符*/
 	@JvmStatic
-	private val operatorMap = Operator2Enum.values().associateByTo(HashMap<String, Operator2>(), Operator::op)
+	private val operatorMap = Operator2Enum.values().associateByTo(HashMap<String, Operator2>()) { it.op }
 
 	/**一元运算符*/
 	@JvmStatic
-	private val operatorMapSingle = Operator1Enum.values().associateByTo(HashMap<String, Operator1>(), Operator::op)
+	private val operatorMapSingle = Operator1Enum.values().associateByTo(HashMap<String, Operator1>()) { it.op }
 
 	/**入口*/
 	@JvmStatic

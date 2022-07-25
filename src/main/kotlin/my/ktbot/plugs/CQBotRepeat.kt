@@ -38,7 +38,7 @@ object CQBotRepeat {
 
 	@JvmStatic
 	private fun String.shuffle(): String {
-		return String(toCharArray().apply(CharArray::shuffle))
+		return String(toCharArray().apply { shuffle() })
 	}
 
 	private class RepeatCache(val msg: String) {

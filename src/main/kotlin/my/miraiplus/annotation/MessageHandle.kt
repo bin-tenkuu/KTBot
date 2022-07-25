@@ -19,11 +19,12 @@ annotation class MessageHandle(
 	 */
 	val name: String = "",
 	/**
-	 * [ConcurrencyKind]
+	 * @see [ConcurrencyKind]
 	 */
 	val concurrency: ConcurrencyKind = ConcurrencyKind.CONCURRENT,
 	/**
-	 * 事件优先级.[EventPriority]
+	 * 事件优先级
+	 * @see [EventPriority]
 	 */
 	val priority: EventPriority = EventPriority.NORMAL,
 	/**
@@ -31,5 +32,5 @@ annotation class MessageHandle(
 	 *
 	 * 默认为 [MessageEvent]
 	 */
-	val eventType: KClass<out Event> = MessageEvent::class
+	val eventType: KClass<out Event> = MessageEvent::class,
 )

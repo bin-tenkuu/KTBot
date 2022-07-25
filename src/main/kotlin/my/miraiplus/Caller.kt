@@ -35,7 +35,7 @@ sealed class Caller(
 	@JvmField
 	val eventClass = callable.parameters.mapNotNull {
 		it.type.classifier.safeCast<KClass<Event>>()
-	}.find(Event::class::isSuperclassOf) ?: messageHandle.eventType
+	}.find { Event::class.isSuperclassOf(it) } ?: messageHandle.eventType
 
 	@JvmField
 	val anns: List<Annotation> = callable.annotations
@@ -61,6 +61,8 @@ sealed class Caller(
 
 	protected fun Pair<Class<out Any>, String?>.get(tmp: ObjectMap) =
 		tmp[first, second] ?: ObjectMap.global[first, second]
+
+	protected val List<Annotation>.qualifierName get() = filterIsInstance<Qualifier>().firstOrNull()?.name
 
 	protected abstract suspend operator fun invoke(tmp: ObjectMap): Any?
 
@@ -117,8 +119,7 @@ sealed class Caller(
 		}
 
 		private val args = property.parameters.drop(1).map {
-			it.type.classifier.cast<KClass<*>>().java to
-				it.annotations.filterIsInstance<Qualifier>().firstOrNull()?.name
+			it.type.classifier.cast<KClass<*>>().java to it.annotations.qualifierName
 		}
 
 		override suspend operator fun invoke(tmp: ObjectMap): Any? {
@@ -145,8 +146,7 @@ sealed class Caller(
 		}
 
 		private val args = property.parameters.drop(1).map {
-			it.type.classifier.cast<KClass<*>>().java to
-				it.annotations.filterIsInstance<Qualifier>().firstOrNull()?.name
+			it.type.classifier.cast<KClass<*>>().java to it.annotations.qualifierName
 		}
 
 		override suspend operator fun invoke(tmp: ObjectMap): Any? {
@@ -205,7 +205,7 @@ sealed class Caller(
 		}
 
 		private val arg = callable.parameters[1].run {
-			type.classifier.cast<KClass<*>>().java to annotations.filterIsInstance<Qualifier>().firstOrNull()?.name
+			type.classifier.cast<KClass<*>>().java to annotations.qualifierName
 		}
 
 		override suspend operator fun invoke(tmp: ObjectMap): Any? {

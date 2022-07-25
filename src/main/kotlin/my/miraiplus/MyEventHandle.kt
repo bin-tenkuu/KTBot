@@ -42,8 +42,6 @@ class MyEventHandle(
 		for (member: KCallable<*> in obj::class.declaredMembers) register0(obj, member)
 	}
 
-	fun register(obj: Any, member: KCallable<*>) = register(obj, member.name)
-
 	fun register(obj: Any, member: String) {
 		val kCallable = obj::class.declaredMembers.find { it.name == member } ?: return
 		register0(obj, kCallable)

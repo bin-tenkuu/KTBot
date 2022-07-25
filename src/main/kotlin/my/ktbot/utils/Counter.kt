@@ -3,13 +3,17 @@ package my.ktbot.utils
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import my.ktbot.PluginMain
-import my.ktbot.database.*
+import my.ktbot.database.Gmt
+import my.ktbot.database.TGroup
+import my.ktbot.database.TMember
 import my.ktbot.utils.Sqlite.findOrAdd
 import net.mamoe.mirai.Bot
 import net.mamoe.mirai.contact.Contact
 import net.mamoe.mirai.event.events.GroupEvent
 import net.mamoe.mirai.event.events.MessageEvent
-import net.mamoe.mirai.message.data.*
+import net.mamoe.mirai.message.data.ForwardMessageBuilder
+import net.mamoe.mirai.message.data.Message
+import net.mamoe.mirai.message.data.emptyMessageChain
 import org.ktorm.dsl.eq
 import org.ktorm.schema.Column
 import org.ktorm.schema.Table
@@ -107,7 +111,7 @@ object Counter {
 			}
 
 			fun Map<Long, Int>.toMSG(): List<String> = entries
-				.sortedByDescending(Map.Entry<Long, Int>::value)
+				.sortedByDescending { it.value }
 				.map { (id, num) -> "${id}：${num}次" }
 			for ((group, list) in groupMap) {
 				bot.says("群($group)：", list.toMSG())

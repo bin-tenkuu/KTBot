@@ -32,10 +32,10 @@ fun Any?.toMessage(): Message? {
 		is Message -> this
 		is CharSequence -> if (isEmpty()) emptyMessageChain() else PlainText(this)
 		is Array<*> -> buildMessageChain {
-			addAll(this@toMessage.mapNotNull(Any?::toMessage))
+			addAll(this@toMessage.mapNotNull { it.toMessage() })
 		}
 		is Iterable<*> -> buildMessageChain {
-			addAll(this@toMessage.mapNotNull(Any?::toMessage))
+			addAll(this@toMessage.mapNotNull { it.toMessage() })
 		}
 		else -> PlainText(toString())
 	}

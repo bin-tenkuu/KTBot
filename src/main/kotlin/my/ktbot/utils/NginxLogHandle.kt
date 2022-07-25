@@ -61,8 +61,8 @@ object NginxLogHandle {
 
 	fun log2csv(): String {
 		val lists = logMap()
-			.map(Map.Entry<*, List<LogNginx>>::value)
-			.sortedByDescending(List<LogNginx>::size)
+			.map { it.value }
+			.sortedByDescending { it.size }
 		val sequence = lists.asSequence().flatten()
 		val it = StringBuilder(lists.size.shl(6))
 		it.appendLine(LogNginx.toCsv())
@@ -140,7 +140,7 @@ object NginxLogHandle {
 		if (!pathFile.exists() || !pathFile.isDirectory) {
 			return emptyList()
 		}
-		val list = (pathFile.listFiles() ?: emptyArray<File>()).filter(File::isFile)
+		val list = (pathFile.listFiles() ?: emptyArray<File>()).filter { it.isFile }
 		files.addAll(list)
 		return list
 	}
@@ -170,7 +170,7 @@ object NginxLogHandle {
 			banipResult += try {
 				val start = ProcessBuilder("ipset", "add", "banip", ip).start()
 				start.waitFor()
-				ip + " -> " + BufferedReader(InputStreamReader(start.errorStream)).use(BufferedReader::readLine)
+				ip + " -> " + BufferedReader(InputStreamReader(start.errorStream)).use { it.readLine() }
 			}
 			catch (e: Exception) {
 				logger.error(e)
