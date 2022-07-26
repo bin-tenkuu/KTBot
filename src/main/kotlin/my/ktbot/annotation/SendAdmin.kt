@@ -14,6 +14,7 @@ import net.mamoe.mirai.message.data.isContentBlank
  *  @author bin
  *  @version 1.0.0
  */
+@MustBeDocumented
 annotation class SendAdmin {
 	companion object Inject : Injector<SendAdmin, BotEvent> {
 		override val event = BotEvent::class

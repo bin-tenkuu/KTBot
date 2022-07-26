@@ -33,7 +33,7 @@ object PluginMain : KotlinPlugin(
 		logger.warning("管理员QQ：${PlugConfig.adminId}")
 		logger.warning("管理员QQ群：${PlugConfig.adminGroup}")
 		myEventHandle.injector + SendAuto + NeedAdmin + RegexAnn.Inject() +
-			SendGroup + SendAdmin + NeedExp + NeedAtBot + HasPerm
+			SendGroup + SendAdmin + NeedExp + NeedAtBot + HasPerm //+ CheckPerm
 		println(myEventHandle.injector[Event::class].joinToString(" -> ") { it.javaClass.name })
 	}
 

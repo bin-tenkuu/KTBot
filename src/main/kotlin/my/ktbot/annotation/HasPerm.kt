@@ -18,6 +18,7 @@ import kotlin.reflect.KClass
  *  @author bin
  *  @version 1.0.0
  */
+@MustBeDocumented
 annotation class HasPerm(
 	@ResolveContext(ResolveContext.Kind.PERMISSION_ID)
 	val permId: String,

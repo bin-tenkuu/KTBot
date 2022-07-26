@@ -14,6 +14,7 @@ import net.mamoe.mirai.event.events.MessageEvent
  *  @author bin
  *  @version 1.0.0
  */
+@MustBeDocumented
 annotation class NeedExp(val private: Double, val group: Double) {
 	companion object Inject : Injector.Message<NeedExp> {
 		override val weight: Double

@@ -11,6 +11,7 @@ import net.mamoe.mirai.message.data.At
  *  @author bin
  *  @version 1.0.0
  */
+@MustBeDocumented
 annotation class NeedAtBot {
 	companion object Inject : Injector.Message<NeedAtBot> {
 		override suspend fun doBefore(ann: NeedAtBot, event: MessageEvent, tmpMap: ObjectMap, caller: Caller): Boolean {

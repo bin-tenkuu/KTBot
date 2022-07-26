@@ -12,6 +12,7 @@ import java.util.*
  *  @author bin
  *  @version 1.0.0
  */
+@MustBeDocumented
 annotation class LimitAll(val time: Long) {
 	companion object Inject : Injector.Message<LimitAll> {
 		private val map = HashMap<String, Mutex>()

@@ -5,4 +5,5 @@ package my.ktbot.annotation
  *  @author bin
  *  @version 1.0.0
  */
+@MustBeDocumented
 annotation class Helper(val help: String)

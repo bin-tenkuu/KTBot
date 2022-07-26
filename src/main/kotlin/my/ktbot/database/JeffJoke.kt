@@ -1,6 +1,7 @@
 package my.ktbot.database
 
 import org.ktorm.entity.Entity
+import org.ktorm.ksp.api.PrimaryKey
 import org.ktorm.ksp.api.Table
 
 /**
@@ -10,6 +11,7 @@ import org.ktorm.ksp.api.Table
  */
 @Table(tableName = "JeffJoke", tableClassName = "TJeffJoke")
 interface JeffJoke : Entity<JeffJoke> {
+	@PrimaryKey
 	val id: Int
 	val text: String
 
