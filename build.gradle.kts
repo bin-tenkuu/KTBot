@@ -35,7 +35,7 @@ dependencies {
 	ksp("org.ktorm:ktorm-ksp-compiler:1.0.0-RC2")
 	// ktor
 	val ktorVersion = "1.6.8"
-		kotlin.run {
+	kotlin.run {
 		implementation("io.ktor:ktor-client-okhttp:${ktorVersion}")
 		implementation("io.ktor:ktor-client-json:${ktorVersion}")
 		implementation("io.ktor:ktor-client-serialization:${ktorVersion}")
@@ -101,18 +101,26 @@ tasks.create("build2Jar") {
 	dependsOn += "buildPlugin"
 	doLast {
 		val pluginPath = "${rootDir}/plugins/"
-		File(pluginPath).listFiles()?.forEach {
-			if (it.isFile) {
-				println("Delete File: ${it.name}")
-				if (!delete(it)) {
-					error("Cannot Delete File:${it.name}")
+		(File(pluginPath).listFiles() ?: emptyArray()).filter f@{
+			val name = it.name
+			if (it.isFile && name.startsWith(rootProject.name)) {
+				if (name.endsWith(".bak")) {
+					println("Delete backup File: $name")
+					if (!it.delete()) error("Cannot Delete File: $pluginPath$name")
+					return@f false
 				}
+				return@f true
 			}
+			return@f false
+		}.forEach {
+			val name = it.name
+			println("Backup File: $name to $name.bak")
+			it.renameTo(File("$pluginPath$name.bak"))
 		}
-		copy {
-			from("${buildDir}/mirai/")
-			into(pluginPath)
-			eachFile { println("Copy File: ${name}") }
+		(File("${buildDir}/mirai/").listFiles() ?: emptyArray()).forEach {
+			val name = it.name
+			println("Copy File: $name to plugins/$name ")
+			it.copyTo(File(pluginPath + name))
 		}
 	}
 }
