@@ -10,7 +10,6 @@ import net.mamoe.mirai.console.extension.PluginComponentStorage
 import net.mamoe.mirai.console.plugin.jvm.JvmPlugin
 import net.mamoe.mirai.console.plugin.jvm.JvmPluginDescription
 import net.mamoe.mirai.console.plugin.jvm.KotlinPlugin
-import net.mamoe.mirai.event.Event
 
 /**
  * 插件入口
@@ -33,8 +32,8 @@ object PluginMain : KotlinPlugin(
 		logger.warning("管理员QQ：${PlugConfig.adminId}")
 		logger.warning("管理员QQ群：${PlugConfig.adminGroup}")
 		myEventHandle.injector + SendAuto + NeedAdmin + RegexAnn.Inject() +
-			SendGroup + SendAdmin + NeedExp + NeedAtBot + HasPerm //+ CheckPerm
-		println(myEventHandle.injector[Event::class].joinToString(" -> ") { it.javaClass.name })
+			SendGroup + SendAdmin + NeedExp + NeedAtBot + HasPerm + CheckPerm
+		println(myEventHandle.injector.getAll().joinToString(" -> ") { it.javaClass.name })
 	}
 
 	override fun onEnable() {

@@ -2,7 +2,6 @@ package my.miraiplus.injector
 
 import net.mamoe.mirai.event.Event
 import kotlin.reflect.KClass
-import kotlin.reflect.full.isSubclassOf
 
 class InjectMap {
 	private val injectorMap = HashMap<Class<out Annotation>, ArrayList<Injector<out Annotation, out Event>>>()
@@ -52,12 +51,8 @@ class InjectMap {
 		return injectorMap[annClass] as MutableList<Injector<T, out Event>>?
 	}
 
-	@JvmName("getByEvent")
-	@Suppress("UNCHECKED_CAST")
-	operator fun <E : Event> get(event: KClass<E>): List<Injector<out Annotation, out E>> {
-		return injectorMap.values.flatMap { list ->
-			list.filter { event.isSubclassOf(it.event) } as List<Injector<out Annotation, out E>>
-		}
+	fun getAll(): List<Injector<out Annotation, out Event>> {
+		return injectorMap.values.flatten()
 	}
 
 	@Suppress("UNCHECKED_CAST")

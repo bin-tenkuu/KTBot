@@ -3,6 +3,7 @@ package my.ktbot.plugs
 import kotlinx.coroutines.*
 import my.ktbot.PlugConfig
 import my.ktbot.PluginMain
+import my.ktbot.annotation.Helper
 import my.ktbot.annotation.SendAdmin
 import my.ktbot.annotation.SendGroup
 import my.ktbot.database.Gmt.Companion.update
@@ -91,6 +92,7 @@ object BotEventHandle {
 	}
 
 	@MessageHandle("成员加入群事件")
+	@Helper("成员加入群事件")
 	@SendGroup
 	private fun MemberJoinEvent.run(): String {
 		val msg = "@${member.nick} ${
@@ -122,6 +124,7 @@ object BotEventHandle {
 	}
 
 	@MessageHandle("成员离开群事件")
+	@Helper("成员离开群事件")
 	@SendGroup
 	private fun MemberLeaveEvent.run(): String {
 		val msg = "@${member.nick}(${member.id})${

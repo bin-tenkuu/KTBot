@@ -7,10 +7,12 @@ import org.ktorm.ksp.api.Table
 @Table(tableName = "PermCheck", tableClassName = "TPermCheck")
 interface PermCheck : Entity<PermCheck> {
 	@PrimaryKey
-	val id: Long
+	var id: Long
 
 	/**
 	 * 使用[my.miraiplus.Caller.name]
 	 */
-	val name: String
+	var name: String
+
+	companion object : Entity.Factory<PermCheck>()
 }

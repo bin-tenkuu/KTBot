@@ -1,14 +1,15 @@
 package my.ktbot.plugs
 
 import my.ktbot.PluginMain
-import my.ktbot.annotation.*
+import my.ktbot.annotation.Helper
+import my.ktbot.annotation.NeedAdmin
+import my.ktbot.annotation.SendAuto
 import my.ktbot.database.TJeffJoke
 import my.ktbot.utils.*
 import my.ktbot.utils.Sqlite.limit
 import my.miraiplus.Caller
 import my.miraiplus.annotation.MessageHandle
 import my.miraiplus.annotation.RegexAnn
-import my.miraiplus.annotation.RegexAnn.Companion.joinToString
 import net.mamoe.mirai.event.events.GroupMessageEvent
 import net.mamoe.mirai.event.events.MessageEvent
 import net.mamoe.mirai.message.data.toPlainText
@@ -36,22 +37,10 @@ object CQBotHelper {
 				"\n$i :${p.name}"
 			}.joinToString("")
 		}"
-		val sb = StringBuilder()
-		sb.append("名称：").append(c.name)
-		for (ann in c.anns) {
-			when (ann) {
-				is Helper -> sb.append("\n帮助：").append(ann.help)
-				is LimitAll -> sb.append("\n速度限制：").append(ann.time).append("毫秒/次")
-				is NeedAdmin -> sb.append("\n<需要管理员>")
-				is RegexAnn -> sb.append("\n正则匹配：").append(ann.pattern)
-					.append("\n匹配规则：").append(ann.joinToString())
-				is SendAuto -> sb.append("\n撤回延时：").append(ann.recall)
-			}
-		}
-		return sb.toString()
+		return c.toHelper()
 	}
 
-	private fun get(): List<Caller> = PluginMain.callers.filter {
+	fun get(): List<Caller> = PluginMain.callers.filter {
 		it.anns.any { ann -> ann is Helper } && it.anns.none { ann -> ann is NeedAdmin }
 	}
 
