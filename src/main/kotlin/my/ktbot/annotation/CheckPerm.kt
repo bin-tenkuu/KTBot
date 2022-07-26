@@ -21,7 +21,7 @@ object CheckPerm : Injector<MessageHandle, GroupEvent> {
 
 	override suspend fun doBefore(ann: MessageHandle, event: GroupEvent, tmpMap: ObjectMap, caller: Caller): Boolean {
 		val set = map[event.group.id] ?: return true
-		return caller.name in set
+		return caller.name !in set
 	}
 
 }
