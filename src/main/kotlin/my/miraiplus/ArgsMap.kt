@@ -2,8 +2,7 @@ package my.miraiplus
 
 import kotlin.reflect.KClass
 
-@Suppress("UNCHECKED_CAST")
-class ObjectMap(name: String? = null) : Cloneable {
+class ArgsMap(name: String? = null) : Cloneable {
 	private val list = ArrayList<SortObject<*>>()
 
 	init {
@@ -17,6 +16,7 @@ class ObjectMap(name: String? = null) : Cloneable {
 
 	operator fun <T : Any> get(kClass: KClass<out T>, name: String? = null) = this[kClass.javaObjectType, name]
 	operator fun <T : Any> get(clazz: Class<out T>, name: String? = null): T? {
+		@Suppress("UNCHECKED_CAST")
 		return list.filter {
 			clazz.isInstance(it.obj) && (name == null || name == it.name)
 		}.minOrNull()?.obj as T?
@@ -26,7 +26,7 @@ class ObjectMap(name: String? = null) : Cloneable {
 	operator fun <T : Any> plus(value: T) = this.add(value)
 	operator fun <T : Any> set(name: String?, value: T) = this.add(value, name)
 
-	fun <T : Any> add(value: T, name: String? = null, weight: Int = 0): ObjectMap {
+	fun <T : Any> add(value: T, name: String? = null, weight: Int = 0): ArgsMap {
 		list.add(SortObject(value, weight, name))
 		return this
 	}
@@ -40,8 +40,8 @@ class ObjectMap(name: String? = null) : Cloneable {
 
 	fun clear() = list.clear()
 
-	public override fun clone(): ObjectMap {
-		return ObjectMap().also {
+	public override fun clone(): ArgsMap {
+		return ArgsMap().also {
 			it.list.addAll(list)
 		}
 	}
@@ -54,6 +54,7 @@ class ObjectMap(name: String? = null) : Cloneable {
 		@JvmField
 		val obj: T,
 		private val weight: Int,
+		@JvmField
 		val name: String?,
 	) : Comparable<SortObject<*>> {
 		override operator fun compareTo(other: SortObject<*>) = weight.compareTo(other.weight)
@@ -68,6 +69,6 @@ class ObjectMap(name: String? = null) : Cloneable {
 	}
 
 	companion object {
-		val global = ObjectMap("global")
+		val global = ArgsMap("global")
 	}
 }

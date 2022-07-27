@@ -4,16 +4,16 @@ import my.ktbot.database.PermCheck
 import my.ktbot.database.TPermCheck
 import my.ktbot.utils.Sqlite
 import my.miraiplus.Caller
-import my.miraiplus.ObjectMap
-import my.miraiplus.annotation.MessageHandle
-import my.miraiplus.injector.Injector
+import my.miraiplus.ArgsMap
+import my.miraiplus.annotation.MiraiEventHandle
+import my.miraiplus.Injector
 import net.mamoe.mirai.event.events.GroupEvent
 import org.ktorm.dsl.and
 import org.ktorm.dsl.eq
 import org.ktorm.entity.add
 import org.ktorm.entity.removeIf
 
-object CheckPerm : Injector<MessageHandle, GroupEvent> {
+object CheckPerm : Injector<MiraiEventHandle, GroupEvent> {
 	override val event = GroupEvent::class
 
 	private val map = HashMap<Long, HashSet<String>>()
@@ -24,7 +24,7 @@ object CheckPerm : Injector<MessageHandle, GroupEvent> {
 		}
 	}
 
-	override suspend fun doBefore(ann: MessageHandle, event: GroupEvent, tmpMap: ObjectMap, caller: Caller): Boolean {
+	override suspend fun doBefore(ann: MiraiEventHandle, event: GroupEvent, tmpMap: ArgsMap, caller: Caller): Boolean {
 		return check(event.group.id, caller.name)
 	}
 

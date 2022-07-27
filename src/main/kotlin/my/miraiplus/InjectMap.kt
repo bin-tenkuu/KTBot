@@ -1,4 +1,4 @@
-package my.miraiplus.injector
+package my.miraiplus
 
 import net.mamoe.mirai.event.Event
 import kotlin.reflect.KClass
@@ -55,7 +55,6 @@ class InjectMap {
 		return injectorMap.values.flatten()
 	}
 
-	@Suppress("UNCHECKED_CAST")
 	operator fun <T : Annotation> get(annClass: KClass<T>) = this[annClass.java]
 
 	inline fun <reified T : Annotation> get() = get(T::class.java)

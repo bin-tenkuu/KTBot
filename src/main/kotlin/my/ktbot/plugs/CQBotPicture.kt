@@ -11,7 +11,7 @@ import my.ktbot.utils.KtorUtils.body
 import my.ktbot.utils.Sqlite.insertOrUpdate
 import my.ktbot.utils.Sqlite.limit
 import my.ktbot.utils.Sqlite.setExcluded
-import my.miraiplus.annotation.MessageHandle
+import my.miraiplus.annotation.MiraiEventHandle
 import my.miraiplus.annotation.RegexAnn
 import net.mamoe.mirai.contact.Contact
 import net.mamoe.mirai.event.events.MessageEvent
@@ -58,7 +58,7 @@ object CQBotPicture {
 		}
 	}
 
-	@MessageHandle("来点[<r18>][<key>]色图")
+	@MiraiEventHandle("来点[<r18>][<key>]色图")
 	@HasPerm("my.ktbot.binbot:setu")
 	@RegexAnn("^[来來发發给給l][张張个個幅点點份d](?<r18>r18的?)?(?<keyword>.*)?[涩色瑟铯s][图圖t]$")
 	@SendAuto
@@ -98,7 +98,7 @@ object CQBotPicture {
 		}
 	}
 
-	@MessageHandle("来点[<r18>]色图")
+	@MiraiEventHandle("来点[<r18>]色图")
 	@HasPerm("my.ktbot.binbot:setu")
 	@RegexAnn("^[来來发發给給l][张張个個幅点點份d](?<r18>r18的?)?[涩色瑟铯s][图圖t]$", RegexOption.IGNORE_CASE)
 	@SendAuto(recall = 20 * 1000)
@@ -128,7 +128,7 @@ object CQBotPicture {
 		return image
 	}
 
-	@MessageHandle("色图失败列表")
+	@MiraiEventHandle("色图失败列表")
 	@RegexAnn("^[.．。]色图失败列表$")
 	@NeedAdmin
 	@SendAuto

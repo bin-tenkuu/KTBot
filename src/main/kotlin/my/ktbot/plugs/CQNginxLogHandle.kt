@@ -5,7 +5,7 @@ import my.ktbot.PlugConfig
 import my.ktbot.annotation.NeedAdmin
 import my.ktbot.annotation.SendAuto
 import my.ktbot.utils.NginxLogHandle
-import my.miraiplus.annotation.MessageHandle
+import my.miraiplus.annotation.MiraiEventHandle
 import my.miraiplus.annotation.RegexAnn
 import net.mamoe.mirai.event.events.GroupMessageEvent
 import net.mamoe.mirai.message.data.Message
@@ -19,7 +19,7 @@ object CQNginxLogHandle {
 	private val formater = DateTimeFormatter.ofPattern("uuuu-MM-dd HH-mm")
 	private val nowFile: String get() = formater.format(LocalDateTime.now())
 
-	@MessageHandle("nginx日志处理")
+	@MiraiEventHandle("nginx日志处理")
 	@RegexAnn("^[.．。]nginx$", RegexOption.IGNORE_CASE)
 	@NeedAdmin
 	@SendAuto
@@ -45,7 +45,7 @@ object CQNginxLogHandle {
 	private val ipRegex =
 		Regex("((\\d|[1-9]\\d|1\\d\\d|2[0-4]\\d|25[0-5])\\.){3}(\\d|[1-9]\\d|1\\d\\d|2[0-4]\\d|25[0-5])")
 
-	@MessageHandle("添加banip")
+	@MiraiEventHandle("添加banip")
 	@RegexAnn("^[.．。]banip(.+)$", RegexOption.IGNORE_CASE)
 	@SendAuto
 	@NeedAdmin

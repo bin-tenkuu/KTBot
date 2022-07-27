@@ -3,7 +3,7 @@ package my.ktbot.plugs
 import my.ktbot.annotation.NeedAtBot
 import my.ktbot.annotation.SendAuto
 import my.ktbot.utils.ReplaceNode
-import my.miraiplus.annotation.MessageHandle
+import my.miraiplus.annotation.MiraiEventHandle
 import net.mamoe.mirai.event.EventPriority
 import net.mamoe.mirai.event.events.GroupMessageEvent
 import net.mamoe.mirai.message.data.*
@@ -33,7 +33,7 @@ object CQBotMemeAI {
 		"吗" to "",
 	)
 
-	@MessageHandle("(玩梗用自动回复)", priority = EventPriority.LOWEST)
+	@MiraiEventHandle("(玩梗用自动回复)", priority = EventPriority.LOWEST)
 	@NeedAtBot
 	@SendAuto
 	fun invoke(event: GroupMessageEvent): Message {

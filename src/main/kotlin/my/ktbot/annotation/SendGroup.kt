@@ -3,8 +3,8 @@ package my.ktbot.annotation
 import my.ktbot.PluginMain
 import my.ktbot.utils.toMessage
 import my.miraiplus.Caller
-import my.miraiplus.ObjectMap
-import my.miraiplus.injector.Injector
+import my.miraiplus.ArgsMap
+import my.miraiplus.Injector
 import net.mamoe.mirai.event.events.GroupEvent
 import net.mamoe.mirai.message.data.isContentBlank
 import kotlin.reflect.KClass
@@ -20,7 +20,7 @@ annotation class SendGroup {
 		override val weight: Double
 			get() = 1.0
 		override val event: KClass<GroupEvent> = GroupEvent::class
-		override suspend fun doAfter(ann: SendGroup, event: GroupEvent, tmpMap: ObjectMap, caller: Caller, result: Any?) {
+		override suspend fun doAfter(ann: SendGroup, event: GroupEvent, tmpMap: ArgsMap, caller: Caller, result: Any?) {
 			val message = result.toMessage()
 			if (message === null || message.isContentBlank()) {
 				return

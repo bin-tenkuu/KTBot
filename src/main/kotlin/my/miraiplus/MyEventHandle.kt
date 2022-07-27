@@ -1,7 +1,6 @@
 package my.miraiplus
 
-import my.miraiplus.annotation.MessageHandle
-import my.miraiplus.injector.InjectMap
+import my.miraiplus.annotation.MiraiEventHandle
 import net.mamoe.mirai.console.plugin.jvm.AbstractJvmPlugin
 import net.mamoe.mirai.event.Listener
 import net.mamoe.mirai.event.globalEventChannel
@@ -15,35 +14,59 @@ class MyEventHandle(
 	private val plugin: AbstractJvmPlugin,
 ) {
 	/**
-	 * key:[KCallable.toString]
+	 * key:[KCallable.toString]。value:[Caller]注册的[Listener]
 	 */
 	private val map = HashMap<String, Listener<*>>()
 
+	/**
+	 * 存储全部的 [Caller]
+	 */
 	@JvmField
 	val callers = ArrayList<Caller>()
 
+	/**
+	 * 存储全部注解增强实例
+	 */
 	@JvmField
 	val injector = InjectMap()
 
 	// region register
-
+	/**
+	 * @see [register]
+	 * @param obj [Any] 任意对象
+	 */
 	operator fun plus(obj: Any): MyEventHandle {
 		register(obj)
 		return this
 	}
 
+	/**
+	 * @see [register]
+	 * @param objs [Array]<[Any]> 任意对象
+	 */
 	operator fun plusAssign(objs: Array<Any>) {
 		for (obj in objs) {
 			register(obj)
 		}
 	}
 
+	/**
+	 * 注册 [obj] 内全部成员
+	 * @param obj [Any] 任意对象
+	 */
 	fun register(obj: Any) {
 		for (member: KCallable<*> in obj::class.declaredMembers) register0(obj, member)
 	}
 
+	/**
+	 * 注册 [obj] 内的指定 [member] 名称的成员
+	 * @param obj [Any] 任意对象
+	 * @param member [String] 对象内已经定义的成员对象
+	 * @throws IllegalStateException [member] 并未在 [obj] 定义的成员中找到
+	 */
+	@Throws(IllegalStateException::class)
 	fun register(obj: Any, member: String) {
-		val kCallable = obj::class.declaredMembers.find { it.name == member } ?: return
+		val kCallable = obj::class.declaredMembers.find { it.name == member } ?: error("Member '$member' Not Found In $obj")
 		register0(obj, kCallable)
 	}
 
@@ -51,27 +74,27 @@ class MyEventHandle(
 		if (member.toString() in map) {
 			return
 		}
+		val eventHandle: MiraiEventHandle
 		val caller: Caller
-		val messageHandle: MessageHandle
 		when (member) {
 			is KFunction<*> -> {
-				messageHandle = (member.MessageHandle() ?: return)
-				caller = if (member.isSuspend) Caller.Func(obj, member, messageHandle, injector)
-				else Caller.JavaFunc(obj, member, messageHandle, injector)
+				eventHandle = (member.MiraiEventHandle() ?: return)
+				caller = if (member.isSuspend) Caller.Func(obj, member, eventHandle, injector)
+				else Caller.JavaFunc(obj, member, eventHandle, injector)
 			}
 			is KProperty1<*, *> -> {
 				val field = member.javaField
-				messageHandle =
-					member.MessageHandle() ?: member.getter.MessageHandle() ?: field?.MessageHandle() ?: return
-				caller = if (field !== null) Caller.JavaField(obj, member, messageHandle, injector)
-				else Caller.Property1(obj, member, messageHandle, injector)
+				eventHandle =
+					member.MiraiEventHandle() ?: member.getter.MiraiEventHandle() ?: field?.MiraiEventHandle() ?: return
+				caller = if (field !== null) Caller.JavaField(obj, member, eventHandle, injector)
+				else Caller.Property1(obj, member, eventHandle, injector)
 			}
 			is KProperty2<*, *, *> -> {
 				val getter = member.getter
 				val field = getter.javaMethod
-				messageHandle = member.MessageHandle() ?: getter.MessageHandle() ?: return
-				caller = if (field !== null) Caller.JavaFunc(obj, getter, messageHandle, injector)
-				else Caller.Property2(obj, member, messageHandle, injector)
+				eventHandle = member.MiraiEventHandle() ?: getter.MiraiEventHandle() ?: return
+				caller = if (field !== null) Caller.JavaFunc(obj, getter, eventHandle, injector)
+				else Caller.Property2(obj, member, eventHandle, injector)
 			}
 			else -> {
 				System.err.println(member)
@@ -81,7 +104,7 @@ class MyEventHandle(
 		callers += caller
 		caller.init()
 		map[caller.fieldName] = plugin.globalEventChannel().subscribeAlways(
-			caller.eventClass, plugin.coroutineContext, messageHandle.concurrency, messageHandle.priority, caller
+			caller.eventClass, plugin.coroutineContext, eventHandle.concurrency, eventHandle.priority, caller
 		)
 	}
 
@@ -89,28 +112,21 @@ class MyEventHandle(
 
 	// region unregister
 
-	fun unregister(caller: Caller) {
-		callers.remove(caller)
-		map.remove(caller.fieldName)?.complete()
-	}
-
+	/**
+	 * 统一解除全部方法的注册
+	 */
 	fun unregisterAll() {
 		callers.clear()
-		map.values.removeIf { it.complete(); true }
+		val each = map.values.iterator()
+		while (each.hasNext()) {
+			each.next().complete()
+			each.remove()
+		}
 	}
 
 	// endregion
 
-	fun isOpen(caller: Caller): Boolean {
-		val listener = map[caller.fieldName] ?: return false
-		if (listener.isCompleted) {
-			map.remove(caller.fieldName)
-			return false
-		}
-		return true
-	}
+	private fun KCallable<*>.MiraiEventHandle() = annotations.filterIsInstance<MiraiEventHandle>().firstOrNull()
 
-	private fun KCallable<*>.MessageHandle() = annotations.filterIsInstance<MessageHandle>().firstOrNull()
-
-	private fun AnnotatedElement.MessageHandle() = annotations.filterIsInstance<MessageHandle>().firstOrNull()
+	private fun AnnotatedElement.MiraiEventHandle() = annotations.filterIsInstance<MiraiEventHandle>().firstOrNull()
 }

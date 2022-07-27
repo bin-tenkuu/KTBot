@@ -1,9 +1,7 @@
 package my.miraiplus
 
-import my.miraiplus.annotation.MessageHandle
+import my.miraiplus.annotation.MiraiEventHandle
 import my.miraiplus.annotation.Qualifier
-import my.miraiplus.injector.InjectMap
-import my.miraiplus.injector.Injector
 import net.mamoe.mirai.console.util.cast
 import net.mamoe.mirai.console.util.safeCast
 import net.mamoe.mirai.event.Event
@@ -19,7 +17,7 @@ sealed class Caller(
 	@JvmField
 	val obj: Any,
 	callable: KCallable<*>,
-	messageHandle: MessageHandle,
+	eventHandle: MiraiEventHandle,
 	injector: InjectMap,
 ) : suspend (Event, Event) -> Unit {
 	companion object {
@@ -30,12 +28,12 @@ sealed class Caller(
 	val fieldName = callable.toString()
 
 	@JvmField
-	val name = messageHandle.name.ifEmpty { fieldName }
+	val name = eventHandle.name.ifEmpty { fieldName }
 
 	@JvmField
 	val eventClass = callable.parameters.mapNotNull {
 		it.type.classifier.safeCast<KClass<Event>>()
-	}.find { Event::class.isSuperclassOf(it) } ?: messageHandle.eventType
+	}.find { Event::class.isSuperclassOf(it) } ?: eventHandle.eventType
 
 	@JvmField
 	val anns: List<Annotation> = callable.annotations
@@ -59,16 +57,16 @@ sealed class Caller(
 		for (injector in injects) injector.destory()
 	}
 
-	protected fun Pair<Class<out Any>, String?>.get(tmp: ObjectMap) =
-		tmp[first, second] ?: ObjectMap.global[first, second]
+	protected fun Pair<Class<out Any>, String?>.get(tmp: ArgsMap) =
+		tmp[first, second] ?: ArgsMap.global[first, second]
 
 	protected val List<Annotation>.qualifierName get() = filterIsInstance<Qualifier>().firstOrNull()?.name
 
-	protected abstract suspend operator fun invoke(tmp: ObjectMap): Any?
+	protected abstract suspend operator fun invoke(tmp: ArgsMap): Any?
 
 	override suspend fun invoke(event: Event, p2: Event) {
 		val name = name
-		val tmp = ObjectMap("tmp") + event
+		val tmp = ArgsMap("tmp") + event
 		val list = injects.filterTo(ArrayList(injects.size)) f@{
 			if (it.can(event)) {
 				if (it.doBefore(event, tmp)) return@f true
@@ -109,9 +107,9 @@ sealed class Caller(
 	class JavaFunc(
 		obj: Any,
 		property: KFunction<*>,
-		messageHandle: MessageHandle,
+		eventHandle: MiraiEventHandle,
 		injector: InjectMap,
-	) : Caller(obj, property, messageHandle, injector) {
+	) : Caller(obj, property, eventHandle, injector) {
 		private val callable = property.javaMethod!!
 
 		init {
@@ -122,7 +120,7 @@ sealed class Caller(
 			it.type.classifier.cast<KClass<*>>().java to it.annotations.qualifierName
 		}
 
-		override suspend operator fun invoke(tmp: ObjectMap): Any? {
+		override suspend operator fun invoke(tmp: ArgsMap): Any? {
 			try {
 				return callable.invoke(obj, *Array(args.size) {
 					args[it].get(tmp) ?: return null
@@ -138,9 +136,9 @@ sealed class Caller(
 	class Func(
 		obj: Any,
 		private val property: KFunction<*>,
-		messageHandle: MessageHandle,
+		eventHandle: MiraiEventHandle,
 		injector: InjectMap,
-	) : Caller(obj, property, messageHandle, injector) {
+	) : Caller(obj, property, eventHandle, injector) {
 		init {
 			property.isAccessible = true
 		}
@@ -149,7 +147,7 @@ sealed class Caller(
 			it.type.classifier.cast<KClass<*>>().java to it.annotations.qualifierName
 		}
 
-		override suspend operator fun invoke(tmp: ObjectMap): Any? {
+		override suspend operator fun invoke(tmp: ArgsMap): Any? {
 			try {
 				return property.callSuspend(obj, *Array(args.size) {
 					args[it].get(tmp) ?: return null
@@ -165,39 +163,39 @@ sealed class Caller(
 	class JavaField(
 		obj: Any,
 		property: KProperty1<*, *>,
-		messageHandle: MessageHandle,
+		eventHandle: MiraiEventHandle,
 		injector: InjectMap,
-	) : Caller(obj, property, messageHandle, injector) {
+	) : Caller(obj, property, eventHandle, injector) {
 		private val callable = property.javaField!!
 
 		init {
 			callable.isAccessible = true
 		}
 
-		override suspend operator fun invoke(tmp: ObjectMap): Any? = callable.get(obj)
+		override suspend operator fun invoke(tmp: ArgsMap): Any? = callable.get(obj)
 	}
 
 	class Property1(
 		obj: Any,
 		property: KProperty1<*, *>,
-		messageHandle: MessageHandle,
+		eventHandle: MiraiEventHandle,
 		injector: InjectMap,
-	) : Caller(obj, property, messageHandle, injector) {
+	) : Caller(obj, property, eventHandle, injector) {
 		private val callable = property.getter
 
 		init {
 			callable.isAccessible = true
 		}
 
-		override suspend operator fun invoke(tmp: ObjectMap): Any? = callable.call(obj)
+		override suspend operator fun invoke(tmp: ArgsMap): Any? = callable.call(obj)
 	}
 
 	class Property2(
 		obj: Any,
 		property: KProperty2<*, *, *>,
-		messageHandle: MessageHandle,
+		eventHandle: MiraiEventHandle,
 		injector: InjectMap,
-	) : Caller(obj, property, messageHandle, injector) {
+	) : Caller(obj, property, eventHandle, injector) {
 		private val callable = property.getter
 
 		init {
@@ -208,7 +206,7 @@ sealed class Caller(
 			type.classifier.cast<KClass<*>>().java to annotations.qualifierName
 		}
 
-		override suspend operator fun invoke(tmp: ObjectMap): Any? {
+		override suspend operator fun invoke(tmp: ArgsMap): Any? {
 			return callable.call(obj, arg.get(tmp) ?: return null)
 		}
 	}
@@ -222,8 +220,8 @@ sealed class Caller(
 		override fun compareTo(other: Inject): Int = inj.weight.compareTo(other.inj.weight)
 		fun init() = inj.doInit(ann, this@Caller)
 		fun can(e: Event) = inj.event.isInstance(e)
-		suspend fun doBefore(e: Event, tmp: ObjectMap) = inj.doBefore(ann, e, tmp, this@Caller)
-		suspend fun doAfter(e: Event, tmp: ObjectMap, any: Any?) = inj.doAfter(ann, e, tmp, this@Caller, any)
+		suspend fun doBefore(e: Event, tmp: ArgsMap) = inj.doBefore(ann, e, tmp, this@Caller)
+		suspend fun doAfter(e: Event, tmp: ArgsMap, any: Any?) = inj.doAfter(ann, e, tmp, this@Caller, any)
 		fun destory() = inj.doDestroy(ann, this@Caller)
 	}
 }

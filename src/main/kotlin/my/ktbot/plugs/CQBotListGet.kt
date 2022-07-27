@@ -8,7 +8,7 @@ import my.ktbot.database.TGroup
 import my.ktbot.database.TMember
 import my.ktbot.utils.*
 import my.ktbot.utils.calculator.Calculator
-import my.miraiplus.annotation.MessageHandle
+import my.miraiplus.annotation.MiraiEventHandle
 import my.miraiplus.annotation.RegexAnn
 import net.mamoe.mirai.event.events.MessageEvent
 import net.mamoe.mirai.message.data.Message
@@ -25,7 +25,7 @@ import org.ktorm.entity.joinTo
  * @date 2022/1/13
  */
 object CQBotListGet {
-	@MessageHandle("获取<type>列表")
+	@MiraiEventHandle("获取<type>列表")
 	@RegexAnn("^[.．。]获取(?<type>[^ ]+)列表$")
 	@NeedAdmin
 	@SendAuto
@@ -51,7 +51,7 @@ object CQBotListGet {
 		}
 	}
 
-	@MessageHandle("插件[<id>]")
+	@MiraiEventHandle("插件[<id>]")
 	@RegexAnn("^[.．。]插件(?<id> *\\d*)$")
 	@NeedAdmin
 	@Helper("查看插件信息")
@@ -98,7 +98,7 @@ object CQBotListGet {
 	// 	}
 	// }
 
-	@MessageHandle("日志")
+	@MiraiEventHandle("日志")
 	@RegexAnn("^[.．。]日志$")
 	@NeedAdmin
 	@SendAuto
@@ -107,7 +107,7 @@ object CQBotListGet {
 		return Counter.state(event.subject)
 	}
 
-	@MessageHandle("简易计算器")
+	@MiraiEventHandle("简易计算器")
 	@RegexAnn("^[.．。]calc (?<calc>[^ ]+)", RegexOption.IGNORE_CASE)
 	@Helper("表达式间不允许出现空格")
 	@SendAuto

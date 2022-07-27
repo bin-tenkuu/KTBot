@@ -6,7 +6,7 @@ import my.ktbot.annotation.SendAuto
 import my.ktbot.utils.CacheMap
 import my.ktbot.utils.Counter
 import my.ktbot.utils.get
-import my.miraiplus.annotation.MessageHandle
+import my.miraiplus.annotation.MiraiEventHandle
 import my.miraiplus.annotation.RegexAnn
 import net.mamoe.mirai.event.EventPriority
 import net.mamoe.mirai.event.events.GroupMessageEvent
@@ -24,13 +24,13 @@ object MemberExp {
 	@JvmStatic
 	private val cache = CacheMap<Long, MutableSet<Long>>(Duration.ofMinutes(1).toMillis())
 
-	@MessageHandle("经验增加", priority = EventPriority.MONITOR)
+	@MiraiEventHandle("经验增加", priority = EventPriority.MONITOR)
 	@NeedExp(0.5, 1.0)
 	@JvmStatic
 	private fun invoke() {
 	}
 
-	@MessageHandle("qq活跃")
+	@MiraiEventHandle("qq活跃")
 	@RegexAnn("^[.．。]state(?<qq> ?\\d{5,12})?$", RegexOption.IGNORE_CASE)
 	@Helper("查看自己/<qq>的信息，群聊限时1次/分钟")
 	@SendAuto

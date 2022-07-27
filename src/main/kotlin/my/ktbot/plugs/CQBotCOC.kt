@@ -5,7 +5,7 @@ import my.ktbot.annotation.SendAuto
 import my.ktbot.database.COCShortKey
 import my.ktbot.database.TCOCShortKey
 import my.ktbot.utils.*
-import my.miraiplus.annotation.MessageHandle
+import my.miraiplus.annotation.MiraiEventHandle
 import my.miraiplus.annotation.RegexAnn
 import net.mamoe.mirai.event.events.MessageEvent
 import net.mamoe.mirai.message.data.Message
@@ -30,7 +30,7 @@ object CQBotCOC {
 	@JvmStatic
 	var cheater: Boolean = false
 
-	@MessageHandle("骰子主功能")
+	@MiraiEventHandle("骰子主功能")
 	@RegexAnn("^[.．。]d +(?:(?<times>\\d)#)?(?<dice>[^ ]+)", IGNORE_CASE)
 	@Helper("骰子主功能，附带简单表达式计算")
 	@SendAuto
@@ -135,7 +135,7 @@ object CQBotCOC {
 		abstract operator fun invoke(sc: Pair<Long, Long>, num: Long): Pair<Long, Long>
 	}
 
-	@MessageHandle("骰子：打开全1模式")
+	@MiraiEventHandle("骰子：打开全1模式")
 	@RegexAnn("^[.．。]dall1$", IGNORE_CASE)
 	@SendAuto
 	@JvmStatic
@@ -144,7 +144,7 @@ object CQBotCOC {
 		return "全1" + if (cheater) "开" else "关"
 	}
 
-	@MessageHandle("骰子：简写")
+	@MiraiEventHandle("骰子：简写")
 	@RegexAnn("^[.．。]dstat$", IGNORE_CASE)
 	@Helper("查看全部简写")
 	@SendAuto
@@ -157,7 +157,7 @@ object CQBotCOC {
 		}
 	}
 
-	@MessageHandle("骰子：删除[设置]简写")
+	@MiraiEventHandle("骰子：删除[设置]简写")
 	@RegexAnn("^[.．。]dset +(?<key>\\w[\\w\\d]+)(?:=(?<value>[+\\-*d\\d#]+))?", IGNORE_CASE)
 	@Helper("删除[设置]简写")
 	@SendAuto
@@ -183,7 +183,7 @@ object CQBotCOC {
 		return "添加key:${key}=${value}".toPlainText()
 	}
 
-	@MessageHandle("骰子：加骰")
+	@MiraiEventHandle("骰子：加骰")
 	@RegexAnn("^[.．。]dp(?<num> ?\\d*)", IGNORE_CASE)
 	@Helper("10分钟之内加投骰")
 	@SendAuto
@@ -200,7 +200,7 @@ object CQBotCOC {
 		""".trimMargin()
 	}
 
-	@MessageHandle("骰子：特殊模式")
+	@MiraiEventHandle("骰子：特殊模式")
 	@RegexAnn("^[.．。]d(?<operator>bug|(?:wr|cb|aj)f?)$", IGNORE_CASE)
 	@Helper("打开/修改/关闭特殊模式")
 	@SendAuto

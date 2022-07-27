@@ -8,7 +8,7 @@ import my.ktbot.database.TJeffJoke
 import my.ktbot.utils.*
 import my.ktbot.utils.Sqlite.limit
 import my.miraiplus.Caller
-import my.miraiplus.annotation.MessageHandle
+import my.miraiplus.annotation.MiraiEventHandle
 import my.miraiplus.annotation.RegexAnn
 import net.mamoe.mirai.event.events.GroupMessageEvent
 import net.mamoe.mirai.event.events.MessageEvent
@@ -23,7 +23,7 @@ import org.ktorm.entity.sortedBy
  * @date 2022/1/13
  */
 object CQBotHelper {
-	@MessageHandle("help[<id>]")
+	@MiraiEventHandle("help[<id>]")
 	@RegexAnn("^[.．。](?:help|帮助)(?<num> ?\\d+)?$", RegexOption.IGNORE_CASE)
 	@Helper("帮助专用功能\n.help后附带下标数字查看对应功能详情")
 	@SendAuto(recall = 30 * 1000)
@@ -44,13 +44,13 @@ object CQBotHelper {
 		it.anns.any { ann -> ann is Helper } && it.anns.none { ann -> ann is NeedAdmin }
 	}
 
-	@MessageHandle("ping")
+	@MiraiEventHandle("ping")
 	@RegexAnn("^[.．。]ping$", RegexOption.IGNORE_CASE)
 	@Helper("测试bot是否连接正常")
 	@SendAuto
 	private val Ping = ".pong!"
 
-	@MessageHandle("data")
+	@MiraiEventHandle("data")
 	@RegexAnn("^[.．。]data$", RegexOption.IGNORE_CASE)
 	@Helper("开发者信息")
 	@SendAuto(recall = 90 * 1000)
@@ -60,7 +60,7 @@ object CQBotHelper {
 		|轮子github：mamoe/mirai
 	""".trimMargin()
 
-	@MessageHandle("report <txt>")
+	@MiraiEventHandle("report <txt>")
 	@RegexAnn("^[.．。]report(?<txt>.+)$", RegexOption.IGNORE_CASE)
 	@Helper("附上消息发送给开发者")
 	@SendAuto
@@ -72,7 +72,7 @@ object CQBotHelper {
 		return "收到"
 	}
 
-	@MessageHandle("send[g]<qq> <txt>")
+	@MiraiEventHandle("send[g]<qq> <txt>")
 	@RegexAnn("^[.．。]send(?<g>g)? ?(?<qq>\\d+) (?<txt>.+)$", RegexOption.IGNORE_CASE)
 	@NeedAdmin
 	@Helper("bot代理发送消息")
@@ -87,7 +87,7 @@ object CQBotHelper {
 		return "已发送"
 	}
 
-	@MessageHandle("夸我")
+	@MiraiEventHandle("夸我")
 	@RegexAnn("^[夸舔]我$")
 	@Helper("彩虹屁")
 	@SendAuto
@@ -102,7 +102,7 @@ object CQBotHelper {
 	 * @param result [MatchResult]
 	 * @return [String]?
 	 */
-	@MessageHandle("jeffJoke")
+	@MiraiEventHandle("jeffJoke")
 	@RegexAnn("^[.．。]joke(?<name> *.+)?$", RegexOption.IGNORE_CASE)
 	@Helper("简易Jeff笑话生成，参数：<name> ：名字；<times>：次数")
 	@SendAuto

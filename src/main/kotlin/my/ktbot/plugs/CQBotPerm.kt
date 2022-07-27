@@ -6,7 +6,7 @@ import my.ktbot.PluginPerm.plusAssign
 import my.ktbot.annotation.*
 import my.ktbot.utils.get
 import my.ktbot.utils.toHelper
-import my.miraiplus.annotation.MessageHandle
+import my.miraiplus.annotation.MiraiEventHandle
 import my.miraiplus.annotation.RegexAnn
 import net.mamoe.mirai.console.permission.AbstractPermitteeId
 import net.mamoe.mirai.contact.MemberPermission
@@ -14,7 +14,7 @@ import net.mamoe.mirai.event.events.GroupMessageEvent
 import net.mamoe.mirai.message.data.*
 
 object CQBotPerm {
-	@MessageHandle("添加删除权限")
+	@MiraiEventHandle("添加删除权限")
 	@RegexAnn("^[.．。]权限(?<op>[^ ]{2})(?<groupid>\\d+)(?<permid>\\w+)$")
 	@NeedAdmin
 	@Helper("添加/删除")
@@ -37,7 +37,7 @@ object CQBotPerm {
 		}
 	}
 
-	@MessageHandle("群管理员控制群内事件")
+	@MiraiEventHandle("群管理员控制群内事件")
 	@RegexAnn("^[.．。]功能(?<type>[开关]) ?(?<num>\\d+)$")
 	@Helper("群管理员控制群内事件。使用例：。功能关 0\n注意不要把这个功能关了，不然没法开")
 	@SendAuto

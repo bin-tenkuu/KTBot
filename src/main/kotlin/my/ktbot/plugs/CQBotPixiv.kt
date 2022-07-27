@@ -5,7 +5,7 @@ import my.ktbot.utils.KtorUtils
 import my.ktbot.utils.KtorUtils.body
 import my.ktbot.utils.createLogger
 import my.ktbot.utils.get
-import my.miraiplus.annotation.MessageHandle
+import my.miraiplus.annotation.MiraiEventHandle
 import my.miraiplus.annotation.RegexAnn
 import net.mamoe.mirai.contact.Contact
 import net.mamoe.mirai.event.events.MessageEvent
@@ -24,7 +24,7 @@ import net.mamoe.mirai.utils.ExternalResource.Companion.uploadAsImage
 object CQBotPixiv {
 	private val logger = createLogger<CQBotPixiv>()
 
-	@MessageHandle("看看p站<pid>[-<p>]")
+	@MiraiEventHandle("看看p站<pid>[-<p>]")
 	@RegexAnn("^看{1,2}p站(?<pid>\\d+)$", RegexOption.IGNORE_CASE)
 	@NeedAdmin
 	@SendAuto

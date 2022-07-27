@@ -3,8 +3,8 @@ package my.ktbot.annotation
 import my.ktbot.PluginPerm
 import my.ktbot.PluginPerm.contains
 import my.miraiplus.Caller
-import my.miraiplus.ObjectMap
-import my.miraiplus.injector.Injector
+import my.miraiplus.ArgsMap
+import my.miraiplus.Injector
 import net.mamoe.mirai.console.compiler.common.ResolveContext
 import net.mamoe.mirai.console.permission.PermissionId
 import net.mamoe.mirai.console.permission.PermitteeId.Companion.permitteeId
@@ -33,7 +33,7 @@ annotation class HasPerm(
 		}
 
 		override suspend fun doBefore(
-			ann: HasPerm, event: BotEvent, tmpMap: ObjectMap, caller: Caller,
+			ann: HasPerm, event: BotEvent, tmpMap: ArgsMap, caller: Caller,
 		): Boolean {
 			val permission = PluginPerm.map[ann.permId]!!
 			var b = true

@@ -5,7 +5,7 @@ import my.ktbot.annotation.SendAuto
 import my.ktbot.utils.CacheMap
 import my.ktbot.utils.DiceResult
 import my.ktbot.utils.get
-import my.miraiplus.annotation.MessageHandle
+import my.miraiplus.annotation.MiraiEventHandle
 import my.miraiplus.annotation.RegexAnn
 import net.mamoe.mirai.event.events.MessageEvent
 import net.mamoe.mirai.message.data.Message
@@ -19,7 +19,7 @@ object CQBotCOCSBI {
 	@JvmStatic
 	val cheater: Boolean get() = CQBotCOC.cheater
 
-	@MessageHandle("骰子SBI：主功能")
+	@MiraiEventHandle("骰子SBI：主功能")
 	@RegexAnn("^[.．。]s +(?<num>\\d*)d(?<max>\\d*)", RegexOption.IGNORE_CASE)
 	@Helper("SBI骰子主功能")
 	@SendAuto
@@ -35,7 +35,7 @@ object CQBotCOCSBI {
 
 	private val split = Regex("[ ,]+")
 
-	@MessageHandle("骰子SBI：结果处理")
+	@MiraiEventHandle("骰子SBI：结果处理")
 	@RegexAnn("^[.．。]stest(?<nums>[\\d ,]+)", RegexOption.IGNORE_CASE)
 	@Helper("10分钟之内加投骰")
 	@SendAuto
@@ -64,7 +64,7 @@ object CQBotCOCSBI {
 		return "失败"
 	}
 
-	@MessageHandle("骰子SBI：加骰")
+	@MiraiEventHandle("骰子SBI：加骰")
 	@RegexAnn("^[.．。]sp(?<num> ?\\d*)", RegexOption.IGNORE_CASE)
 	@Helper("10分钟之内加投骰")
 	@SendAuto

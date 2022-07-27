@@ -10,7 +10,7 @@ import my.ktbot.database.Gmt.Companion.update
 import my.ktbot.utils.CacheMap
 import my.ktbot.utils.Counter
 import my.ktbot.utils.createLogger
-import my.miraiplus.annotation.MessageHandle
+import my.miraiplus.annotation.MiraiEventHandle
 import net.mamoe.mirai.Bot
 import net.mamoe.mirai.contact.nameCardOrNick
 import net.mamoe.mirai.event.events.*
@@ -29,7 +29,7 @@ object BotEventHandle {
 	@JvmStatic
 	private var tasker: Job? = null
 
-	@MessageHandle("Bot 上线事件")
+	@MiraiEventHandle("Bot 上线事件")
 	private fun BotOnlineEvent.run() {
 		startCounter()
 		// 开启所有列表缓存
@@ -37,7 +37,7 @@ object BotEventHandle {
 		logger.info("${bot.nameCardOrNick} 已上线")
 	}
 
-	@MessageHandle("Bot 下线事件")
+	@MiraiEventHandle("Bot 下线事件")
 	private fun BotOfflineEvent.run() {
 		val msg = "${bot.nameCardOrNick} 已下线, 是否重连: ${reconnect}, 原因: ${
 			when (this) {
@@ -53,14 +53,14 @@ object BotEventHandle {
 		logger.info(msg)
 	}
 
-	@MessageHandle("Bot 重新登录事件")
+	@MiraiEventHandle("Bot 重新登录事件")
 	private fun BotReloginEvent.run() {
 		logger.info("${bot.nameCardOrNick} 已重新登录")
 	}
 
 	private val inviteCount = CacheMap<Long, Unit>(Duration.ofHours(12).toMillis())
 
-	@MessageHandle("添加好友事件")
+	@MiraiEventHandle("添加好友事件")
 	@SendAdmin
 	private suspend fun NewFriendRequestEvent.run(): String {
 		val msg = "${fromNick}（${fromId}）来自群 ${fromGroup?.name ?: ""}（${fromGroupId}）请求添加好友消息：\n${message}"
@@ -74,7 +74,7 @@ object BotEventHandle {
 		return msg
 	}
 
-	@MessageHandle("邀请加入群事件")
+	@MiraiEventHandle("邀请加入群事件")
 	@SendAdmin
 	private fun BotInvitedJoinGroupRequestEvent.run(): String {
 		val msg = "${invitorNick}（${invitorId}）邀请加入群 ${groupName}（${groupId}）"
@@ -91,7 +91,7 @@ object BotEventHandle {
 		return msg
 	}
 
-	@MessageHandle("成员加入群事件")
+	@MiraiEventHandle("成员加入群事件")
 	@Helper("成员加入群事件")
 	@SendGroup
 	private fun MemberJoinEvent.run(): String {
@@ -108,7 +108,7 @@ object BotEventHandle {
 	}
 
 	@OptIn(MiraiExperimentalApi::class)
-	@MessageHandle("Bot 加入群事件")
+	@MiraiEventHandle("Bot 加入群事件")
 	@SendAdmin
 	private fun BotJoinGroupEvent.run(): String {
 		val msg = "bot成功加入群： ${group.name}(${groupId}), 来源：${
@@ -123,7 +123,7 @@ object BotEventHandle {
 		return msg
 	}
 
-	@MessageHandle("成员离开群事件")
+	@MiraiEventHandle("成员离开群事件")
 	@Helper("成员离开群事件")
 	@SendGroup
 	private fun MemberLeaveEvent.run(): String {
@@ -139,7 +139,7 @@ object BotEventHandle {
 	}
 
 	@OptIn(MiraiExperimentalApi::class)
-	@MessageHandle("Bot 离开群事件")
+	@MiraiEventHandle("Bot 离开群事件")
 	@SendAdmin
 	private fun BotLeaveEvent.run(): String {
 		val msg = "bot被踢出群：${groupId}(${group.name}), 原因：${
@@ -154,7 +154,7 @@ object BotEventHandle {
 		return msg
 	}
 
-	@MessageHandle("其他客户端上线事件")
+	@MiraiEventHandle("其他客户端上线事件")
 	@SendAdmin
 	private fun OtherClientOnlineEvent.run(): String {
 		val msg = """其他客户端上线
@@ -165,7 +165,7 @@ object BotEventHandle {
 		return msg
 	}
 
-	@MessageHandle("其他客户端上线事件")
+	@MiraiEventHandle("其他客户端上线事件")
 	@SendAdmin
 	private fun OtherClientOfflineEvent.run(): String {
 		val msg = """其他客户端下线
@@ -176,14 +176,14 @@ object BotEventHandle {
 		return msg
 	}
 
-	@MessageHandle("Bot 被禁言事件")
+	@MiraiEventHandle("Bot 被禁言事件")
 	private fun BotMuteEvent.run() {
 		val msg = "bot被禁言，群: ${group.name}(${groupId}), 操作人: ${operator.nameCardOrNick}(${operator.id})"
 		logger.info("BotMuteEvent: ${msg}")
 		Counter.groups[groupId].update { isBaned = true }
 	}
 
-	@MessageHandle("Bot 被取消禁言事件")
+	@MiraiEventHandle("Bot 被取消禁言事件")
 	private fun BotUnmuteEvent.run() {
 		val msg = "bot被取消禁言，群: ${group.name}(${groupId}), 操作人: ${operator.nameCardOrNick}(${operator.id})"
 		logger.info("BotUnmuteEvent: ${msg}")

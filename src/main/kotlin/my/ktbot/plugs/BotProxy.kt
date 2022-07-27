@@ -2,7 +2,7 @@ package my.ktbot.plugs
 
 import my.ktbot.annotation.SendAuto
 import my.ktbot.utils.get
-import my.miraiplus.annotation.MessageHandle
+import my.miraiplus.annotation.MiraiEventHandle
 import my.miraiplus.annotation.RegexAnn
 import net.mamoe.mirai.event.events.FriendMessageEvent
 import net.mamoe.mirai.event.events.GroupMessageEvent
@@ -19,7 +19,7 @@ object BotProxy {
 	private val toSpace = "：:。，.,！!？?、；; ".toSet()
 	private val toDel = "“”\"【】《》「」".toSet()
 
-	@MessageHandle("c 开始转发消息")
+	@MiraiEventHandle("c 开始转发消息")
 	@RegexAnn("^[.．。]cstart", RegexOption.IGNORE_CASE)
 	@SendAuto
 	suspend fun start(event: GroupMessageEvent): String {
@@ -34,7 +34,7 @@ object BotProxy {
 		return "开始转发消息至"
 	}
 
-	@MessageHandle("c 转发具体消息")
+	@MiraiEventHandle("c 转发具体消息")
 	@RegexAnn("^[.．。]c (?<msg>.*)", RegexOption.IGNORE_CASE, RegexOption.MULTILINE, RegexOption.DOT_MATCHES_ALL)
 	@SendAuto
 	suspend fun cProxy(event: FriendMessageEvent, result: MatchResult): String {

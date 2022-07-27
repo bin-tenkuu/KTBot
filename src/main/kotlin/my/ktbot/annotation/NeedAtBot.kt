@@ -1,8 +1,8 @@
 package my.ktbot.annotation
 
 import my.miraiplus.Caller
-import my.miraiplus.ObjectMap
-import my.miraiplus.injector.Injector
+import my.miraiplus.ArgsMap
+import my.miraiplus.Injector
 import net.mamoe.mirai.event.events.MessageEvent
 import net.mamoe.mirai.message.data.At
 
@@ -14,7 +14,7 @@ import net.mamoe.mirai.message.data.At
 @MustBeDocumented
 annotation class NeedAtBot {
 	companion object Inject : Injector.Message<NeedAtBot> {
-		override suspend fun doBefore(ann: NeedAtBot, event: MessageEvent, tmpMap: ObjectMap, caller: Caller): Boolean {
+		override suspend fun doBefore(ann: NeedAtBot, event: MessageEvent, tmpMap: ArgsMap, caller: Caller): Boolean {
 			return event.message.contains(At(event.bot.id))
 		}
 	}

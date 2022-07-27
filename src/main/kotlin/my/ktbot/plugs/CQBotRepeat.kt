@@ -2,7 +2,7 @@ package my.ktbot.plugs
 
 import my.ktbot.annotation.SendAuto
 import my.ktbot.utils.CacheMap
-import my.miraiplus.annotation.MessageHandle
+import my.miraiplus.annotation.MiraiEventHandle
 import net.mamoe.mirai.event.EventPriority
 import net.mamoe.mirai.event.events.GroupMessageEvent
 import net.mamoe.mirai.message.data.*
@@ -17,7 +17,7 @@ object CQBotRepeat {
 	@JvmStatic
 	private val cache = CacheMap<Long, RepeatCache>()
 
-	@MessageHandle("(复读)", priority = EventPriority.LOWEST)
+	@MiraiEventHandle("(复读)", priority = EventPriority.LOWEST)
 	@SendAuto
 	fun invoke(event: GroupMessageEvent): Message? {
 		val node = cache[event.group.id]

@@ -6,7 +6,7 @@ import my.ktbot.annotation.SendAuto
 import my.ktbot.database.Gmt.Companion.update
 import my.ktbot.utils.Counter
 import my.ktbot.utils.get
-import my.miraiplus.annotation.MessageHandle
+import my.miraiplus.annotation.MiraiEventHandle
 import my.miraiplus.annotation.RegexAnn
 import net.mamoe.mirai.message.data.Message
 import net.mamoe.mirai.message.data.buildMessageChain
@@ -21,7 +21,7 @@ object CQBotBan {
 	@JvmStatic
 	private val empty = Regex(" +")
 
-	@MessageHandle("设置ban状态")
+	@MiraiEventHandle("设置ban状态")
 	@RegexAnn("^[.．。]设置(?<group>群)?(?<type>un)?ban(?<other>[ \\d]+)$", RegexOption.IGNORE_CASE)
 	@NeedAdmin
 	@Helper("设置群聊、私聊的ban状态。格式：.设置[群][un]ban <other>")
