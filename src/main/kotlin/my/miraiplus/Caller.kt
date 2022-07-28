@@ -57,8 +57,7 @@ sealed class Caller(
 		for (injector in injects) injector.destory()
 	}
 
-	protected fun Pair<Class<out Any>, String?>.get(tmp: ArgsMap) =
-		tmp[first, second] ?: ArgsMap.global[first, second]
+	protected fun Pair<Class<out Any>, String?>.get(tmp: ArgsMap) = tmp[first, second] ?: ArgsMap.global[first, second]
 
 	protected val List<Annotation>.qualifierName get() = filterIsInstance<Qualifier>().firstOrNull()?.name
 

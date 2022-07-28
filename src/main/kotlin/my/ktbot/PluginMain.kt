@@ -45,6 +45,7 @@ object PluginMain : KotlinPlugin(
 			CQBotRepeat, MemberExp, CQBotBan,
 			CQBotPicture, CQBotPixiv,
 			CQBotPerm, CQBotHelper, CQBotListGet, CQBotMemeAI,
+			CQBotWhoAtMe,
 			CQNginxLogHandle
 		)
 		myEventHandle += arrayOf(

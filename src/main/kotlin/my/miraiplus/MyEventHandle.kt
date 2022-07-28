@@ -82,6 +82,7 @@ class MyEventHandle(
 				caller = if (member.isSuspend) Caller.Func(obj, member, eventHandle, injector)
 				else Caller.JavaFunc(obj, member, eventHandle, injector)
 			}
+
 			is KProperty1<*, *> -> {
 				val field = member.javaField
 				eventHandle =
@@ -89,6 +90,7 @@ class MyEventHandle(
 				caller = if (field !== null) Caller.JavaField(obj, member, eventHandle, injector)
 				else Caller.Property1(obj, member, eventHandle, injector)
 			}
+
 			is KProperty2<*, *, *> -> {
 				val getter = member.getter
 				val field = getter.javaMethod
@@ -96,6 +98,7 @@ class MyEventHandle(
 				caller = if (field !== null) Caller.JavaFunc(obj, getter, eventHandle, injector)
 				else Caller.Property2(obj, member, eventHandle, injector)
 			}
+
 			else -> {
 				System.err.println(member)
 				return
@@ -116,11 +119,17 @@ class MyEventHandle(
 	 * 统一解除全部方法的注册
 	 */
 	fun unregisterAll() {
-		callers.clear()
-		val each = map.values.iterator()
-		while (each.hasNext()) {
-			each.next().complete()
-			each.remove()
+		callers.iterator().let {
+			while (it.hasNext()) {
+				it.next().destroy()
+				it.remove()
+			}
+		}
+		map.values.iterator().let {
+			while (it.hasNext()) {
+				it.next().complete()
+				it.remove()
+			}
 		}
 	}
 
