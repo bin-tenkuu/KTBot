@@ -82,7 +82,6 @@ class MyEventHandle(
 				caller = if (member.isSuspend) Caller.Func(obj, member, eventHandle, injector)
 				else Caller.JavaFunc(obj, member, eventHandle, injector)
 			}
-
 			is KProperty1<*, *> -> {
 				val field = member.javaField
 				eventHandle =
@@ -90,7 +89,6 @@ class MyEventHandle(
 				caller = if (field !== null) Caller.JavaField(obj, member, eventHandle, injector)
 				else Caller.Property1(obj, member, eventHandle, injector)
 			}
-
 			is KProperty2<*, *, *> -> {
 				val getter = member.getter
 				val field = getter.javaMethod
@@ -98,7 +96,6 @@ class MyEventHandle(
 				caller = if (field !== null) Caller.JavaFunc(obj, getter, eventHandle, injector)
 				else Caller.Property2(obj, member, eventHandle, injector)
 			}
-
 			else -> {
 				System.err.println(member)
 				return

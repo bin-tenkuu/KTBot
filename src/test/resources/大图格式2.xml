@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<msg serviceID="5" templateID="12345" brief="[分享]" token="c095609f3443165d569580e2e35e8edd" timestamp="1658993062"
+    nonce="1733657508">
+    <item layout="0">
+        <image uuid="{E065992B-7BEC-D5E4-3CBB-E86DDA8A794D}.jpg" md5="E065992B7BECD5E43CBBE86DDA8A794D"
+            GroupFiledid="2595528975" minWidth="100" minHeight="100" maxWidth="180" maxHeight="180"/>
+    </item>
+    <source name="哔哩哔哩" icon="https://open.gtimg.cn/open/app_icon/00/95/17/76/100951776_100_m.png?t=1658912756"
+        appid="100951776"
+        action="" i_actionData="" a_actionData="" url=""/>
+</msg>

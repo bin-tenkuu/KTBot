@@ -1,9 +1,11 @@
 package my.miraiplus.annotation
 
-import my.miraiplus.Caller
 import my.miraiplus.ArgsMap
+import my.miraiplus.Caller
 import my.miraiplus.Injector
 import net.mamoe.mirai.event.events.MessageEvent
+import net.mamoe.mirai.message.data.MessageChain
+import net.mamoe.mirai.message.data.PlainText
 import org.intellij.lang.annotations.Language
 
 /**
@@ -28,7 +30,7 @@ annotation class RegexAnn(
 		}
 
 		override suspend fun doBefore(ann: RegexAnn, event: MessageEvent, tmpMap: ArgsMap, caller: Caller): Boolean {
-			val result = map[caller.fieldName]?.find(event.message.contentToString()) ?: return false
+			val result = map[caller.fieldName]?.find(event.message.textString) ?: return false
 			tmpMap + result
 			return true
 		}
@@ -36,5 +38,7 @@ annotation class RegexAnn(
 		override fun doDestroy(ann: RegexAnn, caller: Caller) {
 			map -= caller.fieldName
 		}
+
+		private val MessageChain.textString get() = filterIsInstance<PlainText>().joinToString("") { it.content }
 	}
 }
