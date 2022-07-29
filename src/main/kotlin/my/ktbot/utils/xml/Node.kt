@@ -5,7 +5,7 @@ import org.xml.sax.Attributes
 open class Node(
 	@JvmField
 	val tag: String,
-	attributes: Attributes?,
+	attributes: Attributes? = null,
 ) {
 	@JvmField
 	val attributes = LinkedHashMap<String, String>(attributes?.length ?: 0)
@@ -22,23 +22,54 @@ open class Node(
 	}
 
 	override fun toString(): String {
-		return "<${tag}${if (attributes.isEmpty()) "" else " ..."}${if (children.isEmpty()) "/>" else ">...</${tag}>"}"
+		return buildString {
+			append("<").append(tag)
+			if (attributes.isNotEmpty())
+				append(" ...")
+			if (children.isEmpty())
+				append("/>")
+			else append(">...</").append(tag).append(">")
+		}
 	}
 
-	class Root(tag: String, attributes: Attributes) : Node(tag, attributes) {
+	open fun toXml(): String {
+		return buildString {
+			append("<").append(tag)
+			for ((key, value) in attributes) {
+				append(" ").append(key).append("=\"").append(value).append("\"")
+			}
+			if (children.isEmpty())
+				append("/>")
+			else {
+				append(">")
+				for (child in children) {
+					append(child.toXml())
+				}
+				append("</").append(tag).append(">")
+			}
+		}
+	}
+
+	class Root(tag: String, attributes: Attributes? = null) : Node(tag, attributes) {
 		override val isRoot: Boolean = true
 	}
 
 	class TextNode(
 		@JvmField
-		val text: String
+		val text: String,
 	) : Node(TAG, null) {
+		@JvmField
+		var cddata: Boolean = checkCDDATA(text)
+
 		companion object {
 			const val TAG = "<text/>"
+			private val needCDDATA = Regex("[<&]")
+			fun checkCDDATA(text: String) = needCDDATA.containsMatchIn(text)
 		}
 
-		override fun toString(): String = TAG
+		override fun toString(): String = text
 
+		override fun toXml() = if (cddata) "<![CDATA[$text]]>" else text
 		override fun equals(other: Any?): Boolean {
 			return when {
 				this === other -> true
@@ -54,23 +85,4 @@ open class Node(
 		override val isText = true
 	}
 
-	companion object {
-		fun printTree(node: Node, indent: Int = 0) {
-			print("\t".repeat(indent))
-			if (node is TextNode) println(node.toString())
-			else {
-				print("<${node.tag}")
-				if (node.attributes.isNotEmpty()) node.attributes.forEach { (k, v) ->
-					print(" $k=\"$v\"")
-				}
-				if (node.children.isEmpty()) println("/>")
-				else {
-					println(">")
-					node.children.forEach { printTree(it, indent + 1) }
-					print("\t".repeat(indent))
-					println("</${node.tag}>")
-				}
-			}
-		}
-	}
 }

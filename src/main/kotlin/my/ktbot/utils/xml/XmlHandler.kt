@@ -1,23 +1,23 @@
 package my.ktbot.utils.xml
 
-import org.xml.sax.Attributes
-import org.xml.sax.SAXParseException
+import org.xml.sax.*
 import org.xml.sax.helpers.DefaultHandler
 
 class XmlHandler : DefaultHandler() {
-	lateinit var xmlConf: XmlConfig
+	val xmlConf: XmlConfig = XmlConfig()
 	private var parsed: Boolean? = null
 
 	private val deque = ArrayDeque<Node>()
 	private lateinit var lastNode: Node
-
-	var result: Node.Root? = null
-		private set
+	private var locator: Locator? = null
+	override fun setDocumentLocator(locator: Locator) {
+		this.locator = locator
+	}
 
 	override fun declaration(version: String, encoding: String?, standalone: String?) {
-		xmlConf = XmlConfig(version, encoding, standalone)
-		"<?xml version=\"${version}\" encoding=\"${encoding ?: "UTF-8"} standalone=\"${standalone ?: "yes"}\"?>".print()
-		println()
+		xmlConf.version = version
+		xmlConf.encoding = encoding
+		xmlConf.standaloneString = standalone
 	}
 
 	override fun startDocument() {
@@ -29,8 +29,9 @@ class XmlHandler : DefaultHandler() {
 		deque.lastOrNull().also {
 			if (it === null) {
 				node = Node.Root(qName, attributes)
-				result = node
-			} else {
+				xmlConf.root = node
+			}
+			else {
 				node = Node(qName, attributes)
 				it.children += node
 			}
@@ -39,9 +40,9 @@ class XmlHandler : DefaultHandler() {
 	}
 
 	override fun characters(ch: CharArray, start: Int, length: Int) {
-		val trim = String(ch, start, length)
-		if (trim.isNotBlank()) {
-			deque.last().children += Node.TextNode(String(ch, start, length))
+		val trim = String(ch, start, length).trim()
+		if (trim.isNotEmpty()) {
+			deque.last().children += Node.TextNode(trim)
 		}
 	}
 
@@ -65,7 +66,47 @@ class XmlHandler : DefaultHandler() {
 		throw e
 	}
 
-	@Suppress("NOTHING_TO_INLINE")
-	private inline fun Any.print() = print(this)
+	override fun resolveEntity(publicId: String?, systemId: String?): InputSource {
+		"resolveEntity".pl()
+		return super.resolveEntity(publicId, systemId)
+	}
+
+	override fun notationDecl(name: String?, publicId: String?, systemId: String?) {
+		"notationDecl".pl()
+		super.notationDecl(name, publicId, systemId)
+	}
+
+	override fun unparsedEntityDecl(name: String?, publicId: String?, systemId: String?, notationName: String?) {
+		"notationDecl".pl()
+		super.unparsedEntityDecl(name, publicId, systemId, notationName)
+	}
+
+	override fun startPrefixMapping(prefix: String?, uri: String?) {
+		"startPrefixMapping".pl()
+		super.startPrefixMapping(prefix, uri)
+	}
+
+	override fun endPrefixMapping(prefix: String?) {
+		"endPrefixMapping".pl()
+		super.endPrefixMapping(prefix)
+	}
+
+	override fun ignorableWhitespace(ch: CharArray?, start: Int, length: Int) {
+		"ignorableWhitespace".pl()
+		super.ignorableWhitespace(ch, start, length)
+	}
+
+	override fun processingInstruction(target: String?, data: String?) {
+		"processingInstruction".pl()
+		super.processingInstruction(target, data)
+	}
+
+	override fun skippedEntity(name: String?) {
+		"skippedEntity".pl()
+		super.skippedEntity(name)
+	}
+
+	private fun Any.pl() = println(this)
+
 }
 

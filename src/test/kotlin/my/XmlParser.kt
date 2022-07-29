@@ -1,6 +1,5 @@
 package my
 
-import my.ktbot.utils.xml.Node
 import my.ktbot.utils.xml.XmlHandler
 import javax.xml.parsers.SAXParserFactory
 
@@ -18,10 +17,7 @@ object XmlParser : Print {
 		XmlParser::class.java.classLoader.getResourceAsStream("test.xml")?.let {
 			xmlReader.parse(it, xmlHandler)
 		}
-		Node.printTree(xmlHandler.result ?: kotlin.run {
-			"没有识别到".pl()
-			return
-		})
+		xmlHandler.xmlConf.toXml().pl()
 	}
 
 }

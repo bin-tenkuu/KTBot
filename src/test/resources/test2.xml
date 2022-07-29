@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='UTF-8' standalone='yes' ?>
+<msg serviceID="5" templateID="12345" action="" brief="[分享]" sourceMsgId="0" url="" flag="0" adverSign="0" multiMsgFlag="0">
+    <item layout="0" advertiser_id="0" aid="0">
+        <image uuid="/2938137849-1750245220-1233AAEA5762C7909A62C43B99B026BF" md5="1233AAEA5762C7909A62C43B99B026BF" GroupFiledid="0"
+            filesize="30028"
+            local_path="/storage/emulated/0/Android/data/com.tencent.mobileqq/Tencent/MobileQQ/chatpic/chatimg/8fb/Cache_-2fbc38e98d5138fb"
+            minWidth="100" minHeight="100" maxWidth="180" maxHeight="180"/>
+    </item>
+    <source name="哔哩哔哩" icon="https://open.gtimg.cn/open/app_icon/00/95/17/76/100951776_100_m.png?t=1658912756" action=""
+        appid="100951776"/>
+</msg>

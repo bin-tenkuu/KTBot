@@ -1,17 +1,38 @@
 package my.ktbot.utils.xml
 
-class XmlConfig(
-	val version: String,
-	val encoding: String,
-	val standalone: Boolean,
-) {
-	constructor(
-		version: String,
-		encoding: String?,
-		standalone: String?,
-	) : this(
-		version,
-		encoding ?: "UTF-8",
-		"no".equals(standalone, true),
-	)
+class XmlConfig {
+	var version: String = "1.0"
+	var encoding: String? = null
+	var standalone: Boolean? = null
+	var standaloneString: String?
+		get() = when (standalone) {
+			null -> null
+			true -> "yes"
+			false -> "no"
+		}
+		set(value) {
+			when {
+				value === null -> standalone = null
+				"no".equals(value, true) -> standalone = false
+				"yes".equals(value, true) -> standalone = true
+			}
+		}
+	var root: Node.Root = Node.Root("root")
+
+	override fun toString(): String {
+		return buildString {
+			append("<?xml version=\"").append(version).append("\"")
+			if (encoding !== null) {
+				append(" encoding=\"").append(encoding).append("\"")
+			}
+			if (standaloneString !== null) {
+				append(" standalone=\"").append(standaloneString).append("\"")
+			}
+			append("?>")
+		}
+	}
+
+	fun toXml(): String {
+		return StringBuilder().append(toString()).append(root.toXml()).toString()
+	}
 }
