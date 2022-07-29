@@ -4,7 +4,7 @@ import org.xml.sax.Attributes
 
 open class Node(
 	@JvmField
-	val tag: String,
+	var tag: String,
 	attributes: Attributes? = null,
 ) {
 	@JvmField

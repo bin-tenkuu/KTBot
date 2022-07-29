@@ -50,9 +50,7 @@ object PluginMain : KotlinPlugin(
 		myEventHandle += arrayOf(
 			BotEventHandle
 		)
-		// myEventHandle += arrayOf(
-		// 	Debug
-		// )
+		if (PlugConfig.debug) myEventHandle.register(Debug)
 		logger.info(callers.mapIndexed { i, c -> "\t$i :${c.name}" }.joinToString(""))
 	}
 
