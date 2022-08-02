@@ -9,9 +9,6 @@ name: build2Jar
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - master
 
 jobs:
   build:
