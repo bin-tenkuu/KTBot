@@ -72,3 +72,7 @@ gradle-app.setting
 /data
 /plugin*
 /logs
+/java
+/mcl*
+/config.json
+/libs

@@ -2,10 +2,9 @@ package my.ktbot.annotation
 
 import my.ktbot.PluginPerm
 import my.ktbot.PluginPerm.contains
-import my.miraiplus.Caller
 import my.miraiplus.ArgsMap
+import my.miraiplus.Caller
 import my.miraiplus.Injector
-import net.mamoe.mirai.console.compiler.common.ResolveContext
 import net.mamoe.mirai.console.permission.PermissionId
 import net.mamoe.mirai.console.permission.PermitteeId.Companion.permitteeId
 import net.mamoe.mirai.event.events.BotEvent
@@ -20,7 +19,6 @@ import kotlin.reflect.KClass
  */
 @MustBeDocumented
 annotation class HasPerm(
-	@ResolveContext(ResolveContext.Kind.PERMISSION_ID)
 	val permId: String,
 	val checkUser: Boolean = true,
 	val checkGroup: Boolean = true,
@@ -36,20 +34,17 @@ annotation class HasPerm(
 			ann: HasPerm, event: BotEvent, tmpMap: ArgsMap, caller: Caller,
 		): Boolean {
 			val permission = PluginPerm.map[ann.permId]!!
-			var b = true
 			if (ann.checkUser && event is UserEvent) {
 				if (event.user.permitteeId in permission) {
 					return true
 				}
-				b = false
 			}
 			if (ann.checkGroup && event is GroupEvent) {
 				if (event.group.permitteeId in permission) {
 					return true
 				}
-				b = false
 			}
-			return b
+			return false
 		}
 	}
 }

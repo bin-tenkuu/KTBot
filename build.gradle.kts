@@ -1,4 +1,4 @@
-import org.jetbrains.kotlin.gradle.plugin.getKotlinPluginVersion
+import org.gradle.api.JavaVersion.VERSION_17
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -6,7 +6,7 @@ plugins {
 	kotlin("jvm").version(kotlinVersion)
 	kotlin("plugin.serialization").version(kotlinVersion)
 
-	id("net.mamoe.mirai-console").version("2.12.0")
+	id("net.mamoe.mirai-console").version("2.12.1")
 	id("com.google.devtools.ksp").version("1.7.10-1.0.6")
 }
 
@@ -23,8 +23,8 @@ repositories {
 
 dependencies {
 	// kotlin
-	implementation("org.jetbrains.kotlin:kotlin-stdlib:${getKotlinPluginVersion()}")
-	implementation("org.jetbrains.kotlin:kotlin-reflect:${getKotlinPluginVersion()}")
+	implementation(kotlin("stdlib"))
+	implementation(kotlin("reflect"))
 	compileOnly("org.jetbrains:annotations:23.0.0")
 	// sqlite
 	implementation("org.xerial:sqlite-jdbc:3.36.0.3")
@@ -34,26 +34,18 @@ dependencies {
 	implementation("org.ktorm:ktorm-ksp-api:1.0.0-RC2")
 	ksp("org.ktorm:ktorm-ksp-compiler:1.0.0-RC2")
 	// ktor
-	val ktorVersion = "1.6.8"
-	kotlin.run {
-		implementation("io.ktor:ktor-client-okhttp:${ktorVersion}")
-		implementation("io.ktor:ktor-client-json:${ktorVersion}")
-		implementation("io.ktor:ktor-client-serialization:${ktorVersion}")
+	val ktorVersion = "2.0.3"
+	implementation("io.ktor:ktor-client-okhttp:${ktorVersion}") {
+		exclude(group = "org.slf4j")
 	}
-	// @Suppress("GradlePackageUpdate")
-	// implementation("io.ktor:ktor-client-okhttp:${ktorVersion}")
-	// @Suppress("GradlePackageUpdate")
-	// implementation("io.ktor:ktor-client-json:${ktorVersion}")
-	// @Suppress("GradlePackageUpdate")
-	// implementation("io.ktor:ktor-client-serialization:${ktorVersion}")
-	// val ktorVersion = "2.0.3"
-	// implementation("io.ktor:ktor-client-core:${ktorVersion}")
-	// implementation("io.ktor:ktor-client-okhttp:${ktorVersion}")
-	// implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
-	// implementation("io.ktor:ktor-client-json:${ktorVersion}")
-	// implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
-	// ??
-	api("net.mamoe:mirai-console-compiler-annotations-jvm:2.11.1")
+	implementation("io.ktor:ktor-client-content-negotiation:${ktorVersion}") {
+		exclude(group = "org.slf4j")
+	}
+	implementation("io.ktor:ktor-serialization-kotlinx-json:${ktorVersion}") {
+		exclude(group = "org.slf4j")
+	}
+	// // ??
+	// api("net.mamoe:mirai-console-compiler-annotations-jvm:2.12.1")
 	// 系统状况读取
 	implementation("com.github.oshi:oshi-core-java11:6.2.1")
 }
@@ -71,7 +63,7 @@ mirai {
 	noConsole = false
 	dontConfigureKotlinJvmDefault = false
 	publishingEnabled = false
-	jvmTarget = JavaVersion.VERSION_17
+	jvmTarget = VERSION_17
 	configureShadow {
 		dependencyFilter.include {
 			println("include: ${it.name}")
@@ -81,13 +73,13 @@ mirai {
 }
 
 tasks.withType<AbstractCompile> {
-	sourceCompatibility = JavaVersion.VERSION_17.toString()
-	targetCompatibility = JavaVersion.VERSION_17.toString()
+	sourceCompatibility = VERSION_17.toString()
+	targetCompatibility = VERSION_17.toString()
 }
 
 tasks.withType<KotlinCompile> {
 	kotlinOptions {
-		jvmTarget = JavaVersion.VERSION_17.toString()
+		jvmTarget = VERSION_17.toString()
 		freeCompilerArgs = listOf(
 			"-Xjsr305=strict",
 			"-opt-in=kotlin.RequiresOptIn",

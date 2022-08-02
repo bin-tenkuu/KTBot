@@ -7,7 +7,6 @@ import my.ktbot.dao.LoliconRequest
 import my.ktbot.database.PixivPic
 import my.ktbot.database.TPixivPic
 import my.ktbot.utils.*
-import my.ktbot.utils.KtorUtils.body
 import my.ktbot.utils.Sqlite.insertOrUpdate
 import my.ktbot.utils.Sqlite.limit
 import my.ktbot.utils.Sqlite.setExcluded

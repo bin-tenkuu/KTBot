@@ -2,7 +2,6 @@ package my.ktbot.plugs
 
 import my.ktbot.annotation.*
 import my.ktbot.utils.KtorUtils
-import my.ktbot.utils.KtorUtils.body
 import my.ktbot.utils.createLogger
 import my.ktbot.utils.get
 import my.miraiplus.annotation.MiraiEventHandle

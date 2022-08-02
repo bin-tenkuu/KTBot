@@ -3,12 +3,12 @@ package my.ktbot.utils
 import io.ktor.client.*
 import io.ktor.client.engine.*
 import io.ktor.client.engine.okhttp.*
-import io.ktor.client.features.*
-import io.ktor.client.features.json.*
-import io.ktor.client.features.json.serializer.*
+import io.ktor.client.plugins.*
+import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
+import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.Json
 import my.ktbot.PlugConfig
 import my.ktbot.dao.*
@@ -18,7 +18,7 @@ import my.ktbot.dao.blibili.RoomInit
 import java.nio.charset.StandardCharsets
 
 object KtorUtils {
-	const val UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36 Edg/96.0.1054.57"
+	private const val userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36 Edg/96.0.1054.57"
 
 	@JvmStatic
 	val json = Json {
@@ -42,12 +42,9 @@ object KtorUtils {
 			else if (PlugConfig.httpProxy.isNotBlank())
 				proxy = ProxyBuilder.http(PlugConfig.httpProxy)
 		}
-		install(JsonFeature) {
-			serializer = KotlinxSerializer(json)
+		install(ContentNegotiation) {
+			json(json)
 		}
-		// install(ContentNegotiation) {
-		// 	json(json)
-		// }
 		install(HttpPlainText) {
 			register(StandardCharsets.UTF_8, 1.0F)
 			sendCharset = StandardCharsets.UTF_8
@@ -58,6 +55,9 @@ object KtorUtils {
 			this.connectTimeoutMillis = 30_0000
 			this.socketTimeoutMillis = 30_0000
 		}
+		install(UserAgent) {
+			agent = userAgent
+		}
 	}
 
 	@JvmStatic
@@ -65,7 +65,7 @@ object KtorUtils {
 		return HttpStatement(HttpRequestBuilder().apply {
 			method = HttpMethod.Post
 			url.takeFrom(urlString)
-			header("Content-Type", "application/json")
+			header(HttpHeaders.ContentType, ContentType.Application.Json)
 			setBody(body)
 		}, httpClient)
 	}
@@ -118,31 +118,21 @@ object KtorUtils {
 		val url = if (max) "https://zuanbot.com/api.php?lang=zh_cn"
 		else "https://zuanbot.com/api.php?lang=zh_cn&level=min"
 		return get(url) {
-			header("Accept", "*/*")
-			header("Referer", "https://zuanbot.com/")
-			header("User-Agent", UserAgent)
+			header(HttpHeaders.Accept, "*/*")
+			header(HttpHeaders.Referrer, "https://zuanbot.com/")
 		}.body()
 	}
 
 	suspend fun rainbowFart(): String {
 		val regex = Regex("(?<=\"text\":\")[^\"]+")
 		val receive = get("https://api.shadiao.pro/chp") {
-			header("origin", "https://chp.shadiao.app")
-			header("referer", "https://chp.shadiao.app/")
-			header("User-Agent", UserAgent)
+			header(HttpHeaders.Origin, "https://chp.shadiao.app")
+			header(HttpHeaders.Referrer, "https://chp.shadiao.app/")
 		}.body<String>()
 		val text = regex.find(receive)?.value ?: ""
 		val string = String(text.split("\\u").mapNotNull {
 			if (it.isNotBlank()) it.toInt(16).toChar() else null
 		}.toCharArray())
 		return string
-	}
-
-	private fun <T : Any> HttpRequestBuilder.setBody(body: T) {
-		this.body = body
-	}
-
-	suspend inline fun <reified T> HttpStatement.body(): T {
-		return receive()
 	}
 }
