@@ -38,8 +38,8 @@ jobs:
       - name: Make gradlew executable  #更改脚本权限
         run: chmod +x ./gradlew
 
-      - name: Build with Gradle
-        run: ./gradlew build2Jar
+#      - name: Build with Gradle
+#        run: ./gradlew build2Jar
 
       # The USERNAME and TOKEN need to correspond to the credentials environment variables used in
       # the publishing section of your build.gradle
@@ -54,4 +54,4 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
 #          name: test
-          path: ./plugins/*
+          path: ./.github/workflows/*
