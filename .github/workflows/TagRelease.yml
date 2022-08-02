@@ -48,6 +48,6 @@ jobs:
           tag_name: ${{ github.ref }}
           name: Release ${{ github.ref }}
           body: ''
-          draft: false
+          draft: true
           prerelease: true
           files: ${{ steps.vars.outputs.TAG_NAME }}
