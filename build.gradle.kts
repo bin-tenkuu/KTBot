@@ -44,8 +44,8 @@ dependencies {
 	implementation("io.ktor:ktor-serialization-kotlinx-json:${ktorVersion}") {
 		exclude(group = "org.slf4j")
 	}
-	// // ??
-	// api("net.mamoe:mirai-console-compiler-annotations-jvm:2.12.1")
+	// mirai插件注解
+	api("net.mamoe:mirai-console-compiler-annotations-jvm:2.12.1")
 	// 系统状况读取
 	implementation("com.github.oshi:oshi-core-java11:6.2.1")
 }

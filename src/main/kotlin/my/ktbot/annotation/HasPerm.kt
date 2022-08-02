@@ -5,6 +5,7 @@ import my.ktbot.PluginPerm.contains
 import my.miraiplus.ArgsMap
 import my.miraiplus.Caller
 import my.miraiplus.Injector
+import net.mamoe.mirai.console.compiler.common.ResolveContext
 import net.mamoe.mirai.console.permission.PermissionId
 import net.mamoe.mirai.console.permission.PermitteeId.Companion.permitteeId
 import net.mamoe.mirai.event.events.BotEvent
@@ -19,6 +20,7 @@ import kotlin.reflect.KClass
  */
 @MustBeDocumented
 annotation class HasPerm(
+	@ResolveContext(ResolveContext.Kind.PERMISSION_ID)
 	val permId: String,
 	val checkUser: Boolean = true,
 	val checkGroup: Boolean = true,

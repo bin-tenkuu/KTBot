@@ -1,8 +1,10 @@
-# mirai-console-plugin-template
+# MyBot
 
-[Mirai Console](https://github.com/mamoe/mirai-console) 插件模板, 使用 Kotlin + Gradle.
+[Mirai Console](https://github.com/mamoe/mirai-console) 插件, 使用 Kotlin + Gradle.kts.
 
-[如何使用](https://github.com/project-mirai/how-to-use-plugin-template)
+# 如何编译
+
+`gradle build2Jar`
 
 # 如何使用
 
@@ -16,14 +18,14 @@
     2. 将根目录下方的 [db.db](./db.db) 文件移动到服务器上 `./data` 目录下
     3. 启动 mirai
 
-# 如何调试
+# 如何调试/本地启动
 
 - 首次调试/更新版本
     1. 下载 [`mcl-installer`](https://github.com/iTXTech/mcl-installer/releases) 至项目目录下
     2. 运行 `mcl-installer`，下载 `jdk17` 或 `jre17` 并全部 `yes`
 
 - 开始调试
-    1. 运行 `run mcl`
+    1. 运行/调试 `run mcl`
 
 **注：** 运行 `mcl-installer` 之后需要回滚 `README.md` 和 `LICENSE` 文件
 

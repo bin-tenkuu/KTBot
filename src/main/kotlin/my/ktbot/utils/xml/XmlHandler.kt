@@ -1,9 +1,8 @@
 package my.ktbot.utils.xml
 
 import org.xml.sax.*
-import org.xml.sax.helpers.DefaultHandler
 
-class XmlHandler : DefaultHandler() {
+class XmlHandler : DefaultHandlerProxy() {
 	val xmlConf: XmlConfig = XmlConfig()
 	private var parsed: Boolean? = null
 
