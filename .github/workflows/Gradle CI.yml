@@ -51,5 +51,5 @@ jobs:
       - name: Upload a Build Artifact
         uses: actions/upload-artifact@v3
         with:
-          name: KTBot-1.0.0.mirai2.jar
-          path: ./.github/workflows/
+          name: plugins
+          path: ./plugins/KTBot-1.0.0.mirai2.jar
