@@ -9,7 +9,7 @@ class BuildXml {
 			config.root = value
 		}
 
-	fun config(version: String = "1.0", encoding: String? = null, standalone: Boolean? = null): BuildXml {
+	fun config(version: String? = null, encoding: String? = null, standalone: Boolean? = null): BuildXml {
 		config.version = version
 		config.encoding = encoding
 		config.standalone = standalone
@@ -68,7 +68,7 @@ class BuildXml {
 		}
 
 		inline operator fun invoke(
-			version: String = "1.0",
+			version: String? = null,
 			encoding: String? = null,
 			standalone: Boolean? = null,
 			block: BuildXml.() -> Unit,

@@ -1,8 +1,9 @@
 package my.ktbot.utils.xml
 
 import org.xml.sax.*
+import org.xml.sax.helpers.DefaultHandler
 
-class XmlHandler : DefaultHandlerProxy() {
+class XmlHandler : DefaultHandler(), DefaultHandlerFix {
 	val xmlConf: XmlConfig = XmlConfig()
 	private var parsed: Boolean? = null
 
@@ -13,7 +14,7 @@ class XmlHandler : DefaultHandlerProxy() {
 		this.locator = locator
 	}
 
-	override fun declaration(version: String, encoding: String?, standalone: String?) {
+	override fun declaration(version: String?, encoding: String?, standalone: String?) {
 		xmlConf.version = version
 		xmlConf.encoding = encoding
 		xmlConf.standaloneString = standalone

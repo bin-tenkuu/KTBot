@@ -1,18 +1,23 @@
 package my.miraiplus
 
 import my.miraiplus.annotation.MiraiEventHandle
-import net.mamoe.mirai.console.plugin.jvm.AbstractJvmPlugin
+import net.mamoe.mirai.console.plugin.jvm.JvmPlugin
+import net.mamoe.mirai.console.plugin.jvm.JvmPluginDescription
+import net.mamoe.mirai.console.plugin.jvm.KotlinPlugin
 import net.mamoe.mirai.event.Listener
 import net.mamoe.mirai.event.globalEventChannel
 import java.lang.reflect.AnnotatedElement
+import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.reflect.*
 import kotlin.reflect.full.declaredMembers
 import kotlin.reflect.jvm.javaField
 import kotlin.reflect.jvm.javaMethod
 
-class MyEventHandle(
-	private val plugin: AbstractJvmPlugin,
-) {
+open class MyKotlinPlugin(
+	description: JvmPluginDescription,
+	parentCoroutineContext: CoroutineContext = EmptyCoroutineContext,
+) : JvmPlugin, KotlinPlugin(description, parentCoroutineContext) {
 	/**
 	 * key:[KCallable.toString]。value:[Caller]注册的[Listener]
 	 */
@@ -28,28 +33,9 @@ class MyEventHandle(
 	 * 存储全部注解增强实例
 	 */
 	@JvmField
-	val injector = InjectMap()
+	val injectMap = InjectMap()
 
 	// region register
-	/**
-	 * @see [register]
-	 * @param obj [Any] 任意对象
-	 */
-	operator fun plus(obj: Any): MyEventHandle {
-		register(obj)
-		return this
-	}
-
-	/**
-	 * @see [register]
-	 * @param objs [Array]<[Any]> 任意对象
-	 */
-	operator fun plusAssign(objs: Array<Any>) {
-		for (obj in objs) {
-			register(obj)
-		}
-	}
-
 	/**
 	 * 注册 [obj] 内全部成员
 	 * @param obj [Any] 任意对象
@@ -66,7 +52,9 @@ class MyEventHandle(
 	 */
 	@Throws(IllegalStateException::class)
 	fun register(obj: Any, member: String) {
-		val kCallable = obj::class.declaredMembers.find { it.name == member } ?: error("Member '$member' Not Found In $obj")
+		val kCallable = obj::class.declaredMembers.find { it.name == member } ?: error(
+			"Member '$member' Not Found In $obj"
+		)
 		register0(obj, kCallable)
 	}
 
@@ -79,22 +67,22 @@ class MyEventHandle(
 		when (member) {
 			is KFunction<*> -> {
 				eventHandle = (member.MiraiEventHandle() ?: return)
-				caller = if (member.isSuspend) Caller.Func(obj, member, eventHandle, injector)
-				else Caller.JavaFunc(obj, member, eventHandle, injector)
+				caller = if (member.isSuspend) Caller.Func(obj, member, eventHandle, injectMap)
+				else Caller.JavaFunc(obj, member, eventHandle, injectMap)
 			}
 			is KProperty1<*, *> -> {
 				val field = member.javaField
 				eventHandle =
 					member.MiraiEventHandle() ?: member.getter.MiraiEventHandle() ?: field?.MiraiEventHandle() ?: return
-				caller = if (field !== null) Caller.JavaField(obj, member, eventHandle, injector)
-				else Caller.Property1(obj, member, eventHandle, injector)
+				caller = if (field !== null) Caller.JavaField(obj, member, eventHandle, injectMap)
+				else Caller.Property1(obj, member, eventHandle, injectMap)
 			}
 			is KProperty2<*, *, *> -> {
 				val getter = member.getter
 				val field = getter.javaMethod
 				eventHandle = member.MiraiEventHandle() ?: getter.MiraiEventHandle() ?: return
-				caller = if (field !== null) Caller.JavaFunc(obj, getter, eventHandle, injector)
-				else Caller.Property2(obj, member, eventHandle, injector)
+				caller = if (field !== null) Caller.JavaFunc(obj, getter, eventHandle, injectMap)
+				else Caller.Property2(obj, member, eventHandle, injectMap)
 			}
 			else -> {
 				System.err.println(member)
@@ -103,8 +91,8 @@ class MyEventHandle(
 		}
 		callers += caller
 		caller.init()
-		map[caller.fieldName] = plugin.globalEventChannel().subscribeAlways(
-			caller.eventClass, plugin.coroutineContext, eventHandle.concurrency, eventHandle.priority, caller
+		map[caller.fieldName] = globalEventChannel().subscribeAlways(
+			caller.eventClass, coroutineContext, eventHandle.concurrency, eventHandle.priority, caller
 		)
 	}
 

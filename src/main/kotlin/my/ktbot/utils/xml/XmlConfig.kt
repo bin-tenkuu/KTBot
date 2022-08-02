@@ -1,7 +1,7 @@
 package my.ktbot.utils.xml
 
 class XmlConfig {
-	var version: String = "1.0"
+	var version: String? = null
 	var encoding: String? = null
 	var standalone: Boolean? = null
 	var standaloneString: String?

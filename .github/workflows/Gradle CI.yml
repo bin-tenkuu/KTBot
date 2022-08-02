@@ -8,6 +8,7 @@
 name: build2Jar
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - master
@@ -39,15 +40,6 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew build2Jar
 
-      # The USERNAME and TOKEN need to correspond to the credentials environment variables used in
-      # the publishing section of your build.gradle
-#      - name: Publish to GitHub Packages
-#        uses: gradle/gradle-build-action@v2
-#        with:
-#          arguments: publish
-#        env:
-#          USERNAME: ${{ github.actor }}
-#          TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Upload a Build Artifact
         uses: actions/upload-artifact@v3
         with:
