@@ -9,24 +9,18 @@ name: build2Jar
 
 on:
   push:
-    branches:
-      - master
-  pull_request:
-    branches:
-      - master
-
-  # Allows to run this workflow manually from the Actions tab
-  workflow_dispatch:
+    tags:
+      - '*'
 
 jobs:
   build:
     name: gradle build2Jar
-    runs-on: ubuntu-latest
+    runs-on: macos-latest # 14G memory
 
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - name: Checkout
-        uses: actions/checkout@v2
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
       - name: Set up JDK 17
         uses: actions/setup-java@v3
@@ -41,18 +35,16 @@ jobs:
 
       - name: Make gradlew executable  #更改脚本权限
         run: chmod +x ./gradlew
+
       - name: Build with Gradle
         run: ./gradlew build2Jar
-      #        uses: gradle/gradle-build-action@67421db6bd0bf253fb4bd25b31ebb98943c375e1
-      #        with:
-      #          arguments: build2Jar
 
       # The USERNAME and TOKEN need to correspond to the credentials environment variables used in
       # the publishing section of your build.gradle
-#      - name: Publish to GitHub Packages
-#        uses: gradle/gradle-build-action@67421db6bd0bf253fb4bd25b31ebb98943c375e1
-#        with:
-#          arguments: publish
-#        env:
-#          USERNAME: ${{ github.actor }}
-#          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Publish to GitHub Packages
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: publish
+        env:
+          USERNAME: ${{ github.actor }}
+          TOKEN: ${{ secrets.RELEASE_TOKEN }}
