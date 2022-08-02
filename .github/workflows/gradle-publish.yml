@@ -9,8 +9,10 @@ name: build2Jar
 
 on:
   push:
-    tags:
-      - '*'
+    branches:
+      - master
+#    tags:
+#      - '*'
 
 jobs:
   build:
