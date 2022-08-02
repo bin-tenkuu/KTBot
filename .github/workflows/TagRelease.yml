@@ -18,22 +18,22 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      #- name: Set up JDK 17
-      #  uses: actions/setup-java@v3
-      #  with:
-      #    java-version: 17
-      #    distribution: 'temurin'
-      #    cache: gradle
-      #
-      ## Validate Gradle Wrapper
-      #- name: Gradle Wrapper Validation
-      #  uses: gradle/wrapper-validation-action@v1.0.3
-      #
-      #- name: Make gradlew executable
-      #  run: chmod +x ./gradlew
-      #
-      #- name: Build with Gradle
-      #  run: ./gradlew build2Jar
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: 17
+          distribution: 'temurin'
+          cache: gradle
+
+      # Validate Gradle Wrapper
+      - name: Gradle Wrapper Validation
+        uses: gradle/wrapper-validation-action@v1.0.3
+
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew
+
+      - name: Build with Gradle
+        run: ./gradlew build2Jar
 
       - name: Set outputs
         id: vars
@@ -42,11 +42,10 @@ jobs:
 
       - name: Create Release and Upload Release Asset
         uses: softprops/action-gh-release@v1
-        if: startsWith(github.ref, 'refs/tags/')
         with:
           tag_name: ${{ steps.vars.outputs.TAG_NAME }}
           name: ${{ steps.vars.outputs.TAG_NAME }}
           body: ''
-          draft: true
-          prerelease: true
-          files: ./gradle/wrapper/*
+          draft: false
+          prerelease: false
+          files: ./plugins/*
