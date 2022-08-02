@@ -41,7 +41,7 @@ jobs:
       - name: filter jar files
         id: files
         run: |
-          echo ::set-output name=TAG_NAME::$(echo $(find ./gradle/wrapper -maxdepth 1 -type f -print))
+          echo ::set-output name=TAG_NAME::$(echo $(ls -F ./gradle/wrapper | grep -v /))
       - name: Create Release and Upload Release Asset
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
