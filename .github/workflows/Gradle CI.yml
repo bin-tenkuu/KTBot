@@ -11,13 +11,11 @@ on:
   push:
     branches:
       - master
-#    tags:
-#      - '*'
 
 jobs:
   build:
     name: gradle build2Jar
-    runs-on: macos-12 # 14G memory
+    runs-on: ubuntu-latest
 
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
@@ -38,8 +36,8 @@ jobs:
       - name: Make gradlew executable  #更改脚本权限
         run: chmod +x ./gradlew
 
-#      - name: Build with Gradle
-#        run: ./gradlew build2Jar
+      - name: Build with Gradle
+        run: ./gradlew build2Jar
 
       # The USERNAME and TOKEN need to correspond to the credentials environment variables used in
       # the publishing section of your build.gradle
@@ -49,9 +47,9 @@ jobs:
 #          arguments: publish
 #        env:
 #          USERNAME: ${{ github.actor }}
-#          TOKEN: ${{ secrets.RELEASE_TOKEN }}
+#          TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Upload a Build Artifact
         uses: actions/upload-artifact@v3
         with:
-#          name: test
-          path: ./.github/workflows/*
+          name: KTBot-1.0.0.mirai2.jar
+          path: ./.github/workflows/
