@@ -46,8 +46,16 @@ dependencies {
 	}
 	// mirai插件注解
 	api("net.mamoe:mirai-console-compiler-annotations-jvm:2.12.1")
+	// implementation("net.mamoe:mirai-core-utils:2.12.1")
 	// 系统状况读取
-	implementation("com.github.oshi:oshi-core-java11:6.2.1")
+	implementation("com.github.oshi:oshi-core-java11:6.2.2")
+	// 分词器
+	implementation("com.huaban:jieba-analysis:1.0.2")
+	// hutool全家桶:https://hutool.cn/docs/#/
+	implementation("cn.hutool:hutool-all:5.8.5")
+	// 词云生成器
+	implementation("com.kennycason:kumo-core:1.28")
+	implementation("com.kennycason:kumo-tokenizers:1.28")
 }
 // ksp 加入编译
 kotlin {
