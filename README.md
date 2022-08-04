@@ -22,6 +22,7 @@
 1. 首次启动/调试/更新版本
 	1. 下载 [`mcl-installer`](https://github.com/iTXTech/mcl-installer/releases) 至项目目录下
 	2. 运行 `mcl-installer`，下载 `jdk17` 或 `jre17` 并全部 `yes`
+	3. 运行 `./mcl --disable-module addon` `./mcl --remove-package org.itxtech:mcl-addon`
 2. 开始运行/调试
 	1. 运行/调试 `run mcl`
 
@@ -31,6 +32,15 @@
 
 * `TagRelease.yml` 为增加 tag 时触发，tag格式为 `v*`，触发后自动发布新版本
 * `build2Jar.yml` 为手动触发，触发后在事件内上传 `Artifacts`
+
+# 其他情况
+
+~~踩坑记录~~
+
+* 启动时如果一直卡注不动，并且服务器在国外，那么可以在 [PluginDependencies.yml](./config/Console/PluginDependencies.yml)
+  加上 `https://repo.maven.apache.org/maven2`
+* kotlin 继承 java 类时有可能出现明明有对应方法但是编译时提示未找到继承的目标，大概是 kotlin 可空类型的
+  bug，手动写个接口，把报错的方法再写一遍，就像 [XmlHandler.kt](./src/main/kotlin/my/ktbot/utils/xml/XmlHandler.kt) 一样
 
 # 日志
 

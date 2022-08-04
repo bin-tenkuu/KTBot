@@ -35,15 +35,10 @@ dependencies {
 	ksp("org.ktorm:ktorm-ksp-compiler:1.0.0-RC2")
 	// ktor
 	val ktorVersion = "2.0.3"
-	implementation("io.ktor:ktor-client-okhttp:${ktorVersion}") {
-		exclude(group = "org.slf4j")
-	}
-	implementation("io.ktor:ktor-client-content-negotiation:${ktorVersion}") {
-		exclude(group = "org.slf4j")
-	}
-	implementation("io.ktor:ktor-serialization-kotlinx-json:${ktorVersion}") {
-		exclude(group = "org.slf4j")
-	}
+	implementation("io.ktor:ktor-http:${ktorVersion}")
+	implementation("io.ktor:ktor-client-okhttp:${ktorVersion}")
+	implementation("io.ktor:ktor-client-content-negotiation:${ktorVersion}")
+	implementation("io.ktor:ktor-serialization-kotlinx-json:${ktorVersion}")
 	// mirai插件注解
 	api("net.mamoe:mirai-console-compiler-annotations-jvm:2.12.1")
 	// implementation("net.mamoe:mirai-core-utils:2.12.1")
