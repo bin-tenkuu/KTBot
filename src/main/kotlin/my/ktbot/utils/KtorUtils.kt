@@ -1,5 +1,6 @@
 package my.ktbot.utils
 
+import cn.hutool.core.text.UnicodeUtil
 import io.ktor.client.*
 import io.ktor.client.engine.*
 import io.ktor.client.engine.okhttp.*
@@ -113,6 +114,7 @@ object KtorUtils {
 	 * @param max [Boolean] 火力全开
 	 * @return [String]
 	 */
+	@JvmStatic
 	@Deprecated("接口无法调用")
 	suspend fun zuan(max: Boolean = false): String {
 		val url = if (max) "https://zuanbot.com/api.php?lang=zh_cn"
@@ -123,6 +125,7 @@ object KtorUtils {
 		}.body()
 	}
 
+	@JvmStatic
 	suspend fun rainbowFart(): String {
 		val regex = Regex("(?<=\"text\":\")[^\"]+")
 		val receive = get("https://api.shadiao.pro/chp") {
@@ -130,9 +133,6 @@ object KtorUtils {
 			header(HttpHeaders.Referrer, "https://chp.shadiao.app/")
 		}.body<String>()
 		val text = regex.find(receive)?.value ?: ""
-		val string = String(text.split("\\u").mapNotNull {
-			if (it.isNotBlank()) it.toInt(16).toChar() else null
-		}.toCharArray())
-		return string
+		return UnicodeUtil.toString(text).replace("\\n", "\n")
 	}
 }

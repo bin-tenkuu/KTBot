@@ -158,7 +158,7 @@ object CQBotCOC {
 	}
 
 	@MiraiEventHandle("骰子：删除[设置]简写")
-	@RegexAnn("^[.．。]dset +(?<key>\\w[\\w\\d]+)(?:=(?<value>[+\\-*d\\d#]+))?", IGNORE_CASE)
+	@RegexAnn("""^[.．。]dset +(?<key>\w\w+)(?:=(?<value>[+\-*d\d#]+))?""", IGNORE_CASE)
 	@Helper("删除[设置]简写")
 	@SendAuto
 	@JvmStatic

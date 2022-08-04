@@ -43,7 +43,7 @@ object CQNginxLogHandle {
 	}
 
 	private val ipRegex =
-		Regex("((\\d|[1-9]\\d|1\\d\\d|2[0-4]\\d|25[0-5])\\.){3}(\\d|[1-9]\\d|1\\d\\d|2[0-4]\\d|25[0-5])")
+		Regex("""((\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.){3}(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])""")
 
 	@MiraiEventHandle("添加banip")
 	@RegexAnn("^[.．。]banip(.+)$", RegexOption.IGNORE_CASE)
