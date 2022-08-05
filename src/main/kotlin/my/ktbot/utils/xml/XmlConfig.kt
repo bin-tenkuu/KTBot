@@ -1,9 +1,21 @@
 package my.ktbot.utils.xml
 
-class XmlConfig {
-	var version: String? = null
-	var encoding: String? = null
-	var standalone: Boolean? = null
+class XmlConfig(
+	@JvmField
+	var version: String? = null,
+	@JvmField
+	var encoding: String? = null,
+	@JvmField
+	var standalone: Boolean? = null,
+) : ToXml {
+	constructor(version: String? = null, encoding: String? = null, standaloneString: String? = null) : this(
+		version, encoding, when {
+			"no".equals(standaloneString, true) -> false
+			"yes".equals(standaloneString, true) -> true
+			else -> null
+		}
+	)
+
 	var standaloneString: String?
 		get() = when (standalone) {
 			null -> null
@@ -17,7 +29,6 @@ class XmlConfig {
 				"yes".equals(value, true) -> standalone = true
 			}
 		}
-	var root: Node.Root = Node.Root("root")
 
 	override fun toString(): String {
 		return buildString {
@@ -32,7 +43,7 @@ class XmlConfig {
 		}
 	}
 
-	fun toXml(): String {
-		return StringBuilder().append(toString()).append(root.toXml()).toString()
+	override fun toXml(): String {
+		return toString()
 	}
 }

@@ -2,8 +2,7 @@ package my.ktbot.plugs
 
 import my.ktbot.annotation.NeedAdmin
 import my.ktbot.annotation.SendAuto
-import my.ktbot.utils.xml.BuildXml
-import my.ktbot.utils.xml.XmlConfig
+import my.ktbot.utils.xml.XmlEntity
 import my.miraiplus.annotation.MiraiEventHandle
 import my.miraiplus.annotation.RegexAnn
 import net.mamoe.mirai.event.events.FriendMessageEvent
@@ -33,11 +32,11 @@ object Debug {
 		return replace("-", "").substring(1, 33)
 	}
 
-	private fun buildXml(image: Image, name: String): XmlConfig {
+	private fun buildXml(image: Image, name: String): XmlEntity {
 		val md5 = image.imageId.imageIdToMd5()
 		val serviceID = 5
 		val actionData = "mqqapi://card/show_pslcard?src_type=internal&amp;source=sharecard&amp;version=1&amp;uin=2938137849"
-		return BuildXml("1.0", "UTF-8", true) {
+		return XmlEntity("1.0", "UTF-8", true) {
 			root("msg").attributes(
 				"serviceID" to "$serviceID",
 				"templateID" to "12345",

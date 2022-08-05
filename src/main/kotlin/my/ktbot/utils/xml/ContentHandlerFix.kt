@@ -2,7 +2,7 @@ package my.ktbot.utils.xml
 
 import org.xml.sax.SAXException
 
-interface DefaultHandlerFix {
+interface ContentHandlerFix {
 	/**
 	 * Receives notification of the XML declaration.
 	 *

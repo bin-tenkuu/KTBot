@@ -1,18 +1,19 @@
 package my.ktbot.utils.xml
 
+open class XmlEntity : ToXml {
+	@JvmField
+	var declaration: XmlConfig? = null
 
-class BuildXml {
-	val config = XmlConfig()
-	var root
-		get() = config.root
-		set(value) {
-			config.root = value
-		}
+	@JvmField
+	var root: Node.Root = Node.Root("root")
 
-	fun config(version: String? = null, encoding: String? = null, standalone: Boolean? = null): BuildXml {
-		config.version = version
-		config.encoding = encoding
-		config.standalone = standalone
+	fun declaration(version: String? = null, encoding: String? = null, standalone: Boolean? = null): XmlEntity {
+		declaration = XmlConfig(version, encoding, standalone)
+		return this
+	}
+
+	inline fun declaration(block: XmlConfig.() -> Unit): XmlEntity {
+		declaration = (declaration ?: XmlConfig(standalone = null)).apply(block)
 		return this
 	}
 
@@ -63,18 +64,29 @@ class BuildXml {
 	}
 
 	companion object {
-		inline operator fun invoke(block: BuildXml.() -> Unit): XmlConfig {
-			return BuildXml().apply(block).config
+		inline operator fun invoke(block: XmlEntity.() -> Unit): XmlEntity {
+			return XmlEntity().apply(block)
 		}
 
 		inline operator fun invoke(
 			version: String? = null,
 			encoding: String? = null,
 			standalone: Boolean? = null,
-			block: BuildXml.() -> Unit,
-		): XmlConfig {
-			val buildXml = BuildXml().config(version, encoding, standalone)
-			return buildXml.apply(block).config
+			block: XmlEntity.() -> Unit,
+		): XmlEntity {
+			val buildXml = XmlEntity().declaration(version, encoding, standalone)
+			return buildXml.apply(block)
+		}
+	}
+
+	override fun toXml(): String {
+		return buildString {
+			declaration?.run {
+				append(toXml())
+			}
+			root.run {
+				append(toXml())
+			}
 		}
 	}
 }

@@ -49,8 +49,8 @@ dependencies {
 	// hutool全家桶:https://hutool.cn/docs/#/
 	implementation("cn.hutool:hutool-all:5.8.5")
 	// 词云生成器
-	implementation("com.kennycason:kumo-core:1.28")
-	implementation("com.kennycason:kumo-tokenizers:1.28")
+	testImplementation("com.kennycason:kumo-core:1.28")
+	testImplementation("com.kennycason:kumo-tokenizers:1.28")
 }
 // ksp 加入编译
 kotlin {

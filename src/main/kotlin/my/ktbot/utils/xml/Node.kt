@@ -16,7 +16,7 @@ open class Node(
 	open val isText: Boolean = false
 
 	init {
-		if (attributes !== null) for (i in 0 until attributes.length) {
+		if (attributes !== null) repeat(attributes.length) { i ->
 			this.attributes[attributes.getQName(i)] = attributes.getValue(i)
 		}
 	}
