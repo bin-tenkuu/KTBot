@@ -118,7 +118,7 @@ object CQBotListGet {
 			"结果为${Calculator(calc).v}".toPlainText()
 		}
 		catch (e: Exception) {
-			e.toString().toPlainText()
+			"表达式错误：${e.message}".toPlainText()
 		}
 	}
 }
