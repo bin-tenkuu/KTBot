@@ -1,6 +1,8 @@
 package my.ktbot.plugs
 
 // import my.sqlite.insertOrUpdate
+import io.ktor.client.request.*
+import io.ktor.http.*
 import my.ktbot.annotation.*
 import my.ktbot.dao.Lolicon
 import my.ktbot.dao.LoliconRequest
@@ -31,6 +33,7 @@ import org.ktorm.entity.sortedBy
  * @date 2022/1/13
  */
 object CQBotPicture {
+	@JvmStatic
 	private val logger = createLogger<CQBotPicture>()
 
 	@JvmStatic
@@ -63,6 +66,7 @@ object CQBotPicture {
 	@SendAuto
 	@LimitAll(1000 * 60 * 10)
 	@NeedExp(-8.0, -5.0)
+	@JvmStatic
 	suspend fun invoke(event: MessageEvent, result: MatchResult): Message {
 		return message(result, event.subject)
 	}
@@ -121,7 +125,7 @@ object CQBotPicture {
 		val r18 = result["r18"] !== null
 		val pic = getRandomPic(r18) ?: return emptyMessageChain()
 		val image = KtorUtils.get(pic.url) {
-			headers.append("referer", "https://www.pixiv.net/")
+			header(HttpHeaders.Referrer, "https://www.pixiv.net/")
 		}.body<ByteArray>().toExternalResource().toAutoCloseable().uploadAsImage(contact)
 		contact.sendMessage("作者：${pic.uid}\n原图p${pic.p}：${pic.pid}")
 		return image
@@ -131,6 +135,7 @@ object CQBotPicture {
 	@RegexAnn("^[.．。]色图失败列表$")
 	@NeedAdmin
 	@SendAuto
+	@JvmStatic
 	private val failList get() = setuSet.joinToString()
 
 }

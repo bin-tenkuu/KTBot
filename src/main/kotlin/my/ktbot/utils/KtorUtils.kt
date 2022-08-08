@@ -72,7 +72,15 @@ object KtorUtils {
 	}
 
 	@JvmStatic
-	fun get(urlString: String, block: HttpRequestBuilder.() -> Unit = {}): HttpStatement {
+	fun get(urlString: String): HttpStatement {
+		return HttpStatement(HttpRequestBuilder().apply {
+			method = HttpMethod.Get
+			url.takeFrom(urlString)
+		}, httpClient)
+	}
+
+	@JvmStatic
+	fun get(urlString: String, block: HttpRequestBuilder.() -> Unit): HttpStatement {
 		return HttpStatement(HttpRequestBuilder().apply {
 			method = HttpMethod.Get
 			url.takeFrom(urlString)
