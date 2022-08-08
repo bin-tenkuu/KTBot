@@ -29,7 +29,7 @@ object PluginMain : MyKotlinPlugin(
 		logger.warning("管理员QQ：${PlugConfig.adminId}")
 		logger.warning("管理员QQ群：${PlugConfig.adminGroup}")
 		injectMap + SendAuto + NeedAdmin + RegexAnn.Inject() +
-			SendGroup + SendAdmin + NeedExp + NeedAtBot + HasPerm + CheckPerm
+			SendGroup + SendAdmin + NeedExp + NeedAt + HasPerm + CheckPerm
 	}
 
 	override fun onEnable() {

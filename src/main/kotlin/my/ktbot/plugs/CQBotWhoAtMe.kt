@@ -1,9 +1,11 @@
 package my.ktbot.plugs
 
 import my.ktbot.annotation.Helper
+import my.ktbot.annotation.NeedAt
 import my.ktbot.annotation.SendGroup
 import my.ktbot.utils.CacheMap
 import my.miraiplus.annotation.MiraiEventHandle
+import my.miraiplus.annotation.Qualifier
 import my.miraiplus.annotation.RegexAnn
 import net.mamoe.mirai.event.EventPriority
 import net.mamoe.mirai.event.events.GroupMessageEvent
@@ -15,15 +17,15 @@ object CQBotWhoAtMe {
 	private val tmp = HashMap<Long, CacheMap<Long, QuoteReply>>()
 
 	@MiraiEventHandle("谁@我-记录", priority = EventPriority.MONITOR)
+	@NeedAt(false)
 	@JvmStatic
-	private fun GroupMessageEvent.saveAt() {
-		val ats = message.filterIsInstance<At>()
-		if (ats.isEmpty()) {
+	private fun GroupMessageEvent.saveAt(@Qualifier("atList") atList: List<At>) {
+		if (atList.isEmpty()) {
 			return
 		}
 		val map = tmp.getOrPut(group.id) { CacheMap(Duration.ofHours(24).toMillis()) }
 		val quote = message.quote()
-		for (at in ats) {
+		for (at in atList) {
 			map[at.target] = quote
 		}
 	}

@@ -1,6 +1,6 @@
 package my.ktbot.plugs
 
-import my.ktbot.annotation.NeedAtBot
+import my.ktbot.annotation.NeedAt
 import my.ktbot.annotation.SendAuto
 import my.ktbot.utils.ReplaceNode
 import my.miraiplus.annotation.MiraiEventHandle
@@ -34,7 +34,7 @@ object CQBotMemeAI {
 	)
 
 	@MiraiEventHandle("(玩梗用自动回复)", priority = EventPriority.LOWEST)
-	@NeedAtBot
+	@NeedAt(true)
 	@SendAuto
 	fun invoke(event: GroupMessageEvent): Message {
 		val message = event.message
