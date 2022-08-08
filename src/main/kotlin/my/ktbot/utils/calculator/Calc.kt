@@ -7,12 +7,15 @@ class Calc : IValue {
 
 	/**计算中产生的其他数据*/
 	val list = mutableListOf<Any>()
+
+	@Throws(IllegalArgumentException::class)
 	internal operator fun plusAssign(it: Operator) = when (it) {
-		is Operator2Impl -> {
+		is Operator2 -> {
 			val pop = deque.removeLast()
-			plusAssign(it.v(deque.removeLast(), pop))
+			if (deque.isEmpty()) throw IllegalArgumentException("意外的运算符: 「${it.op}」")
+			plusAssign(it(deque.removeLast(), pop))
 		}
-		is Operator1Impl -> plusAssign(it.v(deque.removeLast()))
+		is Operator1 -> plusAssign(it(deque.removeLast()))
 		else -> {
 			println(it)
 			error("未受支持的运算符种类")

@@ -16,11 +16,11 @@ interface Operator : Node {
 }
 
 interface Operator1 : Operator {
-	fun invoke(l: IValue): IValue
+	operator fun invoke(l: IValue): IValue
 }
 
 interface Operator2 : Operator {
-	fun invoke(l: IValue, r: IValue): IValue
+	operator fun invoke(l: IValue, r: IValue): IValue
 }
 
 enum class Operator1Enum(
@@ -81,20 +81,4 @@ enum class Operator2Enum(
 	Or("|", 6) {
 		override fun invoke(l: IValue, r: IValue): IValue = NumberNode(l.v.toLong() or r.v.toLong())
 	},
-}
-
-internal class Operator1Impl(
-	override val op: String,
-	override val priority: Int,
-	val v: (IValue) -> IValue,
-) : Operator, (IValue) -> IValue {
-	override fun invoke(p: IValue) = v(p)
-}
-
-internal class Operator2Impl(
-	override val op: String,
-	override val priority: Int,
-	val v: (IValue, IValue) -> IValue,
-) : Operator, (IValue, IValue) -> IValue {
-	override fun invoke(p1: IValue, p2: IValue) = v(p1, p2)
 }

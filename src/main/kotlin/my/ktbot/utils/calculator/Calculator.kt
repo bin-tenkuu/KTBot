@@ -1,5 +1,7 @@
 package my.ktbot.utils.calculator
 
+import java.util.*
+
 /**
  * [参考链接](https://github.com/killme2008/aviatorscript)
  * @author bin
@@ -28,8 +30,11 @@ object Calculator {
 
 	/**入口*/
 	@JvmStatic
+	@Throws(IllegalArgumentException::class)
 	operator fun invoke(string: String): Calc {
-		return toSuffixExpression(toInfixExpressionList(split(string)))
+		val trim = string.trim()
+		if (trim.isEmpty()) throw IllegalArgumentException("输入为空")
+		return toSuffixExpression(toInfixExpressionList(split(trim)))
 	}
 
 	/**切分字符串*/
@@ -41,9 +46,10 @@ object Calculator {
 	 * @throws IllegalArgumentException 如果 输入为空/数字不正确/未定义的符号/结束括号未匹配
 	 */
 	@JvmStatic
-	private tailrec fun toInfixExpressionList(list: List<String>): ArrayDeque<Node> {
+	@kotlin.jvm.Throws(IllegalArgumentException::class)
+	private tailrec fun toInfixExpressionList(list: List<String>): Deque<Node> {
 		val sb = StringBuilder()
-		val deque = ArrayDeque<Node>()
+		val deque = LinkedList<Node>()
 		if (list.isEmpty()) throw IllegalArgumentException("输入为空")
 		var single = true
 		val iterator = list.iterator()
@@ -58,10 +64,8 @@ object Calculator {
 				deque.addLast(NumberNode(it.toDoubleOrNull() ?: throw IllegalArgumentException("数字不正确：${it}")))
 				single = false
 			}
-			// 算数
-			else if (it[0] !in symbolChar) sb.append(it)
 			// 括号
-			else {
+			else if (it[0] in symbolChar) {
 				if (sb.isNotEmpty()) {
 					deque.addLast(toOperator(sb.toString(), single))
 					sb.clear()
@@ -72,16 +76,27 @@ object Calculator {
 				deque.addLast(StringNode(iterator.nextPart()))
 				single = false
 			}
+			// 空白符号
+			else if (it[0].isWhitespace()) {
+				if (sb.isNotEmpty()) {
+					deque.addLast(toOperator(sb.toString(), single))
+					sb.clear()
+				}
+			}
+			// 算数
+			else sb.append(it)
 		}
-		val node = deque.first()
-		if (deque.size == 1 && node is StringNode) return toInfixExpressionList(node.s)
+		if (deque.size == 1) {
+			val node = deque.peekFirst()
+			if (node is StringNode) return toInfixExpressionList(node.s)
+		}
 		return deque
 	}
 
 	@JvmStatic
-	private fun toSuffixExpression(nodeDeque: ArrayDeque<Node>): Calc {
+	private fun toSuffixExpression(nodeDeque: Deque<Node>): Calc {
 		//创建一个栈用于保存操作符
-		val opDeque = ArrayDeque<Operator>()
+		val opDeque = LinkedList<Operator>()
 		val calc = Calc()
 		val iterator = nodeDeque.iterator()
 		while (iterator.hasNext()) when (val it = iterator.next()) {
