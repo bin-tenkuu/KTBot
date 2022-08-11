@@ -40,7 +40,8 @@ object Sqlite {
 		return ArgumentExpression(boolean, BooleanSqlType)
 	}
 
-	fun <E : Any, T : BaseTable<E>> EntitySequence<E, T>.insertOrUpdate(
+	fun <E : Any, T : BaseTable<E>> insertOrUpdate(
+		sourceTable: T,
 		block: InsertOrUpdateStatementBuilder.(T) -> Unit,
 	): Int {
 		return database.insertOrUpdate(sourceTable, block)

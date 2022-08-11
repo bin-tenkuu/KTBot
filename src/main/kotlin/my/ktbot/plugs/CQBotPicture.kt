@@ -9,7 +9,6 @@ import my.ktbot.dao.LoliconRequest
 import my.ktbot.database.PixivPic
 import my.ktbot.database.TPixivPic
 import my.ktbot.utils.*
-import my.ktbot.utils.Sqlite.insertOrUpdate
 import my.ktbot.utils.Sqlite.limit
 import my.ktbot.utils.Sqlite.setExcluded
 import my.miraiplus.annotation.MiraiEventHandle
@@ -42,7 +41,7 @@ object CQBotPicture {
 	@JvmStatic
 	private fun savePic(d: Lolicon) {
 		val url = d.urls.values.firstOrNull() ?: return
-		Sqlite[TPixivPic].insertOrUpdate {
+		Sqlite.insertOrUpdate(TPixivPic) {
 			set(it.pid, d.pid)
 			set(it.p, d.p)
 			set(it.uid, d.uid)
