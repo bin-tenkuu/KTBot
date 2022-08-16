@@ -87,6 +87,16 @@ object CQBotHelper {
 		return "已发送"
 	}
 
+	@MiraiEventHandle("系统信息")
+	@RegexAnn("^[.．。]系统信息$")
+	@NeedAdmin
+	@Helper("系统信息")
+	@SendAuto
+	@JvmStatic
+	private fun getSystemInfo(): String {
+		return SystemInfoUtil()
+	}
+
 	@MiraiEventHandle("夸我")
 	@RegexAnn("^[夸舔]我$")
 	@Helper("彩虹屁")
@@ -94,6 +104,15 @@ object CQBotHelper {
 	@JvmStatic
 	private suspend fun rainbowFart(): String {
 		return KtorUtils.rainbowFart()
+	}
+
+	@MiraiEventHandle("情话")
+	@RegexAnn("^[.．。]情话$|^来点情话$")
+	@Helper("y1s1，来点情话")
+	@SendAuto
+	@JvmStatic
+	private suspend fun greenTea(): String {
+		return KtorUtils.greenTea(false)
 	}
 
 	/**

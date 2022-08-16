@@ -14,12 +14,12 @@ object SystemInfoUtil {
 	/**
 	 * 操作系统
 	 */
-	val os: OperatingSystem
+	private val os: OperatingSystem
 
 	/**
 	 * 硬件抽象层。提供对处理器、内存、电池和磁盘等硬件项目的访问
 	 */
-	val hal: HardwareAbstractionLayer
+	private val hal: HardwareAbstractionLayer
 
 	init {
 		val systemInfo = SystemInfo()
@@ -30,97 +30,107 @@ object SystemInfoUtil {
 	/**
 	 * 硬件：BIOS/固件和主板、逻辑板等组件
 	 */
-	val computerSystem: ComputerSystem = hal.computerSystem
+	private val computerSystem: ComputerSystem = hal.computerSystem
 
 	/**
 	 * 硬件：CPU
 	 */
-	val cpu: CentralProcessor = hal.processor
+	private val cpu: CentralProcessor = hal.processor
 
 	/**
 	 * 硬件：内存
 	 */
-	val memory: GlobalMemory = hal.memory
+	private val memory: GlobalMemory = hal.memory
 
 	/**
 	 * 硬件：硬盘或其他类似的存储设备
 	 */
-	val diskStores: List<HWDiskStore> = hal.diskStores
+	private val diskStores: List<HWDiskStore> = hal.diskStores
 
 	/**
 	 * 文件系统
 	 */
-	val fileSystem: FileSystem = os.fileSystem
+	private val fileSystem: FileSystem = os.fileSystem
 
 	@JvmStatic
 	fun main(vararg args: String) {
-		println(os)
+		println(SystemInfoUtil())
+	}
 
-		println("Checking computer system...")
-		computerSystem.printComputerSystem()
+	operator fun invoke(): String = buildString {
+		appendLine(os)
 
-		println("Checking CPU...")
-		cpu.printProcessor()
+		// println("Checking computer system...")
+		printComputerSystem(computerSystem)
 
-		println("Checking Memory...")
-		memory.printMemory()
+		// println("Checking CPU...")
+		printProcessor(cpu)
 
-		println("Checking Disks...")
+		// println("Checking Memory...")
+		printMemory(memory)
+
+		// println("Checking Disks...")
 		printDisks(diskStores)
 
-		println("Checking File System...")
+		// println("Checking File System...")
 		printFileSystem(fileSystem)
 	}
 
-	private fun ComputerSystem.printComputerSystem() {
-		println("manufacturer: $manufacturer")
-		firmware.run {
-			println("firmware:")
-			println("  manufacturer: $manufacturer")
-			println("  version: $version")
+	private fun StringBuilder.printComputerSystem(system: ComputerSystem) {
+		appendLine("manufacturer: ${system.manufacturer}")
+		system.firmware.run {
+			appendLine("firmware:")
+			appendLine("  manufacturer: $manufacturer")
+			appendLine("  version: $version")
 		}
-		baseboard.run {
-			println("baseboard:")
-			println("  manufacturer: $manufacturer")
-			println("  version: $version")
+		system.baseboard.run {
+			appendLine("baseboard:")
+			appendLine("  manufacturer: $manufacturer")
+			appendLine("  version: $version")
 		}
 	}
 
-	private fun CentralProcessor.printProcessor() {
-		println("Identifier: ${processorIdentifier.name}")
-		println("  $physicalPackageCount physical CPU package(s)")
-		println("  $physicalProcessorCount physical CPU core(s)")
-		println("  $logicalProcessorCount logical CPU(s)")
-		println("Context Switches/Interrupts: $contextSwitches / $interrupts")
-		val prevTicks = systemCpuLoadTicks
+	private fun StringBuilder.printProcessor(processor: CentralProcessor) {
+		appendLine("Identifier: ${processor.processorIdentifier.name}")
+		appendLine("  ${processor.physicalPackageCount} physical CPU package(s)")
+		appendLine("  ${processor.physicalProcessorCount} physical CPU core(s)")
+		appendLine("  ${processor.logicalProcessorCount} logical CPU(s)")
+		appendLine("Context Switches/Interrupts: ${processor.contextSwitches} / ${processor.interrupts}")
+		val prevTicks = processor.systemCpuLoadTicks
 		// Wait a second...
 		runBlocking {
 			delay(1000)
 		}
-		System.out.format("CPU load: %.1f%% (counting ticks)%n", getSystemCpuLoadBetweenTicks(prevTicks) * 100)
+		appendLine(
+			String.format(
+				"CPU load: %.1f%% (counting ticks)%n", processor.getSystemCpuLoadBetweenTicks(prevTicks) * 100
+			)
+		)
 	}
 
-	private fun GlobalMemory.printMemory() {
-		println("Memory: ${formatBytes(available)}/${formatBytes(total)}")
-		println("Swap used: ${formatBytes(virtualMemory.swapUsed)}/${formatBytes(virtualMemory.swapTotal)}")
+	private fun StringBuilder.printMemory(memory: GlobalMemory) {
+		appendLine("Memory: ${formatBytes(memory.available)}/${formatBytes(memory.total)}")
+		appendLine(
+			"Swap used: ${formatBytes(memory.virtualMemory.swapUsed)}/${formatBytes(memory.virtualMemory.swapTotal)}"
+		)
 	}
 
-	private fun printDisks(list: List<HWDiskStore>) {
-		println("Disks:")
+	private fun StringBuilder.printDisks(list: List<HWDiskStore>) {
+		appendLine("Disks:")
 		for (disk: HWDiskStore in list) {
-			print(" ${disk.name}: (model: ${disk.model}) size: ")
-			print(if (disk.size > 0) formatBytesDecimal(disk.size) else "?")
-			print(", ")
-			if (disk.reads > 0 || disk.writes > 0) println(
+			append(" ${disk.name}: (model: ${disk.model}) size: ")
+			append(if (disk.size > 0) formatBytesDecimal(disk.size) else "?")
+			append(", ")
+			if (disk.reads > 0 || disk.writes > 0) appendLine(
 				"reads: ${disk.reads} (${
 					formatBytes(disk.readBytes)
 				}), writes: ${disk.writes} (${
 					formatBytes(disk.writeBytes)
 				}), xfer: ${disk.transferTime} ms"
 			)
-			else println("reads: ? (?), writes: ? (?), xfer: ? ms")
+			else appendLine("reads: ? (?), writes: ? (?), xfer: ? ms")
 			for (part: HWPartition in disk.partitions ?: continue) {
-				println(
+				appendLine(
 					" |- ${part.identification}: ${part.name} (${part.type}) " +
 						"Maj:Min=${part.major}:${part.minor}, " +
 						"size: ${formatBytesDecimal(part.size)}" +
@@ -130,13 +140,13 @@ object SystemInfoUtil {
 		}
 	}
 
-	private fun printFileSystem(fileSystem: FileSystem) {
-		println("File System:")
-		println(" File Descriptors: ${fileSystem.openFileDescriptors}/${fileSystem.maxFileDescriptors}")
+	private fun StringBuilder.printFileSystem(fileSystem: FileSystem) {
+		appendLine("File System:")
+		appendLine(" File Descriptors: ${fileSystem.openFileDescriptors}/${fileSystem.maxFileDescriptors}")
 		for (fs: OSFileStore in fileSystem.fileStores) {
 			val usable = fs.usableSpace
 			val total = fs.totalSpace
-			println(
+			appendLine(
 				"  ${fs.name} (${fs.description.ifEmpty { "file system" }}) [${fs.type}] " +
 					"${formatBytes(usable)} of ${formatBytes(fs.totalSpace)} " +
 					"free (${String.format("%.1f", 100.0 * usable / total)}%) " +

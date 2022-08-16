@@ -133,6 +133,10 @@ object KtorUtils {
 		}.body()
 	}
 
+	/**
+	 * 彩虹屁
+	 * @return String
+	 */
 	@JvmStatic
 	suspend fun rainbowFart(): String {
 		val regex = Regex("(?<=\"text\":\")[^\"]+")
@@ -142,5 +146,15 @@ object KtorUtils {
 		}.body<String>()
 		val text = regex.find(receive)?.value ?: ""
 		return UnicodeUtil.toString(text).replace("\\n", "\n")
+	}
+
+	/**
+	 * 绿茶/渣男语录（海王）
+	 * @param tea Boolean true-F-绿茶,false-M-渣男
+	 * @return String
+	 */
+	@JvmStatic
+	suspend fun greenTea(tea: Boolean = false): String {
+		return get("https://api.lovelive.tools/api/SweetNothings?genderType=" + if (tea) "F" else "M").body()
 	}
 }
