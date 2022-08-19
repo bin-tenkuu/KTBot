@@ -1,5 +1,4 @@
 import org.gradle.api.JavaVersion.VERSION_17
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
 	val kotlinVersion = "1.7.10"
@@ -75,47 +74,54 @@ mirai {
 	}
 }
 
-tasks.withType<AbstractCompile> {
-	sourceCompatibility = VERSION_17.toString()
-	targetCompatibility = VERSION_17.toString()
+java {
+	sourceCompatibility = VERSION_17
+	targetCompatibility = VERSION_17
 }
 
-tasks.withType<KotlinCompile> {
-	kotlinOptions {
-		jvmTarget = VERSION_17.toString()
-		freeCompilerArgs = listOf(
-			"-Xjsr305=strict",
-			"-opt-in=kotlin.RequiresOptIn",
-			// "-Xcontext-receivers",
-		)
+tasks {
+	compileJava {
+		sourceCompatibility = VERSION_17.toString()
+		targetCompatibility = VERSION_17.toString()
 	}
-}
-
-tasks.create("build2Jar") {
-	group = "mirai"
-	dependsOn += "buildPlugin"
-	doLast {
-		val pluginPath = "${rootDir}/plugins/"
-		(File(pluginPath).listFiles() ?: emptyArray()).filter f@{
-			val name = it.name
-			if (it.isFile && name.startsWith(rootProject.name)) {
-				if (name.endsWith(".bak")) {
-					println("Delete backup File: $name")
-					if (!it.delete()) error("Cannot Delete File: $pluginPath$name")
-					return@f false
-				}
-				return@f true
-			}
-			return@f false
-		}.forEach {
-			val name = it.name
-			println("Backup File: $name to $name.bak")
-			it.renameTo(File("$pluginPath$name.bak"))
+	compileKotlin {
+		kotlinOptions {
+			verbose = true
+			jvmTarget = VERSION_17.toString()
+			freeCompilerArgs = listOf(
+				"-Xjsr305=strict",
+				"-opt-in=kotlin.RequiresOptIn",
+				"-opt-in=net.mamoe.mirai.utils.MiraiExperimentalApi",
+				// "-Xcontext-receivers",
+			)
 		}
-		(File("${buildDir}/mirai/").listFiles() ?: emptyArray()).forEach {
-			val name = it.name
-			println("Copy File: $name to plugins/$name ")
-			it.copyTo(File(pluginPath + name))
+	}
+	create("build2Jar") {
+		group = "mirai"
+		dependsOn += "buildPlugin"
+		doLast {
+			val pluginPath = "${rootDir}/plugins/"
+			(File(pluginPath).listFiles() ?: emptyArray()).filter f@{
+				val name = it.name
+				if (it.isFile && name.startsWith(rootProject.name)) {
+					if (name.endsWith(".bak")) {
+						println("Delete backup File: $name")
+						if (!it.delete()) error("Cannot Delete File: $pluginPath$name")
+						return@f false
+					}
+					return@f true
+				}
+				return@f false
+			}.forEach {
+				val name = it.name
+				println("Backup File: $name to $name.bak")
+				it.renameTo(File("$pluginPath$name.bak"))
+			}
+			(File("${buildDir}/mirai/").listFiles() ?: emptyArray()).forEach {
+				val name = it.name
+				println("Copy File: $name to plugins/$name ")
+				it.copyTo(File(pluginPath + name))
+			}
 		}
 	}
 }

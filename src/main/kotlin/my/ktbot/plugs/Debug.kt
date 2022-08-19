@@ -8,10 +8,8 @@ import my.miraiplus.annotation.RegexAnn
 import net.mamoe.mirai.event.events.FriendMessageEvent
 import net.mamoe.mirai.event.events.MessageEvent
 import net.mamoe.mirai.message.data.*
-import net.mamoe.mirai.utils.MiraiExperimentalApi
 
 object Debug {
-	@OptIn(MiraiExperimentalApi::class)
 	@MiraiEventHandle("test")
 	@RegexAnn("^[.．。]test$", RegexOption.IGNORE_CASE)
 	@NeedAdmin

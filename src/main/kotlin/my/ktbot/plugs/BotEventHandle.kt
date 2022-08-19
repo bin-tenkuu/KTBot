@@ -15,7 +15,6 @@ import net.mamoe.mirai.Bot
 import net.mamoe.mirai.contact.nameCardOrNick
 import net.mamoe.mirai.event.events.*
 import net.mamoe.mirai.message.data.isContentEmpty
-import net.mamoe.mirai.utils.MiraiExperimentalApi
 import java.time.Duration
 
 /**
@@ -49,7 +48,6 @@ object BotEventHandle {
 				else -> toString()
 			}
 		}"
-		startCounter()
 		logger.info(msg)
 	}
 
@@ -107,7 +105,6 @@ object BotEventHandle {
 		return msg
 	}
 
-	@OptIn(MiraiExperimentalApi::class)
 	@MiraiEventHandle("Bot 加入群事件")
 	@SendAdmin
 	private fun BotJoinGroupEvent.run(): String {
@@ -138,7 +135,6 @@ object BotEventHandle {
 		return msg
 	}
 
-	@OptIn(MiraiExperimentalApi::class)
 	@MiraiEventHandle("Bot 离开群事件")
 	@SendAdmin
 	private fun BotLeaveEvent.run(): String {
@@ -192,30 +188,25 @@ object BotEventHandle {
 
 	@JvmStatic
 	private fun startCounter() {
-		tasker?.cancel()
-		if (Bot.instances.isEmpty()) {
-			logger.error("无可用bot")
-			tasker = null
+		if (tasker !== null) {
 			return
 		}
 		tasker = PluginMain.launch(PluginMain.coroutineContext, CoroutineStart.UNDISPATCHED) {
-			logger.warning("携程启动")
 			while (true) {
-				val bot = Bot.instances.firstOrNull() ?: break
-				delay(Duration.ofHours(1).toMillis())
+				delay(1000)
+				val bot = Bot.instances.firstOrNull() ?: continue
 				while (bot.isOnline) {
+					delay(Duration.ofHours(2).toMillis())
 					val group = PlugConfig.getAdminGroup(bot)
 					Counter.state(group).also {
 						if (!it.isContentEmpty()) group.sendMessage(it)
 					}
 					Counter.clear()
-					delay(Duration.ofHours(2).toMillis())
 				}
-				delay(Duration.ofHours(1).toMillis())
 			}
 		}
 		tasker!!.invokeOnCompletion {
-			logger.error("全部可用bot下线")
+			logger.error("计数器携程退出")
 			tasker = null
 		}
 	}
