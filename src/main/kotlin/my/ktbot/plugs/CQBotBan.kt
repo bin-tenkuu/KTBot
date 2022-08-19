@@ -5,7 +5,6 @@ import my.ktbot.annotation.NeedAdmin
 import my.ktbot.annotation.SendAuto
 import my.ktbot.database.Gmt.Companion.update
 import my.ktbot.utils.Counter
-import my.ktbot.utils.get
 import my.miraiplus.annotation.MiraiEventHandle
 import my.miraiplus.annotation.RegexAnn
 import net.mamoe.mirai.message.data.Message
@@ -26,13 +25,13 @@ object CQBotBan {
 	@NeedAdmin
 	@Helper("设置群聊、私聊的ban状态。格式：.设置[群][un]ban <other>")
 	@SendAuto
-	private fun invoke(result: MatchResult): Message? {
+	private fun invoke(groups: MatchGroupCollection): Message? {
 		/**true为群聊，false为私聊*/
-		val group = result["group"] !== null
+		val group = groups["group"] !== null
 
 		/**true为ban，false为unban*/
-		val type = result["type"] === null
-		val ids = (result["other"] ?: return null).value.split(empty).mapNotNull { it.toLongOrNull() }
+		val type = groups["type"] === null
+		val ids = (groups["other"] ?: return null).value.split(empty).mapNotNull { it.toLongOrNull() }
 		buildMessageChain {
 			+"已"
 			if (type) +"un"

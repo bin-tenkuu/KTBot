@@ -12,10 +12,6 @@ import net.mamoe.mirai.message.data.*
 import net.mamoe.mirai.utils.MiraiLogger
 import net.mamoe.mirai.utils.error
 
-operator fun MatchResult.get(key: String): MatchGroup? {
-	return groups[key]
-}
-
 /**
  * 给管理员发送消息
  */

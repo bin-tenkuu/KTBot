@@ -27,10 +27,10 @@ object CQBotHelper {
 	@RegexAnn("^[.．。](?:help|帮助)(?<num> ?\\d+)?$", RegexOption.IGNORE_CASE)
 	@Helper("帮助专用功能\n.help后附带下标数字查看对应功能详情")
 	@SendAuto(recall = 30 * 1000)
-	fun invoke(result: MatchResult): String {
+	fun invoke(groups: MatchGroupCollection): String {
 		val list = get()
 		val c = run {
-			val num = result["num"]?.run { value.trim().toIntOrNull() } ?: return@run null
+			val num = groups["num"]?.run { value.trim().toIntOrNull() } ?: return@run null
 			list.getOrNull(num)
 		} ?: return ".help后附带下标数字查看对应功能详情${
 			list.mapIndexed { i, p ->
@@ -65,8 +65,8 @@ object CQBotHelper {
 	@Helper("附上消息发送给开发者")
 	@SendAuto
 	@JvmStatic
-	private suspend fun report(event: MessageEvent, result: MatchResult): String? {
-		val txt = result["txt"]?.value ?: return null
+	private suspend fun report(event: MessageEvent, groups: MatchGroupCollection): String? {
+		val txt = groups["txt"]?.value ?: return null
 		val group = if (event is GroupMessageEvent) "${event.group.name}(${event.group.id})" else ""
 		event.sendAdmin("来自 ${group}${event.senderName}(${event.sender.id}):\n${txt}".toPlainText())
 		return "收到"
@@ -78,10 +78,10 @@ object CQBotHelper {
 	@Helper("bot代理发送消息")
 	@SendAuto
 	@JvmStatic
-	private suspend fun sendMsg(event: MessageEvent, result: MatchResult): String {
-		val qq = result["qq"]?.value?.toLongOrNull() ?: return "需要发送目标"
-		val g = result["g"] !== null
-		val txt = result["txt"]?.value ?: return "需要发送的消息"
+	private suspend fun sendMsg(event: MessageEvent, groups: MatchGroupCollection): String {
+		val qq = groups["qq"]?.value?.toLongOrNull() ?: return "需要发送目标"
+		val g = groups["g"] !== null
+		val txt = groups["txt"]?.value ?: return "需要发送的消息"
 		(if (g) event.bot.getGroup(qq) else event.bot.getFriend(qq))
 			?.sendMessage(txt) ?: return "发送失败"
 		return "已发送"
@@ -118,7 +118,7 @@ object CQBotHelper {
 	/**
 	 * 来源 [https://mirai.mamoe.net/topic/1269/%E7%AE%80%E6%98%93jeff%E7%AC%91%E8%AF%9D%E7%94%9F%E6%88%90%E5%99%A8]
 	 * @param event [MessageEvent]
-	 * @param result [MatchResult]
+	 * @param groups [MatchResult]
 	 * @return [String]?
 	 */
 	@MiraiEventHandle("jeffJoke")
@@ -126,11 +126,11 @@ object CQBotHelper {
 	@Helper("简易Jeff笑话生成，参数：<name> ：名字；<times>：次数")
 	@SendAuto
 	@JvmStatic
-	private fun jeffJoke(event: MessageEvent, result: MatchResult): String? {
+	private fun jeffJoke(event: MessageEvent, groups: MatchGroupCollection): String? {
 		val joke = Sqlite[TJeffJoke].limit(1).sortedBy {
 			Sqlite.random
 		}.firstOrNull()?.text ?: return null
-		val name = result["name"]?.value?.trim() ?: event.senderName
+		val name = groups["name"]?.value?.trim() ?: event.senderName
 		return joke.replace("%s", name)
 	}
 }

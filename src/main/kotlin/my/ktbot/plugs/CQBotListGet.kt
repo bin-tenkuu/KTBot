@@ -6,8 +6,10 @@ import my.ktbot.annotation.NeedAdmin
 import my.ktbot.annotation.SendAuto
 import my.ktbot.database.TGroup
 import my.ktbot.database.TMember
-import my.ktbot.utils.*
+import my.ktbot.utils.Counter
+import my.ktbot.utils.Sqlite
 import my.ktbot.utils.calculator.Calculator
+import my.ktbot.utils.toHelper
 import my.miraiplus.annotation.MiraiEventHandle
 import my.miraiplus.annotation.RegexAnn
 import net.mamoe.mirai.event.events.MessageEvent
@@ -29,8 +31,8 @@ object CQBotListGet {
 	@RegexAnn("^[.．。]获取(?<type>[^ ]+)列表$")
 	@NeedAdmin
 	@SendAuto
-	fun invoke(event: MessageEvent, result: MatchResult): Message? {
-		val type = result["type"]?.value ?: return null
+	fun invoke(event: MessageEvent, groups: MatchGroupCollection): Message? {
+		val type = groups["type"]?.value ?: return null
 		when (type) {
 			"群" -> return event.bot.groups.run {
 				"总共 ${size} 个群:\n" + joinToString("\n") {
@@ -57,10 +59,10 @@ object CQBotListGet {
 	@Helper("查看插件信息")
 	@SendAuto
 	@JvmStatic
-	private fun cqBotPluginInfo(result: MatchResult): String {
+	private fun cqBotPluginInfo(groups: MatchGroupCollection): String {
 		val list = PluginMain.callers
 		val c = run {
-			val num = result["id"]?.run { value.trim().toIntOrNull() } ?: return@run null
+			val num = groups["id"]?.run { value.trim().toIntOrNull() } ?: return@run null
 			list.getOrNull(num)
 		} ?: return list.mapIndexed { i, p ->
 			"$i :${p.name}"
@@ -74,7 +76,7 @@ object CQBotListGet {
 	// @Helper("设置插件状态")
 	// @SendAuto
 	// @JvmStatic
-	// private fun cqBotPluginStatus(result: MatchResult): Message? {
+	// private fun cqBotPluginStatus(result: MatchGroupCollection): Message? {
 	// 	val isOpen = when (result["open"]!!.value) {
 	// 		"开" -> true
 	// 		"关" -> false
@@ -112,8 +114,8 @@ object CQBotListGet {
 	@Helper("表达式间不允许出现空格")
 	@SendAuto
 	@JvmStatic
-	private fun cqBotCalculate(result: MatchResult): Message {
-		val calc = result["calc"]?.value ?: return emptyMessageChain()
+	private fun cqBotCalculate(groups: MatchGroupCollection): Message {
+		val calc = groups["calc"]?.value ?: return emptyMessageChain()
 		return try {
 			"结果为${Calculator(calc).v}".toPlainText()
 		}

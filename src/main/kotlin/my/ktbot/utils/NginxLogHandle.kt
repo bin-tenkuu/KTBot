@@ -33,19 +33,19 @@ object NginxLogHandle {
 		val extra: String,
 	) {
 
-		constructor(result: MatchResult, fromFile: String) : this(
+		constructor(result: MatchGroupCollection, fromFile: String) : this(
 			fromFile = fromFile,
-			ip = result["ip"]!!,
-			user = result["user"]!!,
-			time = result["time"]!!,
-			status = result["status"]!!,
-			referer = result["referer"]!!,
-			bytes = result["bytes"]!!,
-			method = result["method"],
-			url = result["url"]!!,
-			protocol = result["protocol"],
-			agent = result["agent"]!!,
-			extra = result["extra"]!!,
+			ip = result["ip"]?.value!!,
+			user = result["user"]?.value!!,
+			time = result["time"]?.value!!,
+			status = result["status"]?.value!!,
+			referer = result["referer"]?.value!!,
+			bytes = result["bytes"]?.value!!,
+			method = result["method"]?.value,
+			url = result["url"]?.value!!,
+			protocol = result["protocol"]?.value,
+			agent = result["agent"]?.value!!,
+			extra = result["extra"]?.value!!,
 		)
 
 		val success get() = status.length != 3 || status[0] != '2'
@@ -97,11 +97,9 @@ object NginxLogHandle {
 			BufferedReader(FileReader(file)).use {
 				for (line in it.lines()) {
 					val result = nginxRegex.find(line, 0)
-					if (result == null) {
-						// logger.info("\tNot Match Line: $line")
+						?: // logger.info("\tNot Match Line: $line")
 						continue
-					}
-					val element = LogNginx(result, name)
+					val element = LogNginx(result.groups, name)
 					if (element.method === null) continue
 					val ip = element.ip
 					if (ip in pass) continue
@@ -154,8 +152,6 @@ object NginxLogHandle {
 			}
 		}
 	}
-
-	private operator fun MatchResult.get(index: String) = groups[index]?.value
 
 	private var banipResult = ArrayList<String>()
 

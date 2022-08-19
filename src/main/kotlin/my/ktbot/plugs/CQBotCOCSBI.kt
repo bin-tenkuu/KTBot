@@ -4,7 +4,6 @@ import my.ktbot.annotation.Helper
 import my.ktbot.annotation.SendAuto
 import my.ktbot.utils.CacheMap
 import my.ktbot.utils.DiceResult
-import my.ktbot.utils.get
 import my.miraiplus.annotation.MiraiEventHandle
 import my.miraiplus.annotation.RegexAnn
 import net.mamoe.mirai.event.events.MessageEvent
@@ -24,9 +23,9 @@ object CQBotCOCSBI {
 	@Helper("SBI骰子主功能")
 	@SendAuto
 	@JvmStatic
-	private fun invoke(event: MessageEvent, result: MatchResult): Message? {
-		val num = (result["num"]?.value?.toIntOrNull() ?: return null).coerceAtLeast(3)
-		val max = result["max"]?.value?.toIntOrNull() ?: return null
+	private fun invoke(event: MessageEvent, groups: MatchGroupCollection): Message? {
+		val num = (groups["num"]?.value?.toIntOrNull() ?: return null).coerceAtLeast(3)
+		val max = groups["max"]?.value?.toIntOrNull() ?: return null
 		val diceResult = DiceResult(num, max)
 		if (!cheater) diceResult.dice()
 		cache[event.sender.id] = diceResult
@@ -40,8 +39,8 @@ object CQBotCOCSBI {
 	@Helper("10分钟之内加投骰")
 	@SendAuto
 	@JvmStatic
-	private fun test(result: MatchResult): String? {
-		val s = result["nums"]?.value ?: return null
+	private fun test(groups: MatchGroupCollection): String? {
+		val s = groups["nums"]?.value ?: return null
 		return getRes(s.split(split).map { it.toInt() }.toIntArray())
 	}
 
@@ -69,8 +68,8 @@ object CQBotCOCSBI {
 	@Helper("10分钟之内加投骰")
 	@SendAuto
 	@JvmStatic
-	private fun addedDice(event: MessageEvent, result: MatchResult): String {
-		val num = result["num"]?.run { value.trim().toIntOrNull() } ?: 1
+	private fun addedDice(event: MessageEvent, groups: MatchGroupCollection): String {
+		val num = groups["num"]?.run { value.trim().toIntOrNull() } ?: 1
 		val id = event.sender.id
 		var diceResult: DiceResult = cache[id] ?: return "10分钟之内没有投任何骰子"
 		val dice = DiceResult(num, diceResult.max)

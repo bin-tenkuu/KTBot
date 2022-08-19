@@ -5,7 +5,6 @@ import my.ktbot.annotation.NeedExp
 import my.ktbot.annotation.SendAuto
 import my.ktbot.utils.CacheMap
 import my.ktbot.utils.Counter
-import my.ktbot.utils.get
 import my.miraiplus.annotation.MiraiEventHandle
 import my.miraiplus.annotation.RegexAnn
 import net.mamoe.mirai.event.EventPriority
@@ -34,8 +33,8 @@ object MemberExp {
 	@RegexAnn("^[.．。]state(?<qq> ?\\d{5,12})?$", RegexOption.IGNORE_CASE)
 	@Helper("查看自己/<qq>的信息，群聊限时1次/分钟")
 	@SendAuto
-	fun invoke(event: MessageEvent, result: MatchResult): Message {
-		val qq = result["qq"]?.value?.toLongOrNull() ?: event.sender.id
+	fun invoke(event: MessageEvent, groups: MatchGroupCollection): Message {
+		val qq = groups["qq"]?.value?.toLongOrNull() ?: event.sender.id
 		if (!cache.getOrInit(event.subject.id, ::HashSet).add(qq) && event is GroupMessageEvent) {
 			return emptyMessageChain()
 		}

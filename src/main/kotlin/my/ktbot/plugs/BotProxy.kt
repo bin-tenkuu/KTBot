@@ -1,7 +1,6 @@
 package my.ktbot.plugs
 
 import my.ktbot.annotation.SendAuto
-import my.ktbot.utils.get
 import my.miraiplus.annotation.MiraiEventHandle
 import my.miraiplus.annotation.RegexAnn
 import net.mamoe.mirai.event.events.FriendMessageEvent
@@ -37,10 +36,10 @@ object BotProxy {
 	@MiraiEventHandle("c 转发具体消息")
 	@RegexAnn("^[.．。]c (?<msg>.*)", RegexOption.IGNORE_CASE, RegexOption.MULTILINE, RegexOption.DOT_MATCHES_ALL)
 	@SendAuto
-	suspend fun cProxy(event: FriendMessageEvent, result: MatchResult): String {
+	suspend fun cProxy(event: FriendMessageEvent, groups: MatchGroupCollection): String {
 		val gId = this.groupId ?: return "无具体转发群"
 		val tmp = event.bot.getGroup(gId) ?: return "未找到对应群"
-		val value = result["msg"]?.value ?: return "无匹配消息"
+		val value = groups["msg"]?.value ?: return "无匹配消息"
 		val msg = String(value.mapNotNull {
 			if (it in toSpace) return@mapNotNull '　'
 			else if (it in toDel) return@mapNotNull null

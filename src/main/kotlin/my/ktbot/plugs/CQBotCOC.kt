@@ -4,7 +4,9 @@ import my.ktbot.annotation.Helper
 import my.ktbot.annotation.SendAuto
 import my.ktbot.database.COCShortKey
 import my.ktbot.database.TCOCShortKey
-import my.ktbot.utils.*
+import my.ktbot.utils.CacheMap
+import my.ktbot.utils.DiceResult
+import my.ktbot.utils.Sqlite
 import my.miraiplus.annotation.MiraiEventHandle
 import my.miraiplus.annotation.RegexAnn
 import net.mamoe.mirai.event.events.MessageEvent
@@ -34,9 +36,9 @@ object CQBotCOC {
 	@RegexAnn("^[.．。]d +(?:(?<times>\\d)#)?(?<dice>[^ ]+)", IGNORE_CASE)
 	@Helper("骰子主功能，附带简单表达式计算")
 	@SendAuto
-	fun invoke(event: MessageEvent, result: MatchResult): Message? {
-		val times: Int = result["times"]?.run { value.trim().toIntOrNull() } ?: 1
-		var dice: String = result["dice"]?.value ?: return null
+	fun invoke(event: MessageEvent, groups: MatchGroupCollection): Message? {
+		val times: Int = groups["times"]?.run { value.trim().toIntOrNull() } ?: 1
+		var dice: String = groups["dice"]?.value ?: return null
 
 		for (sk in Sqlite[TCOCShortKey]) {
 			dice = dice.replace(sk.key, sk.value, true)
@@ -85,16 +87,16 @@ object CQBotCOC {
 
 	@JvmStatic
 	private fun castString(origin: String, cheater: Boolean): Calc {
-		val result =
-			castStringRegex.matchEntire(origin) ?: return Calc(op = Operator.Add, sum = 0, origin = origin, max = 0)
-		val num: Int = result["num"]?.run { value.toIntOrNull() } ?: 1
-		val op = when (result["op"]?.value) {
+		val groups = castStringRegex.matchEntire(origin)?.groups
+			?: return Calc(op = Operator.Add, sum = 0, origin = origin, max = 0)
+		val num: Int = groups["num"]?.run { value.toIntOrNull() } ?: 1
+		val op = when (groups["op"]?.value) {
 			"+" -> Operator.Add
 			"-" -> Operator.Sub
 			"*" -> Operator.Mul
 			else -> Operator.Add
 		}
-		val max = result["max"]?.run { value.toIntOrNull() } ?: return Calc(
+		val max = groups["max"]?.run { value.toIntOrNull() } ?: return Calc(
 			op = op,
 			sum = num.toLong(),
 			origin = num.toString(),
@@ -162,9 +164,9 @@ object CQBotCOC {
 	@Helper("删除[设置]简写")
 	@SendAuto
 	@JvmStatic
-	private fun statsSet(result: MatchResult): Message {
-		val key = result["key"]?.value
-		val value = result["value"]?.value
+	private fun statsSet(groups: MatchGroupCollection): Message {
+		val key = groups["key"]?.value
+		val value = groups["value"]?.value
 		if (key === null || key.length < 2) {
 			return "key格式错误或长度小于2".toPlainText()
 		}
@@ -188,8 +190,8 @@ object CQBotCOC {
 	@Helper("10分钟之内加投骰")
 	@SendAuto
 	@JvmStatic
-	private fun addedDice(event: MessageEvent, result: MatchResult): String {
-		val num = result["num"]?.run { value.trim().toIntOrNull() } ?: 1
+	private fun addedDice(event: MessageEvent, groups: MatchGroupCollection): String {
+		val num = groups["num"]?.run { value.trim().toIntOrNull() } ?: 1
 		var cacheResult: DiceResult = cache[event.sender.id] ?: return "10分钟之内没有投任何骰子"
 		val dice = DiceResult(num, cacheResult.max)
 		if (!cheater) dice.dice()
@@ -205,8 +207,8 @@ object CQBotCOC {
 	@Helper("打开/修改/关闭特殊模式")
 	@SendAuto
 	@JvmStatic
-	private fun setSpecial(result: MatchResult): String? {
-		val operator = result["operator"]?.value ?: return null
+	private fun setSpecial(groups: MatchGroupCollection): String? {
+		val operator = groups["operator"]?.value ?: return null
 		return if (operator == "bug") {
 			specialEffects = Effects.bug
 			"进入默认状态"

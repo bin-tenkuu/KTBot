@@ -8,9 +8,11 @@ import my.ktbot.dao.Lolicon
 import my.ktbot.dao.LoliconRequest
 import my.ktbot.database.PixivPic
 import my.ktbot.database.TPixivPic
-import my.ktbot.utils.*
+import my.ktbot.utils.KtorUtils
+import my.ktbot.utils.Sqlite
 import my.ktbot.utils.Sqlite.limit
 import my.ktbot.utils.Sqlite.setExcluded
+import my.ktbot.utils.createLogger
 import my.miraiplus.annotation.MiraiEventHandle
 import my.miraiplus.annotation.RegexAnn
 import net.mamoe.mirai.contact.Contact
@@ -66,14 +68,14 @@ object CQBotPicture {
 	@LimitAll(1000 * 60 * 10)
 	@NeedExp(-8.0, -5.0)
 	@JvmStatic
-	suspend fun invoke(event: MessageEvent, result: MatchResult): Message {
-		return message(result, event.subject)
+	suspend fun invoke(event: MessageEvent, groups: MatchGroupCollection): Message {
+		return message(groups, event.subject)
 	}
 
 	@JvmStatic
-	private suspend fun message(result: MatchResult, contact: Contact): Message {
-		val r18 = result["r18"] !== null
-		val keyword = result["keyword"]?.value ?: ""
+	private suspend fun message(groups: MatchGroupCollection, contact: Contact): Message {
+		val r18 = groups["r18"] !== null
+		val keyword = groups["keyword"]?.value ?: ""
 		if (setuSet.contains(keyword)) {
 			return "找不到符合关键字的色图".toPlainText()
 		}
@@ -107,8 +109,8 @@ object CQBotPicture {
 	@LimitAll(1000 * 60 * 1)
 	@NeedExp(-5.0, -3.0)
 	@JvmStatic
-	private suspend fun setuCache(event: MessageEvent, result: MatchResult): Message {
-		return messageLocal(result, event.subject)
+	private suspend fun setuCache(event: MessageEvent, groups: MatchGroupCollection): Message {
+		return messageLocal(groups, event.subject)
 	}
 
 	@JvmStatic
@@ -117,11 +119,8 @@ object CQBotPicture {
 	}
 
 	@JvmStatic
-	private suspend fun messageLocal(
-		result: MatchResult,
-		contact: Contact,
-	): CodableMessage {
-		val r18 = result["r18"] !== null
+	private suspend fun messageLocal(groups: MatchGroupCollection, contact: Contact): CodableMessage {
+		val r18 = groups["r18"] !== null
 		val pic = getRandomPic(r18) ?: return emptyMessageChain()
 		val image = KtorUtils.get(pic.url) {
 			header(HttpHeaders.Referrer, "https://www.pixiv.net/")

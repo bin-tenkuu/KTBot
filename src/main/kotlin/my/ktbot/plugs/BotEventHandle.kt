@@ -213,6 +213,8 @@ object BotEventHandle {
 				}
 				delay(Duration.ofHours(1).toMillis())
 			}
+		}
+		tasker!!.invokeOnCompletion {
 			logger.error("全部可用bot下线")
 			tasker = null
 		}

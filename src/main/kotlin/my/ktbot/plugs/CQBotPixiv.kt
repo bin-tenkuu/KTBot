@@ -3,7 +3,6 @@ package my.ktbot.plugs
 import my.ktbot.annotation.*
 import my.ktbot.utils.KtorUtils
 import my.ktbot.utils.createLogger
-import my.ktbot.utils.get
 import my.miraiplus.annotation.MiraiEventHandle
 import my.miraiplus.annotation.RegexAnn
 import net.mamoe.mirai.contact.Contact
@@ -29,8 +28,8 @@ object CQBotPixiv {
 	@SendAuto
 	@LimitAll(1000 * 10)
 	@NeedExp(-8.0, -5.0)
-	suspend fun invoke(event: MessageEvent, result: MatchResult): Message {
-		val pid: Int = result["pid"]?.run { value.trim().toIntOrNull() } ?: return "pid获取失败".toPlainText()
+	suspend fun invoke(event: MessageEvent, groups: MatchGroupCollection): Message {
+		val pid: Int = groups["pid"]?.run { value.trim().toIntOrNull() } ?: return "pid获取失败".toPlainText()
 		return this(pid, event.subject)
 	}
 

@@ -3,6 +3,7 @@ package my.ktbot
 import my.ktbot.annotation.*
 import my.ktbot.plugs.*
 import my.ktbot.utils.Counter
+import my.ktbot.utils.ShareCertificate
 import my.miraiplus.MyKotlinPlugin
 import my.miraiplus.annotation.RegexAnn
 import net.mamoe.mirai.console.extension.PluginComponentStorage
@@ -26,6 +27,7 @@ object PluginMain : MyKotlinPlugin(
 
 	override fun PluginComponentStorage.onLoad() {
 		PlugConfig.reload()
+		ShareCertificate.init()
 		logger.warning("管理员QQ：${PlugConfig.adminId}")
 		logger.warning("管理员QQ群：${PlugConfig.adminGroup}")
 		injectMap + SendAuto + NeedAdmin + RegexAnn.Inject() +

@@ -31,7 +31,7 @@ annotation class RegexAnn(
 
 		override suspend fun doBefore(ann: RegexAnn, event: MessageEvent, tmpMap: ArgsMap, caller: Caller): Boolean {
 			val result = map[caller.fieldName]?.find(event.message.textString) ?: return false
-			tmpMap + result
+			tmpMap + result + result.groups
 			return true
 		}
 
