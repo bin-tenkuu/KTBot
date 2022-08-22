@@ -1,13 +1,8 @@
 package my
 
-import kotlinx.coroutines.runBlocking
-import my.ktbot.utils.KtorUtils
-
 object Test : Print {
 	@JvmStatic
 	fun main(args: Array<String>) {
-		runBlocking {
-			KtorUtils.greenTea(true).pl()
-		}
+		"v_s_sz159949".substring(4, 12).pl()
 	}
 }

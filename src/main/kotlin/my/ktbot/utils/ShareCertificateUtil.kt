@@ -9,7 +9,10 @@ import java.time.LocalTime
 import java.time.temporal.ChronoUnit
 import java.time.temporal.Temporal
 
-object ShareCertificate {
+/**
+ * 股票
+ */
+object ShareCertificateUtil {
 	private val logger = createLogger<Counter>()
 	private val amStart = LocalTime.of(9, 30)
 	private val amEnd = LocalTime.of(11, 30)
@@ -18,13 +21,17 @@ object ShareCertificate {
 
 	fun init() {
 		PluginMain.launch {
-			// for (data in ShareCertificate(listOf("sh600536", "sz159949"))) {
-			// 	println(
-			// 		"名称:${data.name},代码:${data.code},当前价格:${
-			// 			data.currentPrice
-			// 		},涨额:${data.raise},涨辐:${data.raiseRange}"
-			// 	)
-			// }
+			listOf("sh600536", "sz159949", "sZ159949").also {
+				val map = invoke(it)
+				for (code in it) {
+					val data = map[code] ?: continue
+					logger.info(
+						"名称:${data.name},代码:${data.code},当前价格:${
+							data.currentPrice
+						},涨额:${data.raise},涨辐:${data.raiseRange}"
+					)
+				}
+			}
 			while (true) {
 				// 如果没找到bot，每秒检查一次
 				delay(1000)
@@ -71,7 +78,7 @@ object ShareCertificate {
 	// 腾讯api：https://blog.csdn.net/qq_32531329/article/details/121260138
 	// 聚合api：https://dashboard.juhe.cn/data/index/my
 
-	private suspend operator fun invoke(shareCode: List<String>): List<ShareData> = Gtimg(shareCode)
+	suspend operator fun invoke(shareCode: List<String>): Map<String, ShareData?> = Gtimg(shareCode)
 
 	/**
 	 * 股票信息
@@ -90,26 +97,27 @@ object ShareCertificate {
 		val raiseRange: Float,
 	)
 
-	private interface ShareDataApi : suspend (List<String>) -> List<ShareData> {
-		override suspend fun invoke(shareCode: List<String>): List<ShareData>
+	private interface ShareDataApi : suspend (List<String>) -> Map<String, ShareData?> {
+		override suspend fun invoke(shareCode: List<String>): Map<String, ShareData?>
 	}
 
 	/**
 	 * 腾讯
 	 */
 	private object Gtimg : ShareDataApi {
-		override suspend fun invoke(shareCode: List<String>): List<ShareData> {
+		override suspend fun invoke(shareCode: List<String>): Map<String, ShareData?> {
 			@Suppress("HttpUrlsUsage")
 			val url = shareCode.joinToString(",", "http://qt.gtimg.cn/q=") { "s_$it" }
 			val body = KtorUtils.get(url).body<String>().split("\";").take(shareCode.size)
-			return body.map {
-				val list = it.substring(it.indexOf("\"")).split('~')
+			return body.asSequence().map { it.split("~") }.filter { it.size >= 6 }.associateBy({
+				it[0].substring(4, 12)
+			}) {
 				ShareData(
-					list[1],
-					list[2].toInt(),
-					list[3].toFloat(),
-					list[4].toFloat(),
-					list[5].toFloat(),
+					it[1],
+					it[2].toIntOrNull() ?: return@associateBy null,
+					it[3].toFloatOrNull() ?: return@associateBy null,
+					it[4].toFloatOrNull() ?: return@associateBy null,
+					it[5].toFloatOrNull() ?: return@associateBy null,
 				)
 			}
 		}

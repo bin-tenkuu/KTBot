@@ -1,9 +1,11 @@
 package my.ktbot
 
+import kotlinx.coroutines.runBlocking
 import my.ktbot.annotation.*
 import my.ktbot.plugs.*
 import my.ktbot.utils.Counter
-import my.ktbot.utils.ShareCertificate
+import my.ktbot.utils.KtorUtils
+import my.ktbot.utils.ShareCertificateUtil
 import my.miraiplus.MyKotlinPlugin
 import my.miraiplus.annotation.RegexAnn
 import net.mamoe.mirai.console.extension.PluginComponentStorage
@@ -27,7 +29,16 @@ object PluginMain : MyKotlinPlugin(
 
 	override fun PluginComponentStorage.onLoad() {
 		PlugConfig.reload()
-		ShareCertificate.init()
+		runBlocking {
+			KtorUtils.rainbowFart()
+			KtorUtils.rainbowFart()
+			KtorUtils.rainbowFart()
+			KtorUtils.rainbowFart()
+			KtorUtils.rainbowFart()
+			KtorUtils.rainbowFart()
+			KtorUtils.rainbowFart()
+		}
+		ShareCertificateUtil.init()
 		logger.warning("管理员QQ：${PlugConfig.adminId}")
 		logger.warning("管理员QQ群：${PlugConfig.adminGroup}")
 		injectMap + SendAuto + NeedAdmin + RegexAnn.Inject() +
@@ -44,7 +55,8 @@ object PluginMain : MyKotlinPlugin(
 			CQBotPicture, CQBotPixiv,
 			CQBotPerm, CQBotHelper, CQBotListGet, CQBotMemeAI,
 			CQBotWhoAtMe,
-			CQNginxLogHandle
+			CQNginxLogHandle,
+			BotShareCertificate,
 		).forEach {
 			register(it)
 		}
