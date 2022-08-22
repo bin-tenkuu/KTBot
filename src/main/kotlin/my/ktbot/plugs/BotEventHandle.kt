@@ -14,7 +14,7 @@ import my.miraiplus.annotation.MiraiEventHandle
 import net.mamoe.mirai.Bot
 import net.mamoe.mirai.contact.nameCardOrNick
 import net.mamoe.mirai.event.events.*
-import net.mamoe.mirai.message.data.isContentEmpty
+import net.mamoe.mirai.message.data.ForwardMessage
 import java.time.Duration
 
 /**
@@ -48,6 +48,7 @@ object BotEventHandle {
 				else -> toString()
 			}
 		}"
+		startCounter()
 		logger.info(msg)
 	}
 
@@ -195,13 +196,17 @@ object BotEventHandle {
 			while (true) {
 				delay(1000)
 				val bot = Bot.instances.firstOrNull() ?: continue
+				var sizelimit = 12
 				while (bot.isOnline) {
-					delay(Duration.ofHours(2).toMillis())
 					val group = PlugConfig.getAdminGroup(bot)
-					Counter.state(group).also {
-						if (!it.isContentEmpty()) group.sendMessage(it)
+					val state = Counter.state(group)
+					if (state is ForwardMessage && state.nodeList.size > sizelimit) {
+						group.sendMessage(state)
+						Counter.clear()
+						sizelimit = 12
 					}
-					Counter.clear()
+					else if (sizelimit > 1) sizelimit--
+					delay(Duration.ofHours(1).toMillis())
 				}
 			}
 		}
