@@ -9,7 +9,7 @@ import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
-import io.ktor.serialization.kotlinx.json.*
+import io.ktor.serialization.kotlinx.*
 import kotlinx.serialization.json.Json
 import my.ktbot.PlugConfig
 import my.ktbot.dao.*
@@ -44,7 +44,7 @@ object KtorUtils {
 				proxy = ProxyBuilder.http(PlugConfig.httpProxy)
 		}
 		install(ContentNegotiation) {
-			json(json)
+			register(ContentType.Application.Json, KotlinxSerializationConverter(json))
 		}
 		install(HttpPlainText) {
 			register(StandardCharsets.UTF_8, 1.0F)

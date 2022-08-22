@@ -33,20 +33,20 @@ dependencies {
 	implementation("org.ktorm:ktorm-ksp-api:1.0.0-RC2")
 	ksp("org.ktorm:ktorm-ksp-compiler:1.0.0-RC2")
 	// ktor
-	val ktorVersion = "2.0.3"
+	val ktorVersion = "2.1.0"
 	implementation("io.ktor:ktor-http:${ktorVersion}")
 	implementation("io.ktor:ktor-client-okhttp:${ktorVersion}")
 	implementation("io.ktor:ktor-client-content-negotiation:${ktorVersion}")
-	implementation("io.ktor:ktor-serialization-kotlinx-json:${ktorVersion}")
+	implementation("io.ktor:ktor-serialization-kotlinx:${ktorVersion}")
 	// mirai插件注解
-	api("net.mamoe:mirai-console-compiler-annotations-jvm:2.12.1")
+	api("net.mamoe:mirai-console-compiler-annotations-jvm:2.12.2")
 	// implementation("net.mamoe:mirai-core-utils:2.12.1")
 	// 系统状况读取
 	implementation("com.github.oshi:oshi-core-java11:6.2.2")
 	// 分词器
 	implementation("com.huaban:jieba-analysis:1.0.2")
 	// hutool全家桶:https://hutool.cn/docs/#/
-	implementation("cn.hutool:hutool-all:5.8.5")
+	implementation("cn.hutool:hutool-core:5.8.5")
 	// 词云生成器
 	testImplementation("com.kennycason:kumo-core:1.28")
 	testImplementation("com.kennycason:kumo-tokenizers:1.28")
