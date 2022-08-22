@@ -1,10 +1,8 @@
 package my.ktbot
 
-import kotlinx.coroutines.runBlocking
 import my.ktbot.annotation.*
 import my.ktbot.plugs.*
 import my.ktbot.utils.Counter
-import my.ktbot.utils.KtorUtils
 import my.ktbot.utils.ShareCertificateUtil
 import my.miraiplus.MyKotlinPlugin
 import my.miraiplus.annotation.RegexAnn
@@ -29,15 +27,6 @@ object PluginMain : MyKotlinPlugin(
 
 	override fun PluginComponentStorage.onLoad() {
 		PlugConfig.reload()
-		runBlocking {
-			KtorUtils.rainbowFart()
-			KtorUtils.rainbowFart()
-			KtorUtils.rainbowFart()
-			KtorUtils.rainbowFart()
-			KtorUtils.rainbowFart()
-			KtorUtils.rainbowFart()
-			KtorUtils.rainbowFart()
-		}
 		ShareCertificateUtil.init()
 		logger.warning("管理员QQ：${PlugConfig.adminId}")
 		logger.warning("管理员QQ群：${PlugConfig.adminGroup}")
