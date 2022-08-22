@@ -1,6 +1,5 @@
 package my.ktbot.utils
 
-import cn.hutool.core.text.UnicodeUtil
 import io.ktor.client.*
 import io.ktor.client.engine.*
 import io.ktor.client.engine.okhttp.*
@@ -94,8 +93,8 @@ object KtorUtils {
 	}
 
 	@JvmStatic
-	suspend fun lolicon(request: LoliconRequest): LoliconResponse {
-		return post("https://api.lolicon.app/setu/v2", request).body()
+	suspend fun lolicon(request: LoliconRequest): List<Lolicon> {
+		return post("https://api.lolicon.app/setu/v2", request).body<LoliconResponse>().data
 	}
 
 	/**
@@ -139,13 +138,12 @@ object KtorUtils {
 	 */
 	@JvmStatic
 	suspend fun rainbowFart(): String {
-		val regex = Regex("(?<=\"text\":\")[^\"]+")
-		val receive = get("https://api.shadiao.pro/chp") {
+		val text = get("https://api.shadiao.pro/chp") {
 			header(HttpHeaders.Origin, "https://chp.shadiao.app")
 			header(HttpHeaders.Referrer, "https://chp.shadiao.app/")
-		}.body<String>()
-		val text = regex.find(receive)?.value ?: ""
-		return UnicodeUtil.toString(text).replace("\\n", "\n")
+		}.body<RainbowFart>().data.text
+		println(text)
+		return text
 	}
 
 	/**

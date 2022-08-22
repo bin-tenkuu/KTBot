@@ -90,12 +90,6 @@ object Counter {
 			return emptyMessageChain()
 		}
 		return ForwardMessageBuilder(context, 2).apply {
-			val bot = context.bot
-			fun StringBuilder.saysTo(bot: Bot) {
-				bot.says(toString())
-				clear()
-			}
-
 			fun Bot.says(pre: String, list: List<String>) {
 				val sb = StringBuilder(pre).appendLine()
 				var i = 0
@@ -104,15 +98,21 @@ object Counter {
 					sb.appendLine(msg)
 					if (i >= 10) {
 						i = 0
-						sb.saysTo(this)
+						this.says(sb.toString())
+						sb.clear()
 					}
 				}
-				if (sb.isNotEmpty()) sb.saysTo(this)
+				if (sb.isNotEmpty()) {
+					this.says(sb.toString())
+					sb.clear()
+				}
 			}
 
 			fun Map<Long, Int>.toMSG(): List<String> = entries
 				.sortedByDescending { it.value }
 				.map { (id, num) -> "${id}：${num}次" }
+
+			val bot = context.bot
 			for ((group, list) in groupMap) {
 				bot.says("群($group)：", list.toMSG())
 			}

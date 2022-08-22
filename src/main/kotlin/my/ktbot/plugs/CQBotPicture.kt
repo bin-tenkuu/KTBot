@@ -82,14 +82,13 @@ object CQBotPicture {
 		}
 		try {
 			logger.info("开始色图")
-			val response = KtorUtils.lolicon(
+			val lolicon = KtorUtils.lolicon(
 				LoliconRequest(
 					r18 = if (r18) 1 else 0,
 					keyword = keyword,
 					size = listOf("regular", "small")
 				)
-			)
-			val lolicon = response.data.firstOrNull() ?: return "找不到符合关键字的色图".toPlainText()
+			).firstOrNull() ?: return "找不到符合关键字的色图".toPlainText()
 			runCatching { savePic(lolicon) }
 			val image = KtorUtils.get(
 				lolicon.urls.values.firstOrNull() ?: return "未找到图片链接".toPlainText()
