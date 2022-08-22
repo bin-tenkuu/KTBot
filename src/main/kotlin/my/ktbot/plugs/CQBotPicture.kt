@@ -62,7 +62,7 @@ object CQBotPicture {
 	}
 
 	@MiraiEventHandle("来点[<r18>][<key>]色图")
-	@HasPerm("my.ktbot.binbot:setu")
+	// @HasPerm("my.ktbot.binbot:setu")
 	@RegexAnn("^[来來发發给給l][张張个個幅点點份d](?<r18>r18的?)?(?<keyword>.*)?[涩色瑟铯s][图圖t]$")
 	@SendAuto
 	@LimitAll(1000 * 60 * 10)
@@ -75,6 +75,7 @@ object CQBotPicture {
 	@JvmStatic
 	private suspend fun message(groups: MatchGroupCollection, contact: Contact): Message {
 		val r18 = groups["r18"] !== null
+		if (r18) return emptyMessageChain()
 		val keyword = groups["keyword"]?.value ?: ""
 		if (setuSet.contains(keyword)) {
 			return "找不到符合关键字的色图".toPlainText()
@@ -103,10 +104,10 @@ object CQBotPicture {
 	}
 
 	@MiraiEventHandle("来点[<r18>]色图")
-	@HasPerm("my.ktbot.binbot:setu")
+	// @HasPerm("my.ktbot.binbot:setu")
 	@RegexAnn("^[来來发發给給l][张張个個幅点點份d](?<r18>r18的?)?[涩色瑟铯s][图圖t]$", RegexOption.IGNORE_CASE)
 	@SendAuto(recall = 20 * 1000)
-	@LimitAll(1000 * 60 * 1)
+	@LimitAll(1000 * 60 * 5)
 	@NeedExp(-5.0, -3.0)
 	@JvmStatic
 	private suspend fun setuCache(event: MessageEvent, groups: MatchGroupCollection): Message {
@@ -121,6 +122,7 @@ object CQBotPicture {
 	@JvmStatic
 	private suspend fun messageLocal(groups: MatchGroupCollection, contact: Contact): CodableMessage {
 		val r18 = groups["r18"] !== null
+		if (r18) return emptyMessageChain()
 		val pic = getRandomPic(r18) ?: return emptyMessageChain()
 		val image = KtorUtils.get(pic.url) {
 			header(HttpHeaders.Referrer, "https://www.pixiv.net/")
