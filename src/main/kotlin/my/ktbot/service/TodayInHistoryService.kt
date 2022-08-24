@@ -57,8 +57,7 @@ object TodayInHistoryService {
 					it.title.set(history.title)
 					it.eId.set(history.eId)
 				}
-				onConflict(it.month, it.day) {
-					it.date.setExcluded()
+				onConflict(it.day, it.month, it.date) {
 					it.title.setExcluded()
 					it.eId.setExcluded()
 				}
