@@ -144,9 +144,16 @@ object Counter {
 		operator fun iterator(): MutableIterator<E> = cacheMap.values.iterator()
 
 		fun flash() {
-			cacheMap.values.removeIf {
-				val g = it.apply { flushChanges() }
-				!g.isBaned && System.currentTimeMillis() - g.gmtModified > ttl
+			val each = cacheMap.values.iterator()
+			while (each.hasNext()) {
+				val it = each.next()
+				it.flushChanges()
+				if (it.isBaned) {
+					continue
+				}
+				if (System.currentTimeMillis() - it.gmtModified > ttl) {
+					each.remove()
+				}
 			}
 		}
 	}

@@ -92,7 +92,7 @@ tasks {
 				"-Xjsr305=strict",
 				"-opt-in=kotlin.RequiresOptIn",
 				"-opt-in=net.mamoe.mirai.utils.MiraiExperimentalApi",
-				// "-Xcontext-receivers",
+				"-Xcontext-receivers",
 			)
 		}
 	}

@@ -57,8 +57,6 @@ object PluginMain : MyKotlinPlugin(
 	override fun onDisable() {
 		unregisterAll()
 		Counter.save()
-		// 第二次保存将会打印内存中数据被清空
-		Counter.save()
 	}
 
 	inline fun <T> catch(block: () -> T): T? {

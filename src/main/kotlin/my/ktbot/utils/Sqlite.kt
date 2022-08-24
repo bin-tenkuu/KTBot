@@ -2,6 +2,7 @@ package my.ktbot.utils
 
 import my.ktbot.PluginMain
 import org.ktorm.database.Database
+import org.ktorm.dsl.AssignmentsBuilder
 import org.ktorm.entity.*
 import org.ktorm.expression.ArgumentExpression
 import org.ktorm.schema.*
@@ -53,8 +54,6 @@ object Sqlite {
 		return withExpression(expression.copy(limit = limit))
 	}
 
-	fun <T : Any> InsertOrUpdateOnConflictClauseBuilder.setExcluded(column: Column<T>) = set(column, excluded(column))
-
 	@Suppress("UNCHECKED_CAST")
 	inline fun <E : Entity<E>, T : Table<E>> EntitySequence<E, T>.findOrAdd(
 		predicate: (T) -> ColumnDeclaring<Boolean>,
@@ -64,6 +63,16 @@ object Sqlite {
 			block(it)
 			add(it)
 		}
+	}
+
+	context(AssignmentsBuilder)
+	fun <T : Any> Column<T>.set(value: T?) {
+		set(this, value)
+	}
+
+	context(InsertOrUpdateOnConflictClauseBuilder)
+	fun <T : Any> Column<T>.setExcluded() {
+		set(this, excluded(this))
 	}
 
 }

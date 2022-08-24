@@ -11,6 +11,7 @@ import my.ktbot.utils.KtorUtils
 import my.ktbot.utils.Sqlite
 import my.ktbot.utils.Sqlite.limit
 import my.ktbot.utils.Sqlite.random
+import my.ktbot.utils.Sqlite.set
 import my.ktbot.utils.Sqlite.setExcluded
 import org.ktorm.dsl.and
 import org.ktorm.dsl.eq
@@ -50,16 +51,16 @@ object TodayInHistoryService {
 		Sqlite.database.bulkInsertOrUpdate(TTodayInHistory) {
 			for (history in list) {
 				item {
-					set(it.month, date.monthValue)
-					set(it.day, date.dayOfMonth)
-					set(it.date, history.date)
-					set(it.title, history.title)
-					set(it.eId, history.eId)
+					it.month.set(date.monthValue)
+					it.day.set(date.dayOfMonth)
+					it.date.set(history.date)
+					it.title.set(history.title)
+					it.eId.set(history.eId)
 				}
 				onConflict(it.month, it.day) {
-					setExcluded(it.date)
-					setExcluded(it.title)
-					setExcluded(it.eId)
+					it.date.setExcluded()
+					it.title.setExcluded()
+					it.eId.setExcluded()
 				}
 			}
 		}

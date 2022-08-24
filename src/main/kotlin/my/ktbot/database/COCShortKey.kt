@@ -11,8 +11,8 @@ import org.ktorm.ksp.api.Table
 @Table(tableName = "COCShortKey", tableClassName = "TCOCShortKey", alias = "csk")
 interface COCShortKey : Entity<COCShortKey> {
 	@PrimaryKey
-	var key: String
-	var value: String
+	val key: String
+	val value: String
 
 	companion object : Entity.Factory<COCShortKey>()
 }

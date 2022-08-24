@@ -13,7 +13,7 @@ interface Gmt<T : Gmt<T>> : Entity<T> {
 	var gmtModified: Long
 
 	@Column(columnName = "gmt_create")
-	var gmtCreate: Long
+	val gmtCreate: Long
 
 	@Column(columnName = "is_baned")
 	var isBaned: Boolean

@@ -2,18 +2,17 @@ package my.ktbot.plugs
 
 import my.ktbot.annotation.Helper
 import my.ktbot.annotation.SendAuto
-import my.ktbot.database.COCShortKey
 import my.ktbot.database.TCOCShortKey
 import my.ktbot.utils.CacheMap
 import my.ktbot.utils.DiceResult
 import my.ktbot.utils.Sqlite
+import my.ktbot.utils.Sqlite.set
 import my.miraiplus.annotation.MiraiEventHandle
 import my.miraiplus.annotation.RegexAnn
 import net.mamoe.mirai.event.events.MessageEvent
 import net.mamoe.mirai.message.data.Message
 import net.mamoe.mirai.message.data.toPlainText
 import org.ktorm.dsl.eq
-import org.ktorm.entity.add
 import org.ktorm.entity.removeIf
 import org.ktorm.entity.toList
 import kotlin.text.RegexOption.IGNORE_CASE
@@ -170,18 +169,17 @@ object CQBotCOC {
 		if (key === null || key.length < 2) {
 			return "key格式错误或长度小于2".toPlainText()
 		}
-		val shortKey = Sqlite[TCOCShortKey]
 		if (value === null) {
-			shortKey.removeIf { it.key eq key }
+			Sqlite[TCOCShortKey].removeIf { it.key eq key }
 			return "删除key:${key}".toPlainText()
 		}
 		if (value.length > 10) {
 			return "value长度不大于10".toPlainText()
 		}
-		shortKey.add(COCShortKey {
-			this.key = key
-			this.value = value
-		})
+		Sqlite.insertOrUpdate(TCOCShortKey) {
+			it.key.set(key)
+			it.value.set(value)
+		}
 		return "添加key:${key}=${value}".toPlainText()
 	}
 

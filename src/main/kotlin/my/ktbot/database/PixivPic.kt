@@ -15,15 +15,15 @@ interface PixivPic : Entity<PixivPic> {
 	val id: Long
 
 	@PrimaryKey
-	var pid: Int
+	val pid: Int
 
 	@PrimaryKey
-	var p: Int
-	var uid: Int
-	var r18: Boolean
-	var url: String
-	var author: String
-	var title: String
+	val p: Int
+	val uid: Int
+	val r18: Boolean
+	val url: String
+	val author: String
+	val title: String
 
 	companion object : Entity.Factory<PixivPic>()
 }
