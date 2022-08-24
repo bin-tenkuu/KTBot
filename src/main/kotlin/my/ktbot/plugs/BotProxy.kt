@@ -23,14 +23,15 @@ object BotProxy {
 	@SendAuto
 	suspend fun start(event: GroupMessageEvent): String {
 		val gId = this.groupId
+		val id = event.group.id
 		if (gId !== null) {
-			if (gId == event.subject.id) {
+			if (gId == id) {
 				return "尚未停止转发"
 			}
 			event.bot.getGroup(gId)?.sendMessage("停止转发")
 		}
-		this.groupId = event.subject.id
-		return "开始转发消息至"
+		this.groupId = id
+		return "开始转发消息至$id"
 	}
 
 	@MiraiEventHandle("c 转发具体消息")

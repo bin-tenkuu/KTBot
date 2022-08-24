@@ -15,6 +15,8 @@ import my.ktbot.dao.*
 import my.ktbot.dao.blibili.BaseApi
 import my.ktbot.dao.blibili.LiveData
 import my.ktbot.dao.blibili.RoomInit
+import net.mamoe.mirai.utils.ExternalResource
+import net.mamoe.mirai.utils.ExternalResource.Companion.toExternalResource
 import java.nio.charset.StandardCharsets
 
 object KtorUtils {
@@ -154,5 +156,13 @@ object KtorUtils {
 	@JvmStatic
 	suspend fun greenTea(tea: Boolean = false): String {
 		return get("https://api.lovelive.tools/api/SweetNothings?genderType=" + if (tea) "F" else "M").body()
+	}
+
+	/**
+	 * 60s读懂世界
+	 * @return ExternalResource
+	 */
+	suspend fun read60s(): ExternalResource {
+		return get("https://api.qqsuu.cn/api/60s").body<ByteArray>().toExternalResource("png").toAutoCloseable()
 	}
 }

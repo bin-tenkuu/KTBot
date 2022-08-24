@@ -12,7 +12,9 @@ import my.miraiplus.annotation.MiraiEventHandle
 import my.miraiplus.annotation.RegexAnn
 import net.mamoe.mirai.event.events.GroupMessageEvent
 import net.mamoe.mirai.event.events.MessageEvent
+import net.mamoe.mirai.message.data.Image
 import net.mamoe.mirai.message.data.toPlainText
+import net.mamoe.mirai.utils.ExternalResource.Companion.uploadAsImage
 import org.ktorm.entity.firstOrNull
 import org.ktorm.entity.sortedBy
 
@@ -132,5 +134,19 @@ object CQBotHelper {
 		}.firstOrNull()?.text ?: return null
 		val name = groups["name"]?.value?.trim() ?: event.senderName
 		return joke.replace("%s", name)
+	}
+
+	/**
+	 * 60秒读懂世界
+	 * @param event MessageEvent
+	 * @return Image
+	 */
+	@MiraiEventHandle("60秒读懂世界")
+	@RegexAnn("^[.．。]joke(?<name> *.+)?$", RegexOption.IGNORE_CASE)
+	@Helper("60秒读懂世界")
+	@SendAuto
+	@JvmStatic
+	private suspend fun read60s(event: MessageEvent): Image {
+		return KtorUtils.read60s().uploadAsImage(event.subject)
 	}
 }
