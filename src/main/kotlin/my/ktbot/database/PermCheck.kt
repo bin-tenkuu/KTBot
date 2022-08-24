@@ -4,7 +4,7 @@ import org.ktorm.entity.Entity
 import org.ktorm.ksp.api.PrimaryKey
 import org.ktorm.ksp.api.Table
 
-@Table(tableName = "PermCheck", tableClassName = "TPermCheck")
+@Table(tableName = "PermCheck", tableClassName = "TPermCheck", alias = "pc")
 interface PermCheck : Entity<PermCheck> {
 	@PrimaryKey
 	var id: Long

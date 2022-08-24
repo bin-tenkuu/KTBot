@@ -5,6 +5,7 @@ import my.ktbot.annotation.Helper
 import my.ktbot.annotation.NeedAdmin
 import my.ktbot.annotation.SendAuto
 import my.ktbot.database.TJeffJoke
+import my.ktbot.service.TodayInHistoryService
 import my.ktbot.utils.*
 import my.ktbot.utils.Sqlite.limit
 import my.miraiplus.Caller
@@ -142,11 +143,30 @@ object CQBotHelper {
 	 * @return Image
 	 */
 	@MiraiEventHandle("60秒读懂世界")
-	@RegexAnn("^[.．。]60s", RegexOption.IGNORE_CASE)
+	@RegexAnn("^[.．。]60s\$", RegexOption.IGNORE_CASE)
 	@Helper("60秒读懂世界")
 	@SendAuto
 	@JvmStatic
 	private suspend fun read60s(event: MessageEvent): Image {
 		return KtorUtils.read60s().uploadAsImage(event.subject)
+	}
+
+	@MiraiEventHandle("历史上的今天")
+	@RegexAnn("^历史上的今天\$", RegexOption.IGNORE_CASE)
+	@Helper("历史上的今天")
+	@SendAuto
+	@JvmStatic
+	private fun todayInHistory(): String {
+		val history = TodayInHistoryService.getRandom().firstOrNull() ?: return ""
+		return buildString {
+			append(history.date)
+			append("：")
+			append(history.title)
+			val content = TodayInHistoryService.getContent(history)
+			if (content.isNotEmpty()) {
+				append("\n")
+				append(content)
+			}
+		}
 	}
 }

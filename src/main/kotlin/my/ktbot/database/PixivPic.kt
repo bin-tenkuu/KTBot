@@ -10,9 +10,9 @@ import org.ktorm.ksp.api.Table
  * @since 2022/1/6
  */
 
-@Table(tableName = "PixivPic", tableClassName = "TPixivPic")
+@Table(tableName = "PixivPic", tableClassName = "TPixivPic", alias = "pp")
 interface PixivPic : Entity<PixivPic> {
-	var id: Long
+	val id: Long
 
 	@PrimaryKey
 	var pid: Int

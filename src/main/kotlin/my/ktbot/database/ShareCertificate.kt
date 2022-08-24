@@ -10,10 +10,10 @@ import org.ktorm.ksp.api.Table
  * @since 2022/1/6
  */
 
-@Table(tableName = "ShareCertificate", tableClassName = "TShareCertificate")
+@Table(tableName = "ShareCertificate", tableClassName = "TShareCertificate", alias = "sc")
 interface ShareCertificate : Entity<ShareCertificate> {
 	@PrimaryKey
-	var autoid: Long
+	val autoid: Long
 	var qq: Long
 	var code: String
 	var price: Float

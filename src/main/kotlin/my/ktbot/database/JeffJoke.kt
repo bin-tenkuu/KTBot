@@ -9,7 +9,7 @@ import org.ktorm.ksp.api.Table
  *  @author bin
  *  @version 1.0.0
  */
-@Table(tableName = "JeffJoke", tableClassName = "TJeffJoke")
+@Table(tableName = "JeffJoke", tableClassName = "TJeffJoke", alias = "jj")
 interface JeffJoke : Entity<JeffJoke> {
 	@PrimaryKey
 	val id: Int
