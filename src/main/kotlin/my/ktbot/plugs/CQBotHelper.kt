@@ -142,7 +142,7 @@ object CQBotHelper {
 	 * @return Image
 	 */
 	@MiraiEventHandle("60秒读懂世界")
-	@RegexAnn("^[.．。]joke(?<name> *.+)?$", RegexOption.IGNORE_CASE)
+	@RegexAnn("^[.．。]60s", RegexOption.IGNORE_CASE)
 	@Helper("60秒读懂世界")
 	@SendAuto
 	@JvmStatic

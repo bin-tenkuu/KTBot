@@ -102,6 +102,7 @@ object KtorUtils {
 	/**
 	 * https://github.com/SocialSisterYi/bilibili-API-collect
 	 */
+	@Suppress("unused")
 	@JvmStatic
 	suspend fun bilibiliLive(id: Int): List<String> {
 		val baseApi = get("https://api.live.bilibili.com/room/v1/Room/room_init") {
