@@ -30,7 +30,7 @@ object PluginMain : MyKotlinPlugin(
 		ShareCertificateUtil.init()
 		logger.warning("管理员QQ：${PlugConfig.adminId}")
 		logger.warning("管理员QQ群：${PlugConfig.adminGroup}")
-		injectMap + SendAuto + NeedAdmin + RegexAnn.Inject() +
+		injectMap + SendAuto + NeedAdmin + RegexAnn.Inject() + LimitAll +
 			SendGroup + SendAdmin + NeedExp + NeedAt + HasPerm + CheckPerm
 	}
 

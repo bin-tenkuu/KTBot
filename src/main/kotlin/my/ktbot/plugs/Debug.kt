@@ -1,5 +1,6 @@
 package my.ktbot.plugs
 
+import my.ktbot.annotation.LimitAll
 import my.ktbot.annotation.NeedAdmin
 import my.ktbot.annotation.SendAuto
 import my.ktbot.utils.xml.XmlEntity
@@ -20,7 +21,9 @@ object Debug {
 		return SimpleServiceMessage(5, toXml)
 	}
 
-	@MiraiEventHandle("all")
+	@MiraiEventHandle("ttttt")
+	@RegexAnn("^ttttt$", RegexOption.IGNORE_CASE)
+	@LimitAll(1000 * 10)
 	@NeedAdmin
 	private fun FriendMessageEvent.test() {
 		message
