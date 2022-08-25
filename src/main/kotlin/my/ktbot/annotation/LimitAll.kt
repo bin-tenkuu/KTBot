@@ -1,8 +1,8 @@
 package my.ktbot.annotation
 
 import kotlinx.coroutines.sync.Mutex
-import my.miraiplus.Caller
 import my.miraiplus.ArgsMap
+import my.miraiplus.Caller
 import my.miraiplus.Injector
 import net.mamoe.mirai.event.events.MessageEvent
 import java.util.*
@@ -22,7 +22,9 @@ annotation class LimitAll(val time: Long) {
 		}
 
 		override suspend fun doBefore(ann: LimitAll, event: MessageEvent, tmpMap: ArgsMap, caller: Caller): Boolean {
-			return map[caller.name]?.tryLock(caller.name) ?: false
+			val mutex = map[caller.name] ?: return false
+			if (mutex.isLocked) return false
+			return mutex.tryLock(caller.name)
 		}
 
 		override suspend fun doAfter(
