@@ -26,7 +26,7 @@ dependencies {
 	implementation(kotlin("reflect"))
 	compileOnly("org.jetbrains:annotations:23.0.0")
 	// sqlite
-	implementation("org.xerial:sqlite-jdbc:3.36.0.3")
+	implementation("org.xerial:sqlite-jdbc:3.39.2.0")
 	implementation("org.ktorm:ktorm-core:3.5.0")
 	implementation("org.ktorm:ktorm-support-sqlite:3.5.0")
 	// ktorm-ksp
@@ -38,6 +38,7 @@ dependencies {
 	implementation("io.ktor:ktor-client-okhttp:${ktorVersion}")
 	implementation("io.ktor:ktor-client-content-negotiation:${ktorVersion}")
 	implementation("io.ktor:ktor-serialization-kotlinx:${ktorVersion}")
+	implementation("io.ktor:ktor-client-logging:$ktorVersion")
 	// mirai插件注解
 	api("net.mamoe:mirai-console-compiler-annotations-jvm:2.12.2")
 	// implementation("net.mamoe:mirai-core-utils:2.12.1")

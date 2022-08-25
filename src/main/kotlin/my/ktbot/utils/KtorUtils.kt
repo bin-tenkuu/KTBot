@@ -5,6 +5,7 @@ import io.ktor.client.engine.*
 import io.ktor.client.engine.okhttp.*
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.client.plugins.logging.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
@@ -21,6 +22,7 @@ import java.nio.charset.StandardCharsets
 
 object KtorUtils {
 	private const val userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36 Edg/96.0.1054.57"
+	private val logger = createLogger<KtorUtils>()
 
 	@JvmStatic
 	val json = Json {
@@ -43,6 +45,16 @@ object KtorUtils {
 				proxy = ProxyBuilder.socks(PlugConfig.socksProxy, PlugConfig.socksPort)
 			else if (PlugConfig.httpProxy.isNotBlank())
 				proxy = ProxyBuilder.http(PlugConfig.httpProxy)
+		}
+		if (PlugConfig.debug) {
+			install(Logging) {
+				logger = object : Logger {
+					override fun log(message: String) {
+						KtorUtils.logger.debug(message)
+					}
+				}
+				level = LogLevel.INFO
+			}
 		}
 		install(ContentNegotiation) {
 			register(ContentType.Application.Json, KotlinxSerializationConverter(json))

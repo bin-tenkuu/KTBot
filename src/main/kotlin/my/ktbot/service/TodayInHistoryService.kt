@@ -20,6 +20,8 @@ import org.ktorm.support.sqlite.bulkInsertOrUpdate
 import java.time.LocalDate
 
 object TodayInHistoryService {
+	private val spaceRegEx = Regex("\\n[\\s\\n]+")
+
 	fun getRandom(date: LocalDate = LocalDate.now(), limit: Int = 1): List<TodayInHistory> {
 		if (limit < 1) {
 			return emptyList()
@@ -38,9 +40,10 @@ object TodayInHistoryService {
 			val detail = runBlocking {
 				todayInHistoryDetail(history.eId)
 			}?.firstOrNull() ?: return@run ""
-			history.content = detail.content
+
+			history.content = spaceRegEx.replace(detail.content, "\n").trim()
 			history.flushChanges()
-			detail.content
+			history.content!!
 		}
 	}
 
@@ -57,10 +60,10 @@ object TodayInHistoryService {
 					it.title.set(history.title)
 					it.eId.set(history.eId)
 				}
-				onConflict(it.title) {
-					it.date.setExcluded()
-					it.eId.setExcluded()
-				}
+			}
+			onConflict(it.title) {
+				it.date.setExcluded()
+				it.eId.setExcluded()
 			}
 		}
 	}
@@ -78,9 +81,10 @@ object TodayInHistoryService {
 
 	private suspend fun todayInHistoryDetail(eid: Int): List<JuheTodayInHistoryDetail>? {
 		val todayInHistory = PlugConfig.juheApi["todayInHistory"] ?: return null
-		return KtorUtils.get(
-			"http://v.juhe.cn/todayOnhistory/queryEvent.php" +
+		val body = KtorUtils.get(
+			"http://v.juhe.cn/todayOnhistory/queryDetail.php" +
 				"?key=${todayInHistory}&e_id=${eid}"
-		).body<JuheBase<JuheTodayInHistoryDetail>>().result
+		).body<JuheBase<JuheTodayInHistoryDetail>>()
+		return body.result
 	}
 }
