@@ -6,6 +6,7 @@ import net.mamoe.mirai.console.util.cast
 import net.mamoe.mirai.console.util.safeCast
 import net.mamoe.mirai.event.Event
 import net.mamoe.mirai.utils.MiraiLogger
+import java.util.*
 import kotlin.reflect.*
 import kotlin.reflect.full.callSuspend
 import kotlin.reflect.full.isSuperclassOf
@@ -64,25 +65,28 @@ sealed class Caller(
 	protected abstract suspend operator fun invoke(tmp: ArgsMap): Any?
 
 	override suspend fun invoke(event: Event, p2: Event) {
-		val name = name
 		val tmp = ArgsMap("tmp") + event
-		val list = injects.filterTo(ArrayList(injects.size)) f@{
-			if (it.can(event)) {
+		var run = true
+		val list = injects.filterTo(LinkedList()) f@{
+			if (run && it.can(event)) {
 				if (it.doBefore(event, tmp)) return@f true
-				return
+				run = false
 			}
 			return@f false
 		}
-		logger.debug("$name 开始执行")
-		val any: Any? = try {
+		val any: Any? = if (run) try {
+			logger.debug("$name 开始执行")
 			invoke(tmp)
+			logger.debug("$name 结束执行")
 		}
 		catch (e: Exception) {
 			e.printStackTrace()
 			null
 		}
-		while (list.size > 0) list.removeAt(list.size - 1).doAfter(event, tmp, any)
-		logger.debug("$name 结束执行")
+		else null
+		while (list.size > 0) {
+			list.pollLast().doAfter(event, tmp, any)
+		}
 		tmp.clear()
 	}
 
