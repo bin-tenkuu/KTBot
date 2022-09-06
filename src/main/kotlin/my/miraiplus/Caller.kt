@@ -77,11 +77,13 @@ sealed class Caller(
 		val any: Any? = if (run) try {
 			logger.debug("$name 开始执行")
 			invoke(tmp)
-			logger.debug("$name 结束执行")
 		}
 		catch (e: Exception) {
-			e.printStackTrace()
+			logger.warning(e)
 			null
+		}
+		finally {
+			logger.debug("$name 结束执行")
 		}
 		else null
 		while (list.size > 0) {
