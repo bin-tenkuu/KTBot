@@ -26,7 +26,7 @@ dependencies {
 	implementation(kotlin("reflect"))
 	compileOnly("org.jetbrains:annotations:23.0.0")
 	// sqlite
-	implementation("org.xerial:sqlite-jdbc:3.39.2.0")
+	implementation("org.xerial:sqlite-jdbc:3.39.2.1")
 	implementation("org.ktorm:ktorm-core:3.5.0")
 	implementation("org.ktorm:ktorm-support-sqlite:3.5.0")
 	// ktorm-ksp
