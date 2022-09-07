@@ -29,15 +29,21 @@ dependencies {
 	implementation("org.xerial:sqlite-jdbc:3.39.2.1")
 	implementation("org.ktorm:ktorm-core:3.5.0")
 	implementation("org.ktorm:ktorm-support-sqlite:3.5.0")
+	// // sql
+	// val exposedVersion = "0.39.2"
+	// implementation("org.jetbrains.exposed:exposed-core:$exposedVersion")
+	// implementation("org.jetbrains.exposed:exposed-dao:$exposedVersion")
+	// implementation("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
+	// implementation("org.jetbrains.exposed:exposed-java-time:$exposedVersion")
 	// ktorm-ksp
 	implementation("org.ktorm:ktorm-ksp-api:1.0.0-RC2")
 	ksp("org.ktorm:ktorm-ksp-compiler:1.0.0-RC2")
 	// ktor
 	val ktorVersion = "2.1.0"
-	implementation("io.ktor:ktor-http:${ktorVersion}")
-	implementation("io.ktor:ktor-client-okhttp:${ktorVersion}")
-	implementation("io.ktor:ktor-client-content-negotiation:${ktorVersion}")
-	implementation("io.ktor:ktor-serialization-kotlinx:${ktorVersion}")
+	implementation("io.ktor:ktor-http:$ktorVersion")
+	implementation("io.ktor:ktor-client-okhttp:$ktorVersion")
+	implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
+	implementation("io.ktor:ktor-serialization-kotlinx:$ktorVersion")
 	implementation("io.ktor:ktor-client-logging:$ktorVersion")
 	// mirai插件注解
 	api("net.mamoe:mirai-console-compiler-annotations-jvm:2.12.2")
@@ -47,10 +53,14 @@ dependencies {
 	// 分词器
 	implementation("com.huaban:jieba-analysis:1.0.2")
 	// hutool全家桶:https://hutool.cn/docs/#/
-	implementation("cn.hutool:hutool-core:5.8.5")
+	implementation("cn.hutool:hutool-core:5.8.6")
 	// 词云生成器
 	testImplementation("com.kennycason:kumo-core:1.28")
 	testImplementation("com.kennycason:kumo-tokenizers:1.28")
+	// skiko
+	val skikoVersion = "0.7.20"
+	api("org.jetbrains.skiko:skiko-awt:$skikoVersion")
+	//implementation("org.jetbrains.skiko:skiko-awt-runtime-windows-x64:$skikoVersion")
 }
 // ksp 加入编译
 kotlin {
