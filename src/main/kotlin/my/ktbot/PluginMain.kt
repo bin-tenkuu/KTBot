@@ -1,11 +1,14 @@
 package my.ktbot
 
 import my.ktbot.annotation.*
+import my.ktbot.ktor.KtorTest
 import my.ktbot.plugs.*
 import my.ktbot.utils.Counter
 import my.ktbot.utils.ShareCertificateUtil
 import my.miraiplus.MyKotlinPlugin
 import my.miraiplus.annotation.RegexAnn
+import net.mamoe.mirai.console.command.BuiltInCommands
+import net.mamoe.mirai.console.command.ConsoleCommandSender
 import net.mamoe.mirai.console.extension.PluginComponentStorage
 import net.mamoe.mirai.console.plugin.jvm.JvmPlugin
 import net.mamoe.mirai.console.plugin.jvm.JvmPluginDescription
@@ -52,6 +55,12 @@ object PluginMain : MyKotlinPlugin(
 		register(BotEventHandle)
 		if (PlugConfig.debug) register(Debug)
 		logger.info(callers.mapIndexed { i, c -> "\t$i :${c.name}" }.joinToString(""))
+		KtorTest.run {
+			with(KtorTest) {
+				routingArticles()
+				routingDate()
+			}
+		}.start()
 	}
 
 	override fun onDisable() {
@@ -65,6 +74,13 @@ object PluginMain : MyKotlinPlugin(
 		}
 		catch (e: Exception) {
 			logger.error(e); null
+		}
+	}
+
+	suspend fun showdown() {
+		logger.warning("开始退出")
+		with(BuiltInCommands.StopCommand) {
+			ConsoleCommandSender.handle()
 		}
 	}
 }

@@ -2,11 +2,11 @@ import org.gradle.api.JavaVersion.VERSION_17
 
 plugins {
 	val kotlinVersion = "1.7.10"
-	kotlin("jvm").version(kotlinVersion)
-	kotlin("plugin.serialization").version(kotlinVersion)
+	kotlin("jvm") version kotlinVersion
+	kotlin("plugin.serialization") version kotlinVersion
 
-	id("net.mamoe.mirai-console").version("2.12.1")
-	id("com.google.devtools.ksp").version("1.7.10-1.0.6")
+	id("net.mamoe.mirai-console") version "2.12.1"
+	id("com.google.devtools.ksp") version "1.7.10-1.0.6"
 }
 
 group = "my.ktbot"
@@ -25,6 +25,7 @@ dependencies {
 	implementation(kotlin("stdlib"))
 	implementation(kotlin("reflect"))
 	compileOnly("org.jetbrains:annotations:23.0.0")
+	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-debug:1.6.4")
 	// sqlite
 	implementation("org.xerial:sqlite-jdbc:3.39.2.1")
 	implementation("org.ktorm:ktorm-core:3.5.0")
@@ -38,13 +39,21 @@ dependencies {
 	// ktorm-ksp
 	implementation("org.ktorm:ktorm-ksp-api:1.0.0-RC2")
 	ksp("org.ktorm:ktorm-ksp-compiler:1.0.0-RC2")
-	// ktor
+	// ktor-client
 	val ktorVersion = "2.1.0"
 	implementation("io.ktor:ktor-http:$ktorVersion")
 	implementation("io.ktor:ktor-client-okhttp:$ktorVersion")
 	implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
 	implementation("io.ktor:ktor-serialization-kotlinx:$ktorVersion")
 	implementation("io.ktor:ktor-client-logging:$ktorVersion")
+	// // ktor-server
+	implementation("io.ktor:ktor-server:$ktorVersion")
+	implementation("io.ktor:ktor-server-core:$ktorVersion")
+	implementation("io.ktor:ktor-server-netty:$ktorVersion")
+	implementation("io.ktor:ktor-server-resources:$ktorVersion")
+	implementation("io.ktor:ktor-server-status-pages:$ktorVersion")
+	implementation("io.ktor:ktor-server-content-negotiation:$ktorVersion")
+	implementation("io.ktor:ktor-server-compression:$ktorVersion")
 	// mirai插件注解
 	api("net.mamoe:mirai-console-compiler-annotations-jvm:2.12.2")
 	// implementation("net.mamoe:mirai-core-utils:2.12.1")
