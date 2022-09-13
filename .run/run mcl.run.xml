@@ -1,7 +1,7 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="run mcl" type="JarApplication">
     <option name="JAR_PATH" value="$PROJECT_DIR$/mcl.jar" />
-    <option name="VM_PARAMETERS" value="-Dkotlinx.coroutines.debug=on" />
+    <option name="VM_PARAMETERS" value="-Dkotlinx.coroutines.debug" />
     <option name="WORKING_DIRECTORY" value="D:\github\KTBot" />
     <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
     <option name="ALTERNATIVE_JRE_PATH" value="17" />

@@ -1,7 +1,6 @@
 package my.ktbot
 
 import my.ktbot.annotation.*
-import my.ktbot.ktor.KtorTest
 import my.ktbot.plugs.*
 import my.ktbot.utils.Counter
 import my.ktbot.utils.ShareCertificateUtil
@@ -55,12 +54,12 @@ object PluginMain : MyKotlinPlugin(
 		register(BotEventHandle)
 		if (PlugConfig.debug) register(Debug)
 		logger.info(callers.mapIndexed { i, c -> "\t$i :${c.name}" }.joinToString(""))
-		KtorTest.run {
-			with(KtorTest) {
-				routingArticles()
-				routingDate()
-			}
-		}.start()
+		// KtorTest.run {
+		// 	with(KtorTest) {
+		// 		routingArticles()
+		// 		routingDate()
+		// 	}
+		// }.start()
 	}
 
 	override fun onDisable() {

@@ -3,8 +3,8 @@ package my.ktbot.annotation
 import my.ktbot.PluginMain
 import my.ktbot.utils.Counter
 import my.ktbot.utils.toMessage
-import my.miraiplus.Caller
 import my.miraiplus.ArgsMap
+import my.miraiplus.Caller
 import my.miraiplus.Injector
 import net.mamoe.mirai.event.events.FriendMessageEvent
 import net.mamoe.mirai.event.events.GroupMessageEvent
@@ -32,7 +32,7 @@ annotation class SendAuto(
 			get() = 1.0
 
 		override suspend fun doBefore(ann: SendAuto, event: MessageEvent, tmpMap: ArgsMap, caller: Caller): Boolean {
-			tmpMap.add(System.currentTimeMillis(), "time")
+			tmpMap["time"] = System.currentTimeMillis()
 			return event is FriendMessageEvent || event is GroupMessageEvent
 		}
 
@@ -45,7 +45,7 @@ annotation class SendAuto(
 			}
 			if (ann.log) {
 				PluginMain.logger.info(
-					"${tmpMap[Long::class, "time"]!!.toNow()}:${caller.name} 来源：${event.subject}.${event.sender}"
+					"${tmpMap["time", 0L].toNow()}:${caller.name} 来源：${event.subject}.${event.sender}"
 				)
 				Counter.log(event)
 			}

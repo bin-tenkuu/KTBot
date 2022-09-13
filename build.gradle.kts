@@ -15,8 +15,8 @@ description = "我的 QQBot"
 
 repositories {
 	mavenLocal()
-	maven("https://maven.aliyun.com/repository/public") // 阿里云国内代理仓库
 	mavenCentral()
+	maven("https://maven.aliyun.com/repository/public") // 阿里云国内代理仓库
 	maven("https://maven.google.com")
 }
 
@@ -27,7 +27,7 @@ dependencies {
 	compileOnly("org.jetbrains:annotations:23.0.0")
 	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-debug:1.6.4")
 	// sqlite
-	implementation("org.xerial:sqlite-jdbc:3.39.2.1")
+	implementation("org.xerial:sqlite-jdbc:3.39.3.0")
 	implementation("org.ktorm:ktorm-core:3.5.0")
 	implementation("org.ktorm:ktorm-support-sqlite:3.5.0")
 	// // sql
@@ -40,7 +40,7 @@ dependencies {
 	implementation("org.ktorm:ktorm-ksp-api:1.0.0-RC2")
 	ksp("org.ktorm:ktorm-ksp-compiler:1.0.0-RC2")
 	// ktor-client
-	val ktorVersion = "2.1.0"
+	val ktorVersion = "2.1.1"
 	implementation("io.ktor:ktor-http:$ktorVersion")
 	implementation("io.ktor:ktor-client-okhttp:$ktorVersion")
 	implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
@@ -54,6 +54,7 @@ dependencies {
 	implementation("io.ktor:ktor-server-status-pages:$ktorVersion")
 	implementation("io.ktor:ktor-server-content-negotiation:$ktorVersion")
 	implementation("io.ktor:ktor-server-compression:$ktorVersion")
+	implementation("io.ktor:ktor-server-data-conversion:$ktorVersion")
 	// mirai插件注解
 	api("net.mamoe:mirai-console-compiler-annotations-jvm:2.12.2")
 	// implementation("net.mamoe:mirai-core-utils:2.12.1")
@@ -100,11 +101,11 @@ java {
 }
 
 tasks {
-	compileJava {
+	withType<JavaCompile> {
 		sourceCompatibility = VERSION_17.toString()
 		targetCompatibility = VERSION_17.toString()
 	}
-	compileKotlin {
+	withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
 		kotlinOptions {
 			verbose = true
 			jvmTarget = VERSION_17.toString()

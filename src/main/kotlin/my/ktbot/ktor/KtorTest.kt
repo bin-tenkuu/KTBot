@@ -8,6 +8,7 @@ import io.ktor.server.netty.*
 import io.ktor.server.plugins.compression.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.plugins.cors.routing.*
+import io.ktor.server.plugins.dataconversion.*
 import io.ktor.server.plugins.statuspages.*
 import io.ktor.server.request.*
 import io.ktor.server.resources.*
@@ -62,6 +63,7 @@ object KtorTest {
 		install(ContentNegotiation) {
 			// register(ContentType.Application.Json, KotlinxSerializationConverter(Json {}))
 		}
+		install(DataConversion)
 		// install(ShutDownUrl.ApplicationCallPlugin) {
 		// 	shutDownUrl = "/shutdown"
 		// 	exitCodeSupplier = { 0 }

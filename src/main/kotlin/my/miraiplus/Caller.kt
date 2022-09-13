@@ -67,14 +67,19 @@ sealed class Caller(
 	override suspend fun invoke(event: Event, p2: Event) {
 		val tmp = ArgsMap("tmp") + event
 		var run = true
-		val list = injects.filterTo(LinkedList()) f@{
-			if (run && it.can(event)) {
-				if (it.doBefore(event, tmp)) return@f true
-				run = false
+		val list = LinkedList<Inject>()
+		for (it in injects) {
+			if (it.can(event)) {
+				if (it.doBefore(event, tmp)) {
+					list.add(it)
+				}
+				else {
+					run = false
+					break
+				}
 			}
-			return@f false
 		}
-		val any: Any? = if (run) try {
+		val any = if (run) try {
 			logger.debug("$name 开始执行")
 			invoke(tmp)
 		}
