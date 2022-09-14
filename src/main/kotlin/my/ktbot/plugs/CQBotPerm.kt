@@ -45,7 +45,7 @@ object CQBotPerm {
 		if (event.sender.permission == MemberPermission.MEMBER) return null
 		// 管理或者群主
 		val num = groups["num"]?.value?.toIntOrNull() ?: return "输入的不是数字"
-		val caller = CQBotHelper.get().getOrNull(num) ?: return "未找到对应插件，使用。help 查看对应插件的id"
+		val caller = CQBotHelper.callers.getOrNull(num) ?: return "未找到对应插件，使用。help 查看对应插件的id"
 		val type = groups["type"]?.value != "关"
 		if (type) CheckPerm.open(event.group.id, caller.name)
 		else CheckPerm.close(event.group.id, caller.name)

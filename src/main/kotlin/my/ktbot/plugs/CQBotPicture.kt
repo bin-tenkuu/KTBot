@@ -27,6 +27,7 @@ import net.mamoe.mirai.utils.ExternalResource.Companion.uploadAsImage
 import org.ktorm.dsl.eq
 import org.ktorm.entity.firstOrNull
 import org.ktorm.entity.sortedBy
+import kotlin.random.Random
 
 /**
  *
@@ -41,36 +42,21 @@ object CQBotPicture {
 	@JvmStatic
 	val setuSet = mutableSetOf<String>()
 
-	@JvmStatic
-	private fun savePic(d: Lolicon) {
-		val url = d.urls.values.firstOrNull() ?: return
-		Sqlite.insertOrUpdate(TPixivPic) {
-			it.pid.set(d.pid)
-			it.p.set(d.p)
-			it.uid.set(d.uid)
-			it.r18.set(d.r18)
-			it.url.set(url)
-			it.author.set(d.author)
-			it.title.set(d.title)
-			onConflict(it.pid, it.p) {
-				it.uid.setExcluded()
-				it.r18.setExcluded()
-				it.url.setExcluded()
-				it.author.setExcluded()
-				it.title.setExcluded()
-			}
-		}
-	}
-
-	@MiraiEventHandle("来点[<r18>][<key>]色图")
+	@MiraiEventHandle("来点色图")
 	@HasPerm("my.ktbot.binbot:setu")
-	@RegexAnn("^[来來发發给給l][张張个個幅点點份d](?<r18>r18的?)?(?<keyword>.*)?[涩色瑟铯s][图圖t]$")
+	@RegexAnn(
+		"^[来來发發给給l][张張个個幅点點份d](?<r18>r18的?)?(?<keyword>.*)?[涩色瑟铯s][图圖t]$",
+		RegexOption.IGNORE_CASE
+	)
 	@SendAuto(recall = 20 * 1000)
-	@LimitAll(1000 * 60 * 10)
-	@NeedExp(-8.0, -5.0)
+	@LimitAll(1000 * 60 * 5)
+	@NeedExp(-5.0, -3.0)
 	@JvmStatic
 	suspend fun invoke(event: MessageEvent, groups: MatchGroupCollection): Message {
-		return message(groups, event.subject)
+		return if (Random.nextInt(0, 100) < 20)
+			message(groups, event.subject)
+		else
+			messageLocal(groups, event.subject)
 	}
 
 	@JvmStatic
@@ -103,22 +89,6 @@ object CQBotPicture {
 		}
 	}
 
-	@MiraiEventHandle("来点[<r18>]色图")
-	@HasPerm("my.ktbot.binbot:setu")
-	@RegexAnn("^[来來发發给給l][张張个個幅点點份d](?<r18>r18的?)?[涩色瑟铯s][图圖t]$", RegexOption.IGNORE_CASE)
-	@SendAuto(recall = 20 * 1000)
-	@LimitAll(1000 * 60 * 5)
-	@NeedExp(-5.0, -3.0)
-	@JvmStatic
-	private suspend fun setuCache(event: MessageEvent, groups: MatchGroupCollection): Message {
-		return messageLocal(groups, event.subject)
-	}
-
-	@JvmStatic
-	private fun getRandomPic(r18: Boolean): PixivPic? {
-		return Sqlite[TPixivPic].limit(1).sortedBy { Sqlite.random }.firstOrNull { it.r18 eq r18 }
-	}
-
 	@JvmStatic
 	private suspend fun messageLocal(groups: MatchGroupCollection, contact: Contact): CodableMessage {
 		val r18 = groups["r18"] !== null
@@ -129,6 +99,32 @@ object CQBotPicture {
 		}.body<ByteArray>().toExternalResource().toAutoCloseable().uploadAsImage(contact)
 		contact.sendMessage("作者：${pic.uid}\n原图p${pic.p}：${pic.pid}")
 		return image
+	}
+
+	@JvmStatic
+	private fun getRandomPic(r18: Boolean): PixivPic? {
+		return Sqlite[TPixivPic].limit(1).sortedBy { Sqlite.random }.firstOrNull { it.r18 eq r18 }
+	}
+
+	@JvmStatic
+	private fun savePic(d: Lolicon) {
+		val url = d.urls.values.firstOrNull() ?: return
+		Sqlite.insertOrUpdate(TPixivPic) {
+			it.pid.set(d.pid)
+			it.p.set(d.p)
+			it.uid.set(d.uid)
+			it.r18.set(d.r18)
+			it.url.set(url)
+			it.author.set(d.author)
+			it.title.set(d.title)
+			onConflict(it.pid, it.p) {
+				it.uid.setExcluded()
+				it.r18.setExcluded()
+				it.url.setExcluded()
+				it.author.setExcluded()
+				it.title.setExcluded()
+			}
+		}
 	}
 
 	@MiraiEventHandle("色图失败列表")

@@ -29,7 +29,7 @@ object Counter {
 	private val logger = createLogger<Counter>()
 
 	@JvmStatic
-	private val ttl = Duration.ofDays(1).toMillis() shr 1
+	private val ttl = Duration.ofHours(12).toMillis()
 
 	@JvmStatic
 	val groups = CacheSql(TGroup, TGroup.id)
@@ -53,13 +53,15 @@ object Counter {
 			while (true) {
 				try {
 					save()
+					System.gc()
 				}
 				catch (e: Exception) {
 					logger.error(e)
 				}
-				System.gc()
 				delay(Duration.ofHours(6).toMillis())
 			}
+		}.invokeOnCompletion {
+			logger.warning("自动保存退出")
 		}
 	}
 

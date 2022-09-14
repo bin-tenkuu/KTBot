@@ -30,15 +30,15 @@ object PluginMain : MyKotlinPlugin(
 	override fun PluginComponentStorage.onLoad() {
 		PlugConfig.reload()
 		ShareCertificateUtil.init()
-		logger.warning("管理员QQ：${PlugConfig.adminId}")
-		logger.warning("管理员QQ群：${PlugConfig.adminGroup}")
+		logger.info("管理员QQ：${PlugConfig.adminId}")
+		logger.info("管理员QQ群：${PlugConfig.adminGroup}")
 		injectMap + SendAuto + NeedAdmin + RegexAnn.Inject() + LimitAll +
 			SendGroup + SendAdmin + NeedExp + NeedAt + HasPerm + CheckPerm
 	}
 
 	override fun onEnable() {
 		logger.warning("Plugin loaded")
-		logger.warning(Counter.members[2938137849].toString())
+		logger.info(Counter.members[2938137849].toString())
 
 		arrayOf(
 			CQBotCOC, CQBotCOCSBI, BotProxy,
@@ -52,8 +52,12 @@ object PluginMain : MyKotlinPlugin(
 			register(it)
 		}
 		register(BotEventHandle)
-		if (PlugConfig.debug) register(Debug)
-		logger.info(callers.mapIndexed { i, c -> "\t$i :${c.name}" }.joinToString(""))
+		if (PlugConfig.debug) {
+			register(Debug)
+			logger.debug(callers.mapIndexed { i, c ->
+				"\n$i :${c.name}"
+			}.joinToString(""))
+		}
 		// KtorTest.run {
 		// 	with(KtorTest) {
 		// 		routingArticles()

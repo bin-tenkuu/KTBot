@@ -8,16 +8,18 @@ import kotlinx.coroutines.runBlocking
  * @date 2022/09/13
  */
 object Coroutines {
+	private fun log(msg: String) = println("[${Thread.currentThread().name}] $msg")
+
 	@JvmStatic
 	fun main(args: Array<String>) = runBlocking {
 		val a = async {
-			println("I'm computing part of the answer")
+			log("I'm computing part of the answer")
 			6
 		}
 		val b = async {
-			println("I'm computing another part of the answer")
+			log("I'm computing another part of the answer")
 			7
 		}
-		println("The answer is ${a.await() * b.await()}")
+		log("The answer is ${a.await() * b.await()}")
 	}
 }

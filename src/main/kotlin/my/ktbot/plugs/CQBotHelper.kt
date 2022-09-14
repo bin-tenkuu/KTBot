@@ -26,25 +26,42 @@ import org.ktorm.entity.sortedBy
  * @date 2022/1/13
  */
 object CQBotHelper {
+	private const val helpPre = ".help后附带下标数字查看对应功能详情"
+	val callers: List<Caller> by lazy(LazyThreadSafetyMode.NONE) {
+		PluginMain.callers.filter {
+			it.anns.any { ann -> ann is Helper } && it.anns.none { ann -> ann is NeedAdmin }
+		}
+	}
+	private val callerMap: Map<Int, Caller> by lazy(LazyThreadSafetyMode.NONE) {
+		callers.mapIndexed { i, c -> i to c }.toMap()
+	}
+
 	@MiraiEventHandle("help[<id>]")
-	@RegexAnn("^[.．。](?:help|帮助)(?<num> ?\\d+)?$", RegexOption.IGNORE_CASE)
+	@RegexAnn("^[.．。](?:help|帮助) ?(?<num>\\d+)?(?<key>.+)?$", RegexOption.IGNORE_CASE)
 	@Helper("帮助专用功能\n.help后附带下标数字查看对应功能详情")
 	@SendAuto(recall = 30 * 1000)
 	fun invoke(groups: MatchGroupCollection): String {
-		val list = get()
-		val c = run {
-			val num = groups["num"]?.run { value.trim().toIntOrNull() } ?: return@run null
-			list.getOrNull(num)
-		} ?: return ".help后附带下标数字查看对应功能详情${
-			list.mapIndexed { i, p ->
+		val num = groups["num"]?.run { value.toIntOrNull() }
+		var map = callerMap
+		if (num != null) {
+			val c = map[num]
+			if (c != null) {
+				return c.toHelper()
+			}
+		}
+		val key = groups["key"]?.value
+		if (key != null) {
+			map = map.filter { it.value.name.contains(key) }
+			when (map.size) {
+				0 -> return "没有这个关键字的功能"
+				1 -> return map.values.iterator().next().toHelper()
+			}
+		}
+		return "$helpPre${
+			map.map { (i, p) ->
 				"\n$i :${p.name}"
 			}.joinToString("")
 		}"
-		return c.toHelper()
-	}
-
-	fun get(): List<Caller> = PluginMain.callers.filter {
-		it.anns.any { ann -> ann is Helper } && it.anns.none { ann -> ann is NeedAdmin }
 	}
 
 	@MiraiEventHandle("ping")
@@ -53,7 +70,7 @@ object CQBotHelper {
 	@SendAuto
 	private val Ping = ".pong!"
 
-	@MiraiEventHandle("data")
+	@MiraiEventHandle("开发者信息")
 	@RegexAnn("^[.．。]data$", RegexOption.IGNORE_CASE)
 	@Helper("开发者信息")
 	@SendAuto(recall = 90 * 1000)
@@ -63,7 +80,7 @@ object CQBotHelper {
 		|轮子github：mamoe/mirai
 	""".trimMargin()
 
-	@MiraiEventHandle("report <txt>")
+	@MiraiEventHandle("给开发者的话")
 	@RegexAnn("^[.．。]report(?<txt>.+)$", RegexOption.IGNORE_CASE)
 	@Helper("附上消息发送给开发者")
 	@SendAuto
@@ -124,7 +141,7 @@ object CQBotHelper {
 	 * @param groups [MatchResult]
 	 * @return [String]?
 	 */
-	@MiraiEventHandle("jeffJoke")
+	@MiraiEventHandle("jeff笑话")
 	@RegexAnn("^[.．。]joke(?<name> *.+)?$", RegexOption.IGNORE_CASE)
 	@Helper("简易Jeff笑话生成，参数：<name> ：名字；<times>：次数")
 	@SendAuto
