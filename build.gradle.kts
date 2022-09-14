@@ -25,7 +25,6 @@ dependencies {
 	implementation(kotlin("stdlib"))
 	implementation(kotlin("reflect"))
 	compileOnly("org.jetbrains:annotations:23.0.0")
-	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-debug:1.6.4")
 	// sqlite
 	implementation("org.xerial:sqlite-jdbc:3.39.3.0")
 	implementation("org.ktorm:ktorm-core:3.5.0")

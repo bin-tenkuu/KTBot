@@ -60,6 +60,11 @@ sealed class Caller(
 
 	protected fun Pair<Class<out Any>, String?>.get(tmp: ArgsMap) = tmp[first, second] ?: ArgsMap.global[first, second]
 
+	protected fun ArgsMap.get(type: KType, name: String?): Any? {
+		val clazz = type.classifier.cast<KClass<*>>().java
+		return this[clazz, name] ?: ArgsMap.global[clazz, name]
+	}
+
 	protected val List<Annotation>.qualifierName get() = filterIsInstance<Qualifier>().firstOrNull()?.name
 
 	protected abstract suspend operator fun invoke(tmp: ArgsMap): Any?
@@ -127,13 +132,14 @@ sealed class Caller(
 		}
 
 		private val args = property.parameters.drop(1).map {
-			it.type.classifier.cast<KClass<*>>().java to it.annotations.qualifierName
+			it.type to it.annotations.qualifierName
 		}
 
 		override suspend operator fun invoke(tmp: ArgsMap): Any? {
 			try {
 				return callable.invoke(obj, *Array(args.size) {
-					args[it].get(tmp) ?: return null
+					val (type, name) = args[it]
+					tmp.get(type, name) ?: if (type.isMarkedNullable) null else return null
 				})
 			}
 			catch (e: Exception) {
@@ -154,13 +160,14 @@ sealed class Caller(
 		}
 
 		private val args = property.parameters.drop(1).map {
-			it.type.classifier.cast<KClass<*>>().java to it.annotations.qualifierName
+			it.type to it.annotations.qualifierName
 		}
 
 		override suspend operator fun invoke(tmp: ArgsMap): Any? {
 			try {
 				return property.callSuspend(obj, *Array(args.size) {
-					args[it].get(tmp) ?: return null
+					val (type, name) = args[it]
+					tmp.get(type, name) ?: if (type.isMarkedNullable) null else return null
 				})
 			}
 			catch (e: Exception) {
@@ -213,11 +220,12 @@ sealed class Caller(
 		}
 
 		private val arg = callable.parameters[1].run {
-			type.classifier.cast<KClass<*>>().java to annotations.qualifierName
+			type to annotations.qualifierName
 		}
 
 		override suspend operator fun invoke(tmp: ArgsMap): Any? {
-			return callable.call(obj, arg.get(tmp) ?: return null)
+			val (type, name) = arg
+			return callable.call(obj, tmp.get(type, name) ?: if (type.isMarkedNullable) null else return null)
 		}
 	}
 

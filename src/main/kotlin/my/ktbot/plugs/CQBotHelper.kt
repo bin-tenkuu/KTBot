@@ -10,6 +10,7 @@ import my.ktbot.utils.*
 import my.ktbot.utils.Sqlite.limit
 import my.miraiplus.Caller
 import my.miraiplus.annotation.MiraiEventHandle
+import my.miraiplus.annotation.Qualifier
 import my.miraiplus.annotation.RegexAnn
 import net.mamoe.mirai.event.events.GroupMessageEvent
 import net.mamoe.mirai.event.events.MessageEvent
@@ -36,12 +37,12 @@ object CQBotHelper {
 		callers.mapIndexed { i, c -> i to c }.toMap()
 	}
 
-	@MiraiEventHandle("help[<id>]")
+	@MiraiEventHandle("help")
 	@RegexAnn("^[.．。](?:help|帮助) ?(?<num>\\d+)?(?<key>.+)?$", RegexOption.IGNORE_CASE)
 	@Helper("帮助专用功能\n.help后附带下标数字查看对应功能详情")
 	@SendAuto(recall = 30 * 1000)
-	fun invoke(groups: MatchGroupCollection): String {
-		val num = groups["num"]?.run { value.toIntOrNull() }
+	fun invoke(@Qualifier("num") numS: String?, @Qualifier("key") key: String?): String {
+		val num = numS?.toIntOrNull()
 		var map = callerMap
 		if (num != null) {
 			val c = map[num]
@@ -49,7 +50,6 @@ object CQBotHelper {
 				return c.toHelper()
 			}
 		}
-		val key = groups["key"]?.value
 		if (key != null) {
 			map = map.filter { it.value.name.contains(key) }
 			when (map.size) {
@@ -185,5 +185,18 @@ object CQBotHelper {
 				append(content)
 			}
 		}
+	}
+
+	private val word = Regex("^[0-9a-zA-Z]+\$")
+
+	@MiraiEventHandle("能不能好好说话")
+	@RegexAnn("^\\?(?<text>..+)\$", RegexOption.IGNORE_CASE)
+	@Helper("能不能好好说话")
+	@SendAuto
+	@JvmStatic
+	private suspend fun nbnhhsh(@Qualifier("text") text: String): String {
+		return if (word.matches(text))
+			KtorUtils.nbnhhsh(text).joinToString(", ", "$text: ")
+		else ""
 	}
 }

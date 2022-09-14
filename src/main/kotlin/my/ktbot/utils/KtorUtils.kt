@@ -74,31 +74,42 @@ object KtorUtils {
 		}
 	}
 
+	private fun HttpRequestBuilder.toStatement() = HttpStatement(this, httpClient)
+
 	@JvmStatic
 	fun post(urlString: String, body: Any): HttpStatement {
-		return HttpStatement(HttpRequestBuilder().apply {
+		return HttpRequestBuilder().apply {
 			method = HttpMethod.Post
 			url.takeFrom(urlString)
 			header(HttpHeaders.ContentType, ContentType.Application.Json)
 			setBody(body)
-		}, httpClient)
+		}.toStatement()
 	}
 
 	@JvmStatic
 	fun get(urlString: String): HttpStatement {
-		return HttpStatement(HttpRequestBuilder().apply {
+		return HttpRequestBuilder().apply {
 			method = HttpMethod.Get
 			url.takeFrom(urlString)
-		}, httpClient)
+		}.toStatement()
 	}
 
 	@JvmStatic
-	fun get(urlString: String, block: HttpRequestBuilder.() -> Unit): HttpStatement {
-		return HttpStatement(HttpRequestBuilder().apply {
+	private inline fun get(urlString: String, block: HttpRequestBuilder.() -> Unit): HttpStatement {
+		return HttpRequestBuilder().apply {
 			method = HttpMethod.Get
 			url.takeFrom(urlString)
 			block()
-		}, httpClient)
+		}.toStatement()
+	}
+
+	// region 具体请求
+
+	@JvmStatic
+	suspend fun pixivPic(url: String): ByteArray {
+		return get(url) {
+			header(HttpHeaders.Referrer, "https://www.pixiv.net/")
+		}.body()
 	}
 
 	@JvmStatic
@@ -106,6 +117,12 @@ object KtorUtils {
 		return post("https://api.pixiv.cat/v1/generate", PixivCatRequest(pid)).body()
 	}
 
+	/**
+	 * lolicon
+	 * todo:https://lolisuki.cc/#/setu
+	 * @param request LoliconRequest
+	 * @return List<Lolicon>
+	 */
 	@JvmStatic
 	suspend fun lolicon(request: LoliconRequest): List<Lolicon> {
 		return post("https://api.lolicon.app/setu/v2", request).body<LoliconResponse>().data
@@ -178,4 +195,15 @@ object KtorUtils {
 	suspend fun read60s(): ExternalResource {
 		return get("https://api.qqsuu.cn/api/60s").body<ByteArray>().toExternalResource("png").toAutoCloseable()
 	}
+
+	/**
+	 * 能不能好好说话？
+	 * @param text String
+	 * @return List<String>
+	 */
+	suspend fun nbnhhsh(text: String): List<String> {
+		val list = post("https://lab.magiconch.com/api/nbnhhsh/guess", mapOf("text" to text)).body<List<Nbnhhsh>>()
+		return list.firstOrNull { it.name == text }?.trans ?: emptyList()
+	}
+	// endregion
 }

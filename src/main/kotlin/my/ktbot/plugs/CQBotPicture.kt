@@ -1,8 +1,5 @@
 package my.ktbot.plugs
 
-// import my.sqlite.insertOrUpdate
-import io.ktor.client.request.*
-import io.ktor.http.*
 import my.ktbot.annotation.*
 import my.ktbot.dao.Lolicon
 import my.ktbot.dao.LoliconRequest
@@ -94,9 +91,7 @@ object CQBotPicture {
 		val r18 = groups["r18"] !== null
 		if (r18) return emptyMessageChain()
 		val pic = getRandomPic(r18) ?: return emptyMessageChain()
-		val image = KtorUtils.get(pic.url) {
-			header(HttpHeaders.Referrer, "https://www.pixiv.net/")
-		}.body<ByteArray>().toExternalResource().toAutoCloseable().uploadAsImage(contact)
+		val image = KtorUtils.pixivPic(pic.url).toExternalResource().toAutoCloseable().uploadAsImage(contact)
 		contact.sendMessage("作者：${pic.uid}\n原图p${pic.p}：${pic.pid}")
 		return image
 	}

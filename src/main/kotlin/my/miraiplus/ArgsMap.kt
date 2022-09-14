@@ -17,12 +17,17 @@ class ArgsMap(name: String? = null) {
 	operator fun <T : Any> get(kClass: KClass<out T>, name: String? = null) = get(kClass.javaObjectType, name)
 	operator fun <T : Any> get(clazz: Class<out T>, name: String? = null): T? {
 		@Suppress("UNCHECKED_CAST")
-		return map(clazz) {
-			get(name) ?: values.firstOrNull()
-		} as T?
+		return map(
+			clazz, if (name == null) ({
+				get(null) ?: values.firstOrNull()
+			})
+			else ({
+				get(name)
+			})
+		) as T?
 	}
 
-	inline infix operator fun <reified T : Any> plus(value: T) = add(value)
+	inline operator fun <reified T : Any> plus(value: T) = set(null, value)
 	inline fun <reified T : Any> add(value: T) = set(null, value)
 	operator fun <T : Any> set(name: String? = null, value: T): ArgsMap {
 		map.computeIfAbsent(value.javaClass) { HashMap(4) }[name] = value
