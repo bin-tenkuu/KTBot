@@ -162,7 +162,7 @@ object BotEventHandle {
 		return msg
 	}
 
-	@MiraiEventHandle("其他客户端上线事件")
+	@MiraiEventHandle("其他客户端下线事件")
 	@SendAdmin
 	private fun OtherClientOfflineEvent.run(): String {
 		val msg = """其他客户端下线
