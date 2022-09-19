@@ -35,7 +35,7 @@ object CheckPerm : Injector<MiraiEventHandle, GroupEvent> {
 	 * @return Boolean
 	 */
 	fun check(group: Long, name: String): Boolean {
-		val set = map[group] ?: return false
+		val set = map[group] ?: return true
 		return name !in set
 	}
 

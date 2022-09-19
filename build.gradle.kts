@@ -45,7 +45,7 @@ dependencies {
 	implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
 	implementation("io.ktor:ktor-serialization-kotlinx:$ktorVersion")
 	implementation("io.ktor:ktor-client-logging:$ktorVersion")
-	// // ktor-server
+	// ktor-server
 	implementation("io.ktor:ktor-server:$ktorVersion")
 	implementation("io.ktor:ktor-server-core:$ktorVersion")
 	implementation("io.ktor:ktor-server-netty:$ktorVersion")

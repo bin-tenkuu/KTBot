@@ -10,6 +10,7 @@ object Test : Print {
 
 		val regex = Regex("(?<=\\(\\?<)\\w+(?=>)")
 		val r = regex.findAll(pattern.pattern()).map { it.value }.toList()
+		val 中文 = Thread.currentThread().stackTrace
 		r
 	}
 }
