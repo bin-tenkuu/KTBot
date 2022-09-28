@@ -196,6 +196,10 @@ object KtorUtils {
 		return get("https://api.qqsuu.cn/api/60s").body<ByteArray>().toExternalResource("png").toAutoCloseable()
 	}
 
+	suspend fun read60sJson(): EveryDay60s {
+		return get("https://api.qqsuu.cn/api/60s?type=json").body()
+	}
+
 	/**
 	 * 能不能好好说话？
 	 * @param text String

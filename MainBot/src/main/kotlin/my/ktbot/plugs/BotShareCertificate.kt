@@ -5,6 +5,7 @@ import my.ktbot.annotation.SendAuto
 import my.ktbot.utils.ShareCertificateUtil
 import my.miraiplus.annotation.MiraiEventHandle
 import my.miraiplus.annotation.RegexAnn
+import kotlin.math.abs
 
 object BotShareCertificate {
 
@@ -20,6 +21,9 @@ object BotShareCertificate {
 		val isSell = groups["operater"]!!.value == "-"
 		val position = groups["position"]!!.value.toInt()
 		val price = groups["price"]!!.value.toDouble()
+		if (isSell) {
+			val money = abs(price - data.currentPrice) * position
+		}
 		return "名称:${data.name},代码:${data.code},当前价格:${
 			data.currentPrice
 		},涨额:${data.raise},涨辐:${data.raiseRange}"
