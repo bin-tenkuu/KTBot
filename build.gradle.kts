@@ -2,6 +2,8 @@ import org.gradle.api.JavaVersion.VERSION_17
 
 plugins {
 	kotlin("jvm") version "1.7.10" apply false
+	kotlin("plugin.serialization") version "1.7.10" apply false
+	id("com.google.devtools.ksp") version "1.7.10-1.0.6" apply false
 }
 
 buildscript {

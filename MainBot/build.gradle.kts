@@ -2,10 +2,10 @@ import org.gradle.api.JavaVersion.VERSION_17
 
 plugins {
 	kotlin("jvm")
-	kotlin("plugin.serialization") version "1.7.10"
+	kotlin("plugin.serialization")
 
 	id("net.mamoe.mirai-console") version "2.12.1"
-	id("com.google.devtools.ksp") version "1.7.10-1.0.6"
+	id("com.google.devtools.ksp")
 }
 
 dependencies {
