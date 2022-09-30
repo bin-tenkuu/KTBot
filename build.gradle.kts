@@ -1,8 +1,7 @@
 import org.gradle.api.JavaVersion.VERSION_17
 
 plugins {
-	val kotlinVersion = "1.7.10"
-	kotlin("jvm") version kotlinVersion apply false
+	kotlin("jvm") version "1.7.10" apply false
 }
 
 buildscript {
@@ -38,6 +37,7 @@ subprojects {
 					"-Xjsr305=strict",
 					"-opt-in=kotlin.RequiresOptIn",
 					"-Xcontext-receivers",
+					// "-Xuse-k2"
 				)
 			}
 		}

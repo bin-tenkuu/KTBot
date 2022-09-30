@@ -1,9 +1,8 @@
 import org.gradle.api.JavaVersion.VERSION_17
 
 plugins {
-	val kotlinVersion = "1.7.10"
 	kotlin("jvm")
-	kotlin("plugin.serialization") version kotlinVersion
+	kotlin("plugin.serialization") version "1.7.10"
 
 	id("net.mamoe.mirai-console") version "2.12.1"
 	id("com.google.devtools.ksp") version "1.7.10-1.0.6"
@@ -58,6 +57,10 @@ dependencies {
 }
 // ksp 加入编译
 kotlin {
+	// jvmToolchain(17) // 1.7.20
+	jvmToolchain {
+		languageVersion.set(JavaLanguageVersion.of(17))
+	}
 	sourceSets {
 		main { kotlin.srcDir("build/generated/ksp/main/kotlin") }
 		test { kotlin.srcDir("build/generated/ksp/test/kotlin") }
