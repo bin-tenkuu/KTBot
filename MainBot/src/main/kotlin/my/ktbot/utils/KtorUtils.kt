@@ -179,11 +179,11 @@ object KtorUtils {
 	 * @return ExternalResource
 	 */
 	suspend fun read60s(): ExternalResource {
-		return get("https://api.qqsuu.cn/api/60s").body<ByteArray>().toExternalResource("png").toAutoCloseable()
+		return get("https://api.qqsuu.cn/api/dm-60s").body<ByteArray>().toExternalResource("png").toAutoCloseable()
 	}
 
 	suspend fun read60sJson(): EveryDay60s {
-		return get("https://api.qqsuu.cn/api/60s?type=json").body()
+		return get("https://api.qqsuu.cn/api/dm-60s?type=json").body()
 	}
 
 	/**
