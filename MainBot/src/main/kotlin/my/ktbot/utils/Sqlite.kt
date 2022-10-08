@@ -1,10 +1,12 @@
 package my.ktbot.utils
 
 import my.ktbot.PluginMain
+import net.mamoe.mirai.utils.MiraiLogger
 import org.ktorm.database.Database
 import org.ktorm.dsl.AssignmentsBuilder
 import org.ktorm.entity.*
 import org.ktorm.expression.ArgumentExpression
+import org.ktorm.logging.Logger
 import org.ktorm.schema.*
 import org.ktorm.support.sqlite.*
 import kotlin.io.path.div
@@ -73,6 +75,19 @@ object Sqlite {
 	context(InsertOrUpdateOnConflictClauseBuilder)
 	fun <T : Any> Column<T>.setExcluded() {
 		set(this, excluded(this))
+	}
+
+	private class LoggerBridge(private val logger: MiraiLogger) : Logger {
+		override fun debug(msg: String, e: Throwable?) = logger.debug(msg, e)
+		override fun error(msg: String, e: Throwable?) = logger.error(msg, e)
+		override fun info(msg: String, e: Throwable?) = logger.info(msg, e)
+		override fun isDebugEnabled(): Boolean = logger.isDebugEnabled
+		override fun isErrorEnabled(): Boolean = logger.isErrorEnabled
+		override fun isInfoEnabled(): Boolean = logger.isInfoEnabled
+		override fun isTraceEnabled(): Boolean = logger.isVerboseEnabled
+		override fun isWarnEnabled(): Boolean = logger.isWarningEnabled
+		override fun trace(msg: String, e: Throwable?) = logger.verbose(msg, e)
+		override fun warn(msg: String, e: Throwable?) = logger.warning(msg, e)
 	}
 
 }

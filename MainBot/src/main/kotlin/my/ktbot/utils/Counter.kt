@@ -7,13 +7,12 @@ import my.ktbot.database.Gmt
 import my.ktbot.database.TGroup
 import my.ktbot.database.TMember
 import my.ktbot.utils.Sqlite.findOrAdd
-import net.mamoe.mirai.Bot
 import net.mamoe.mirai.contact.Contact
 import net.mamoe.mirai.event.events.GroupEvent
 import net.mamoe.mirai.event.events.MessageEvent
-import net.mamoe.mirai.message.data.ForwardMessageBuilder
 import net.mamoe.mirai.message.data.Message
 import net.mamoe.mirai.message.data.emptyMessageChain
+import net.mamoe.mirai.message.data.toPlainText
 import org.ktorm.dsl.eq
 import org.ktorm.schema.Column
 import org.ktorm.schema.Table
@@ -91,6 +90,7 @@ object Counter {
 		if (groupMap.isEmpty() && memberMap.isEmpty()) {
 			return emptyMessageChain()
 		}
+		/*
 		return ForwardMessageBuilder(context, 2).apply {
 			fun Bot.says(pre: String, list: List<String>) {
 				val sb = StringBuilder(pre).appendLine()
@@ -120,6 +120,24 @@ object Counter {
 			}
 			bot.says("个人：", memberMap.toMSG())
 		}.build()
+		*/
+		return buildString {
+			fun says(pre: String, list: List<String>) {
+				appendLine(pre)
+				for (msg in list) {
+					appendLine(msg)
+				}
+			}
+
+			fun Map<Long, Int>.toMSG(): List<String> = entries
+				.sortedByDescending { it.value }
+				.map { (id, num) -> "${id}：${num}次" }
+
+			for ((group, list) in groupMap) {
+				says("群($group)：", list.toMSG())
+			}
+			says("个人：", memberMap.toMSG())
+		}.toPlainText()
 	}
 
 	@JvmStatic
