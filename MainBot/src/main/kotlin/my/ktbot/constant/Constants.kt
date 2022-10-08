@@ -1,3 +1,0 @@
-package my.ktbot.constant
-
-

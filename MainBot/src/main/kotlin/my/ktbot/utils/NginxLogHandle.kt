@@ -78,7 +78,7 @@ object NginxLogHandle {
 			it.append(":\n")
 			for (logNginx in list) {
 				it.append("  - ")
-				it.append(KtorUtils.json.encodeToString(serializer(), logNginx))
+				it.append(json.encodeToString(serializer(), logNginx))
 				it.append("\n")
 			}
 		}

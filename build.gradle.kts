@@ -25,7 +25,10 @@ subprojects {
 	}
 	tasks {
 		withType<JavaCompile> {
-			options.encoding = "UTF-8"
+			options.apply {
+				isVerbose = true
+				encoding = "UTF-8"
+			}
 			sourceCompatibility = VERSION_17.toString()
 			targetCompatibility = VERSION_17.toString()
 		}
@@ -47,5 +50,4 @@ subprojects {
 			maxParallelForks = Runtime.getRuntime().availableProcessors()
 		}
 	}
-
 }

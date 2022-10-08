@@ -10,7 +10,6 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.*
-import kotlinx.serialization.json.Json
 import my.ktbot.PlugConfig
 import my.ktbot.dao.*
 import my.ktbot.dao.blibili.BaseApi
@@ -23,19 +22,6 @@ import java.nio.charset.StandardCharsets
 object KtorUtils {
 	private const val userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36 Edg/96.0.1054.57"
 	private val logger = createLogger<KtorUtils>()
-
-	@JvmStatic
-	val json = Json {
-		encodeDefaults = false
-		ignoreUnknownKeys = true
-		isLenient = false
-		allowStructuredMapKeys = false
-		prettyPrint = false
-		coerceInputValues = true
-		useArrayPolymorphism = false
-		allowSpecialFloatingPointValues = true
-		useAlternativeNames = true
-	}
 
 	/** 使用代理的Ktor客户端 */
 	@JvmStatic
