@@ -37,19 +37,22 @@ suspend fun BotEvent.sendAdmin(msg: Message) {
 	}
 }
 
-fun Any?.toMessage(): Message? {
-	return when (this) {
-		null -> null
-		Unit -> null
-		is Message -> this
-		is CharSequence -> if (isEmpty()) emptyMessageChain() else PlainText(this)
-		is Array<*> -> buildMessageChain {
-			addAll(this@toMessage.mapNotNull { it.toMessage() })
-		}
-		is Iterable<*> -> buildMessageChain {
-			addAll(this@toMessage.mapNotNull { it.toMessage() })
-		}
-		else -> PlainText(toString())
+fun Any?.toMessage(): Message? = when (this) {
+	null, is Unit,
+	-> null
+	is Message -> this
+	is CharSequence -> if (isEmpty()) emptyMessageChain() else PlainText(this)
+	is Array<*> -> iterator().toMessage()
+	is Iterable<*> -> iterator().toMessage()
+	is Sequence<*> -> iterator().toMessage()
+	is Iterator<*> -> toMessage()
+	else -> PlainText(toString())
+}
+
+fun Iterator<*>.toMessage(): MessageChain = if (!hasNext()) emptyMessageChain()
+else buildMessageChain {
+	this@toMessage.forEach {
+		it.toMessage()?.let(::add)
 	}
 }
 

@@ -12,7 +12,9 @@ dependencies {
 	// kotlin
 	implementation(kotlin("stdlib"))
 	implementation(kotlin("reflect"))
+	testImplementation(kotlin("test-junit"))
 	compileOnly("org.jetbrains:annotations:23.0.0")
+	implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.0")
 	// kotlin script
 	// none
 	// sqlite

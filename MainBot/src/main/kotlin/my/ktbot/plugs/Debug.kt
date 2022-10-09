@@ -6,9 +6,11 @@ import my.ktbot.annotation.SendAuto
 import my.ktbot.utils.xml.XmlEntity
 import my.miraiplus.annotation.MiraiEventHandle
 import my.miraiplus.annotation.RegexAnn
-import net.mamoe.mirai.event.events.FriendMessageEvent
+import net.mamoe.mirai.event.events.GroupMessageEvent
 import net.mamoe.mirai.event.events.MessageEvent
 import net.mamoe.mirai.message.data.*
+import net.mamoe.mirai.utils.ExternalResource.Companion.toExternalResource
+import net.mamoe.mirai.utils.ExternalResource.Companion.uploadAsImage
 
 object Debug {
 	@MiraiEventHandle("test")
@@ -25,8 +27,17 @@ object Debug {
 	@RegexAnn("^ttttt$", RegexOption.IGNORE_CASE)
 	@LimitAll(1000 * 10)
 	@NeedAdmin
-	private fun FriendMessageEvent.test() {
-		message
+	@SendAuto
+	private suspend fun GroupMessageEvent.test(): String {
+		try {
+			for(n in 0..1024) {
+				ByteArray(1024).toExternalResource().toAutoCloseable().uploadAsImage(group)
+			}
+		}
+		catch (e: Exception) {
+			e.printStackTrace()
+		}
+		return "成功"
 	}
 
 	private fun String.imageIdToMd5(): String {
