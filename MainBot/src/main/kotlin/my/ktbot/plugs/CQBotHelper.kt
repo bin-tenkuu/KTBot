@@ -199,7 +199,7 @@ object CQBotHelper {
 	private val word = Regex("^[0-9a-zA-Z]+\$")
 
 	@MiraiEventHandle("能不能好好说话")
-	@RegexAnn("^\\?(?<text>..+)\$", RegexOption.IGNORE_CASE)
+	@RegexAnn("^[?？](?<text>..+)\$", RegexOption.IGNORE_CASE)
 	@Helper("能不能好好说话")
 	@SendAuto
 	@JvmStatic
