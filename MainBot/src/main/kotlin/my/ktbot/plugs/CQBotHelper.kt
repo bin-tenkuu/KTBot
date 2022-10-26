@@ -196,16 +196,12 @@ object CQBotHelper {
 		}
 	}
 
-	private val word = Regex("^[0-9a-zA-Z]+\$")
-
 	@MiraiEventHandle("能不能好好说话")
-	@RegexAnn("^[?？](?<text>..+)\$", RegexOption.IGNORE_CASE)
+	@RegexAnn("^[?？](?<text>[0-9a-zA-Z]+)\$", RegexOption.IGNORE_CASE)
 	@Helper("能不能好好说话")
 	@SendAuto
 	@JvmStatic
 	private suspend fun nbnhhsh(@Qualifier("text") text: String): String {
-		return if (word.matches(text))
-			KtorUtils.nbnhhsh(text).joinToString(", ", "$text: ")
-		else ""
+		return KtorUtils.nbnhhsh(text).joinToString(", ", "$text: ")
 	}
 }
