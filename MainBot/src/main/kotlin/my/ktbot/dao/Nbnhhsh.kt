@@ -9,5 +9,5 @@ import kotlinx.serialization.Serializable
 @Serializable
 class Nbnhhsh(
 	val name: String,
-	val trans: List<String>,
+	val trans: List<String> = emptyList(),
 )
