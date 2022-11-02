@@ -2,7 +2,6 @@ package my.ktbot.plugs
 
 import kotlinx.coroutines.*
 import my.ktbot.PlugConfig
-import my.ktbot.PluginMain
 import my.ktbot.annotation.Helper
 import my.ktbot.annotation.SendAdmin
 import my.ktbot.annotation.SendGroup
@@ -25,12 +24,9 @@ import java.time.Duration
 object BotEventHandle {
 	private val logger = createLogger<BotEventHandle>()
 
-	@JvmStatic
-	private var tasker: Job? = null
-
 	@MiraiEventHandle("Bot 上线事件")
 	private fun BotOnlineEvent.run() {
-		startCounter()
+		startCounter(bot)
 		// 开启所有列表缓存
 		bot.configuration.enableContactCache()
 		logger.info("${bot.nameCardOrNick} 已上线")
@@ -48,7 +44,6 @@ object BotEventHandle {
 				else -> toString()
 			}
 		}"
-		startCounter()
 		logger.info(msg)
 	}
 
@@ -188,11 +183,8 @@ object BotEventHandle {
 	}
 
 	@JvmStatic
-	private fun startCounter() {
-		if (tasker !== null) {
-			return
-		}
-		tasker = PluginMain.launch(PluginMain.coroutineContext, CoroutineStart.UNDISPATCHED) {
+	private fun startCounter(scope: Bot) {
+		scope.launch(scope.coroutineContext, start = CoroutineStart.UNDISPATCHED) {
 			while (true) {
 				delay(1000)
 				val bot = Bot.instances.firstOrNull() ?: continue
@@ -209,10 +201,8 @@ object BotEventHandle {
 					delay(Duration.ofHours(1).toMillis())
 				}
 			}
-		}
-		tasker!!.invokeOnCompletion {
+		}.invokeOnCompletion {
 			logger.error("计数器携程退出")
-			tasker = null
 		}
 	}
 }

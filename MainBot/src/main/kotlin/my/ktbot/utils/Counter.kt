@@ -1,8 +1,8 @@
 package my.ktbot.utils
 
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import my.ktbot.PluginMain
 import my.ktbot.database.Gmt
 import my.ktbot.database.TGroup
 import my.ktbot.database.TMember
@@ -46,8 +46,8 @@ object Counter {
 	 */
 	private val memberMap = HashMap<Long, Int>()
 
-	init {
-		PluginMain.launch {
+	fun start(scope: CoroutineScope) {
+		scope.launch {
 			delay(Duration.ofHours(1).toMillis())
 			while (true) {
 				try {

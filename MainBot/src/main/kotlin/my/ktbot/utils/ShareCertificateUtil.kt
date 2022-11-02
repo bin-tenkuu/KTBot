@@ -1,8 +1,8 @@
 package my.ktbot.utils
 
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import my.ktbot.PluginMain
 import net.mamoe.mirai.Bot
 import java.time.LocalDateTime
 import java.time.LocalTime
@@ -19,8 +19,8 @@ object ShareCertificateUtil {
 	private val pmStart = LocalTime.of(13, 0)
 	private val pmEnd = LocalTime.of(15, 0)
 
-	fun init() {
-		PluginMain.launch {
+	fun start(scope: CoroutineScope) {
+		scope.launch {
 			listOf("sh600536", "sz159949", "sZ159949").also {
 				val map = invoke(it)
 				for (code in it) {
