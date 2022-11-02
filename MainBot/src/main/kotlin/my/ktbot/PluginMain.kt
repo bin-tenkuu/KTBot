@@ -42,12 +42,17 @@ object PluginMain : MyKotlinPlugin(
 
 		arrayOf(
 			CQBotCOC, CQBotCOCSBI, BotProxy,
-			CQBotRepeat, MemberExp, CQBotBan,
-			CQBotPicture, CQBotPixiv,
-			CQBotPerm, CQBotHelper, CQBotListGet, CQBotMemeAI,
-			CQBotWhoAtMe,
+			CQBotRepeat,
+			MemberExp,
+			CQBotBan,
+			// CQBotPicture, CQBotPixiv,
+			CQBotPerm,
+			CQBotHelper,
+			CQBotListGet,
+			CQBotMemeAI,
+			// CQBotWhoAtMe,
 			CQNginxLogHandle,
-			BotShareCertificate,
+			// BotShareCertificate,
 		).forEach {
 			register(it)
 		}

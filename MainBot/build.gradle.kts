@@ -14,7 +14,7 @@ dependencies {
 	implementation(kotlin("reflect"))
 	testImplementation(kotlin("test-junit"))
 	compileOnly("org.jetbrains:annotations:23.0.0")
-	implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.0")
+	implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1")
 	// kotlin script
 	// none
 	// sqlite
@@ -25,7 +25,7 @@ dependencies {
 	implementation("org.ktorm:ktorm-ksp-api:1.0.0-RC2")
 	ksp("org.ktorm:ktorm-ksp-compiler:1.0.0-RC2")
 	// ktor-client
-	val ktorVersion = "2.1.1"
+	val ktorVersion = "2.1.2"
 	implementation("io.ktor:ktor-http:$ktorVersion")
 	implementation("io.ktor:ktor-client-okhttp:$ktorVersion")
 	implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
@@ -44,17 +44,17 @@ dependencies {
 	api("net.mamoe:mirai-console-compiler-annotations-jvm:2.12.2")
 	// implementation("net.mamoe:mirai-core-utils:2.12.1")
 	// 系统状况读取
-	implementation("com.github.oshi:oshi-core-java11:6.2.2")
+	implementation("com.github.oshi:oshi-core-java11:6.3.0")
 	// 分词器
 	implementation("com.huaban:jieba-analysis:1.0.2")
 	// hutool全家桶:https://hutool.cn/docs/#/
-	implementation("cn.hutool:hutool-core:5.8.7")
+	implementation("cn.hutool:hutool-core:5.8.9")
 	// 词云生成器
 	testImplementation("com.kennycason:kumo-core:1.28")
 	testImplementation("com.kennycason:kumo-tokenizers:1.28")
 	// skiko
-	val skikoVersion = "0.7.20"
-	api("org.jetbrains.skiko:skiko-awt:$skikoVersion")
+	// val skikoVersion = "0.7.37"
+	// api("org.jetbrains.skiko:skiko-awt:$skikoVersion")
 	//implementation("org.jetbrains.skiko:skiko-awt-runtime-windows-x64:$skikoVersion")
 }
 // ksp 加入编译

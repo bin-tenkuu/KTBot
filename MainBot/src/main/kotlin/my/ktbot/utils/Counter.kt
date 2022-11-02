@@ -67,14 +67,12 @@ object Counter {
 	@JvmStatic
 	fun save() {
 		members.size.also {
-			logger.info("保存开始（Members）：$it")
 			members.flash()
-			logger.info("保存结束（Members）：释放数量:${it - members.size},剩余数量:${members.size}")
+			logger.info("保存结束（Members）：$it - ${it - members.size} = ${members.size}")
 		}
 		groups.size.also {
-			logger.info("保存开始（Groups）：$it")
 			groups.flash()
-			logger.info("保存结束（Groups）：释放数量:${it - groups.size},剩余数量:${groups.size}")
+			logger.info("保存结束（Groups）：$it - ${it - groups.size} = ${groups.size}")
 		}
 	}
 
