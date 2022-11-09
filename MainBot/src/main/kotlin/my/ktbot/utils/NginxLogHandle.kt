@@ -13,7 +13,7 @@ object NginxLogHandle {
 	//	',"$http_x_forwarded_for","$http_host"';
 	private val nginxRegex = Regex(
 		"^(?<ip>[^ ]+) - (?<user>[^ ]+) \\[(?<time>[^]]+)] \"(?:(?<method>[A-Z]{3,7}) )?(?<url>[^ ]*)(?: (?<protocol>[^\"]+))?\"" +
-			" (?<status>\\d+) (?<bytes>\\d+) \"(?<referer>[^\"]*)\" \"(?<agent>[^\"]*)\"" +
+			" (?<status>\\d+)[ ,](?<bytes>\\d+) \"(?<referer>[^\"]*)\" \"(?<agent>[^\"]*)\"" +
 			",(?<extra>.*)",
 	)
 
