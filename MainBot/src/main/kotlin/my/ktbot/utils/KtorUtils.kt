@@ -32,15 +32,13 @@ object KtorUtils {
 			else if (PlugConfig.httpProxy.isNotBlank())
 				proxy = ProxyBuilder.http(PlugConfig.httpProxy)
 		}
-		if (PlugConfig.debug) {
-			install(Logging) {
-				logger = object : Logger {
-					override fun log(message: String) {
-						KtorUtils.logger.debug(message)
-					}
+		install(Logging) {
+			logger = object : Logger {
+				override fun log(message: String) {
+					KtorUtils.logger.debug(message)
 				}
-				level = LogLevel.INFO
 			}
+			level = LogLevel.INFO
 		}
 		install(ContentNegotiation) {
 			register(ContentType.Application.Json, KotlinxSerializationConverter(json))
