@@ -7,7 +7,7 @@ import my.ktbot.annotation.SendAuto
 import my.ktbot.utils.NginxLogHandle
 import my.miraiplus.annotation.MiraiEventHandle
 import my.miraiplus.annotation.RegexAnn
-import net.mamoe.mirai.event.events.GroupMessageEvent
+import net.mamoe.mirai.event.events.MessageEvent
 import net.mamoe.mirai.message.data.Message
 import net.mamoe.mirai.message.data.PlainText
 import net.mamoe.mirai.message.data.toPlainText
@@ -23,7 +23,7 @@ object CQNginxLogHandle {
 	@RegexAnn("^[.．。]nginx$", RegexOption.IGNORE_CASE)
 	@NeedAdmin
 	@SendAuto
-	fun invoke(event: GroupMessageEvent): Message {
+	fun invoke(event: MessageEvent): Message {
 		if (NginxLogHandle.logSize() < 1) {
 			return "无日志".toPlainText()
 		}
