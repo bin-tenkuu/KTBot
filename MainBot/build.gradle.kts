@@ -4,7 +4,7 @@ plugins {
 	kotlin("jvm")
 	kotlin("plugin.serialization")
 
-	id("net.mamoe.mirai-console") version "2.12.3"
+	id("net.mamoe.mirai-console") version "2.13.0"
 	id("com.google.devtools.ksp")
 }
 
