@@ -1,11 +1,16 @@
 package my.ktbot.plugs
 
+import my.ktbot.annotation.LimitAll
 import my.ktbot.annotation.NeedAt
 import my.ktbot.annotation.SendAuto
+import my.ktbot.utils.KtorUtils
 import my.ktbot.utils.ReplaceNode
 import my.miraiplus.annotation.MiraiEventHandle
+import my.miraiplus.annotation.Qualifier
+import my.miraiplus.annotation.RegexAnn
 import net.mamoe.mirai.event.EventPriority
 import net.mamoe.mirai.event.events.GroupMessageEvent
+import net.mamoe.mirai.event.events.MessageEvent
 import net.mamoe.mirai.message.data.*
 import net.mamoe.mirai.message.data.MessageSource.Key.quote
 
@@ -33,9 +38,9 @@ object CQBotMemeAI {
 		"吗" to "",
 	)
 
-	@MiraiEventHandle("(玩梗用自动回复)", priority = EventPriority.LOWEST)
-	@NeedAt(true)
-	@SendAuto
+	// @MiraiEventHandle("(玩梗用自动回复)", priority = EventPriority.LOWEST)
+	// @NeedAt(true)
+	// @SendAuto
 	fun invoke(event: GroupMessageEvent): Message {
 		val message = event.message
 		val at = At(event.bot.id)
@@ -47,6 +52,20 @@ object CQBotMemeAI {
 				if (it !is PlainText) +it
 				else +PlainText(replaceNode.replace(it.content))
 			}
+		}
+	}
+
+	@MiraiEventHandle("(AI自动回复)", priority = EventPriority.LOW)
+	@RegexAnn("(?<text>.+)")
+	@NeedAt(true)
+	@LimitAll(1000 * 10)
+	@SendAuto
+	suspend fun invoke(event: MessageEvent, @Qualifier("text") text: String): Message {
+		val message = event.message
+		val completion = KtorUtils.openAiCompletion(text)
+		return buildMessageChain {
+			+message.quote()
+			+completion
 		}
 	}
 

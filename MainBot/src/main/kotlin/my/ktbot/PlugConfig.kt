@@ -17,6 +17,7 @@ object PlugConfig : AutoSavePluginConfig("config") {
 	val nginxLogPath: String by value("./logs")
 	val debug: Boolean by value(false)
 	val juheApi: Map<String, String> by value()
+	val openAiToken: String by value()
 
 	fun getAdmin(bot: Bot): Friend {
 		return bot.getFriendOrFail(adminId)

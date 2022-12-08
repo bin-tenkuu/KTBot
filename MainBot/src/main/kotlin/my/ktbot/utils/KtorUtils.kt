@@ -15,6 +15,8 @@ import my.ktbot.dao.*
 import my.ktbot.dao.blibili.BaseApi
 import my.ktbot.dao.blibili.LiveData
 import my.ktbot.dao.blibili.RoomInit
+import my.ktbot.dao.openai.CompletionRequest
+import my.ktbot.dao.openai.CompletionResult
 import net.mamoe.mirai.utils.ExternalResource
 import net.mamoe.mirai.utils.ExternalResource.Companion.toExternalResource
 import java.nio.charset.StandardCharsets
@@ -67,6 +69,17 @@ object KtorUtils {
 			url.takeFrom(urlString)
 			header(HttpHeaders.ContentType, ContentType.Application.Json)
 			setBody(body)
+		}.toStatement()
+	}
+
+	@JvmStatic
+	fun post(urlString: String, body: Any, block: HttpRequestBuilder.() -> Unit = {}): HttpStatement {
+		return HttpRequestBuilder().apply {
+			method = HttpMethod.Post
+			url.takeFrom(urlString)
+			header(HttpHeaders.ContentType, ContentType.Application.Json)
+			setBody(body)
+			block()
 		}.toStatement()
 	}
 
@@ -192,6 +205,23 @@ object KtorUtils {
 	suspend fun nbnhhsh(text: String): List<String> {
 		val list = post("https://lab.magiconch.com/api/nbnhhsh/guess", mapOf("text" to text)).body<List<Nbnhhsh>>()
 		return list.firstOrNull { it.name == text }?.trans ?: emptyList()
+	}
+
+	suspend fun openAiCompletion(text: String): String {
+		val completionRequest = CompletionRequest(
+			model = "text-davinci-003",
+			prompt = text,
+			maxTokens = 3000
+		)
+		return try {
+			val body = post("https://api.openai.com/v1/completions", completionRequest) {
+				header("Authorization", "Bearer " + PlugConfig.openAiToken)
+			}.body<CompletionResult>()
+			body.choices.firstOrNull()?.text ?: body.error?.message ?: "[WARN]结果为空"
+		}
+		catch (e: Exception) {
+			"[ERROR]请求失败" + e.message
+		}
 	}
 	// endregion
 }

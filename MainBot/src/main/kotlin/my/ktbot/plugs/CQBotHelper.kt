@@ -158,7 +158,7 @@ object CQBotHelper {
 	 * @param event MessageEvent
 	 * @return Image
 	 */
-	@MiraiEventHandle("60秒读懂世界")
+	// @MiraiEventHandle("60秒读懂世界")
 	@RegexAnn("^[.．。]60s(?<min> -txt)?\$", RegexOption.IGNORE_CASE)
 	@Helper("60秒读懂世界")
 	@SendAuto

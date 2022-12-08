@@ -15,10 +15,13 @@ dependencies {
 	testImplementation(kotlin("test-junit"))
 	compileOnly("org.jetbrains:annotations:23.0.0")
 	implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1")
+	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactive:1.6.4")
+	// clikt
+	testImplementation("com.github.ajalt.clikt:clikt:3.5.0")
 	// kotlin script
 	// none
 	// sqlite
-	implementation("org.xerial:sqlite-jdbc:3.39.3.0")
+	implementation("org.xerial:sqlite-jdbc:3.40.0.0")
 	implementation("org.ktorm:ktorm-core:3.5.0")
 	implementation("org.ktorm:ktorm-support-sqlite:3.5.0")
 	// ktorm-ksp
@@ -44,14 +47,16 @@ dependencies {
 	api("net.mamoe:mirai-console-compiler-annotations-jvm:2.12.2")
 	// implementation("net.mamoe:mirai-core-utils:2.12.1")
 	// 系统状况读取
-	implementation("com.github.oshi:oshi-core-java11:6.3.1")
+	implementation("com.github.oshi:oshi-core-java11:6.3.2")
 	// 分词器
 	implementation("com.huaban:jieba-analysis:1.0.2")
-	// hutool全家桶:https://hutool.cn/docs/#/
-	implementation("cn.hutool:hutool-core:5.8.9")
+	// hutool全家桶: https://hutool.cn/docs/#/
+	implementation("cn.hutool:hutool-core:5.8.10")
 	// 词云生成器
 	testImplementation("com.kennycason:kumo-core:1.28")
 	testImplementation("com.kennycason:kumo-tokenizers:1.28")
+	// openAI: https://chat.openai.com/chat
+	testImplementation("com.theokanning.openai-gpt3-java:client:0.8.1")
 	// skiko
 	// val skikoVersion = "0.7.37"
 	// api("org.jetbrains.skiko:skiko-awt:$skikoVersion")

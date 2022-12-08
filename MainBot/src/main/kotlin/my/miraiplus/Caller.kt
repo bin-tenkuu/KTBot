@@ -7,6 +7,7 @@ import net.mamoe.mirai.console.util.safeCast
 import net.mamoe.mirai.event.Event
 import net.mamoe.mirai.utils.MiraiLogger
 import java.util.*
+import kotlin.collections.ArrayDeque
 import kotlin.reflect.*
 import kotlin.reflect.full.callSuspend
 import kotlin.reflect.full.isSuperclassOf
@@ -72,7 +73,7 @@ sealed class Caller(
 	override suspend fun invoke(event: Event, p2: Event) {
 		val tmp = ArgsMap("tmp") + event
 		var run = true
-		val list = LinkedList<Inject>()
+		val list = ArrayDeque<Inject>()
 		for (it in injects) {
 			if (it.can(event)) {
 				if (it.doBefore(event, tmp)) {
@@ -97,7 +98,7 @@ sealed class Caller(
 		}
 		else null
 		while (list.size > 0) {
-			list.pollLast().doAfter(event, tmp, any)
+			list.removeLast().doAfter(event, tmp, any)
 		}
 		tmp.clear()
 	}
