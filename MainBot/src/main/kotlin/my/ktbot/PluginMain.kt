@@ -1,10 +1,8 @@
 package my.ktbot
 
-import kotlinx.coroutines.runBlocking
 import my.ktbot.annotation.*
 import my.ktbot.plugs.*
 import my.ktbot.utils.Counter
-import my.ktbot.utils.KtorUtils
 import my.miraiplus.MyKotlinPlugin
 import my.miraiplus.annotation.RegexAnn
 import net.mamoe.mirai.console.command.BuiltInCommands
@@ -39,9 +37,6 @@ object PluginMain : MyKotlinPlugin(
 	}
 
 	override fun onEnable() {
-		runBlocking {
-			println(KtorUtils.openAiCompletion("你是谁"))
-		}
 		logger.warning("Plugin loaded")
 		logger.info(Counter.members[2938137849].toString())
 
