@@ -51,9 +51,9 @@ object KtorUtils {
 			responseCharsetFallback = StandardCharsets.UTF_8
 		}
 		install(HttpTimeout) {
-			this.requestTimeoutMillis = 30_0000
-			this.connectTimeoutMillis = 30_0000
-			this.socketTimeoutMillis = 30_0000
+			this.requestTimeoutMillis = 30_000
+			this.connectTimeoutMillis = 30_000
+			this.socketTimeoutMillis = 30_000
 		}
 		install(UserAgent) {
 			agent = userAgent

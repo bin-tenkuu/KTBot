@@ -58,7 +58,7 @@ object CQBotMemeAI {
 	@MiraiEventHandle("(AI自动回复)", priority = EventPriority.LOW)
 	@RegexAnn("(?<text>.+)")
 	@NeedAt(true)
-	@LimitAll(1000 * 10)
+	@LimitAll(1000 * 15)
 	@SendAuto
 	suspend fun invoke(event: MessageEvent, @Qualifier("text") text: String): Message {
 		val message = event.message

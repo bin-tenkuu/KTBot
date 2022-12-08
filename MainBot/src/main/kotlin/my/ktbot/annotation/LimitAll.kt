@@ -5,6 +5,7 @@ import my.miraiplus.ArgsMap
 import my.miraiplus.Caller
 import my.miraiplus.Injector
 import net.mamoe.mirai.event.events.MessageEvent
+import net.mamoe.mirai.utils.MiraiLogger
 import java.util.*
 
 /**
@@ -15,6 +16,7 @@ import java.util.*
 @MustBeDocumented
 annotation class LimitAll(val time: Long) {
 	companion object Inject : Injector.Message<LimitAll> {
+		private val logger = MiraiLogger.Factory.create(LimitAll::class.java)
 		private val map = HashMap<String, Mutex>()
 		private val timer = Timer("", true)
 		override fun doInit(ann: LimitAll, caller: Caller) {
@@ -23,7 +25,10 @@ annotation class LimitAll(val time: Long) {
 
 		override suspend fun doBefore(ann: LimitAll, event: MessageEvent, tmpMap: ArgsMap, caller: Caller): Boolean {
 			val mutex = map[caller.name] ?: return false
-			if (mutex.isLocked) return false
+			if (mutex.isLocked) {
+				logger.info("${caller.name} 限制中")
+				return false
+			}
 			return mutex.tryLock(caller.name)
 		}
 
