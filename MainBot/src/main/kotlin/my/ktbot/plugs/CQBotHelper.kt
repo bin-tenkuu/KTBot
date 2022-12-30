@@ -37,10 +37,10 @@ object CQBotHelper {
 	}
 
 	@MiraiEventHandle("help")
-	@RegexAnn("^[.．。](?:help|帮助) ?(?<num>\\d+)?(?<key>.+)?$", RegexOption.IGNORE_CASE)
+	@RegexAnn("^[.．。](?:help|帮助) ?(\\d+)?(.+)?$", RegexOption.IGNORE_CASE)
 	@Helper("帮助专用功能\n.help后附带下标数字查看对应功能详情")
 	@SendAuto(recall = 30 * 1000)
-	fun invoke(@Qualifier("num") numS: String?, @Qualifier("key") key: String?): String {
+	fun invoke(@Qualifier("1") numS: String?, @Qualifier("2") key: String?): String {
 		val num = numS?.toIntOrNull()
 		var map = callerMap
 		if (num != null) {
@@ -197,11 +197,11 @@ object CQBotHelper {
 	}
 
 	@MiraiEventHandle("能不能好好说话")
-	@RegexAnn("^[?？](?<text>[0-9a-zA-Z]+)\$", RegexOption.IGNORE_CASE)
+	@RegexAnn("^[?？]([0-9a-zA-Z]+)\$", RegexOption.IGNORE_CASE)
 	@Helper("能不能好好说话")
 	@SendAuto
 	@JvmStatic
-	private suspend fun nbnhhsh(@Qualifier("text") text: String): String {
+	private suspend fun nbnhhsh(@Qualifier("1") text: String): String {
 		return KtorUtils.nbnhhsh(text).joinToString(", ", "$text: ")
 	}
 }

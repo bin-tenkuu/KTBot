@@ -59,9 +59,8 @@ sealed class Caller(
 		for (injector in injects) injector.destory()
 	}
 
-	protected fun Pair<Class<out Any>, String?>.get(tmp: ArgsMap) = tmp[first, second] ?: ArgsMap.global[first, second]
-
-	protected fun ArgsMap.get(type: KType, name: String?): Any? {
+	protected operator fun ArgsMap.get(pair: Pair<KType, String?>): Any? {
+		val (type, name) = pair
 		val clazz = type.classifier.cast<KClass<*>>().java
 		return this[clazz, name] ?: ArgsMap.global[clazz, name]
 	}
@@ -139,8 +138,8 @@ sealed class Caller(
 		override suspend operator fun invoke(tmp: ArgsMap): Any? {
 			try {
 				return callable.invoke(obj, *Array(args.size) {
-					val (type, name) = args[it]
-					tmp.get(type, name) ?: if (type.isMarkedNullable) null else return null
+					val pair = args[it]
+					tmp[pair] ?: if (pair.first.isMarkedNullable) null else return null
 				})
 			}
 			catch (e: Exception) {
@@ -167,8 +166,8 @@ sealed class Caller(
 		override suspend operator fun invoke(tmp: ArgsMap): Any? {
 			try {
 				return property.callSuspend(obj, *Array(args.size) {
-					val (type, name) = args[it]
-					tmp.get(type, name) ?: if (type.isMarkedNullable) null else return null
+					val pair = args[it]
+					tmp[pair] ?: if (pair.first.isMarkedNullable) null else return null
 				})
 			}
 			catch (e: Exception) {
@@ -225,8 +224,7 @@ sealed class Caller(
 		}
 
 		override suspend operator fun invoke(tmp: ArgsMap): Any? {
-			val (type, name) = arg
-			return callable.call(obj, tmp.get(type, name) ?: if (type.isMarkedNullable) null else return null)
+			return callable.call(obj, tmp[arg] ?: if (arg.first.isMarkedNullable) null else return null)
 		}
 	}
 

@@ -1,7 +1,7 @@
 package my.ktbot.annotation
 
-import my.miraiplus.Caller
 import my.miraiplus.ArgsMap
+import my.miraiplus.Caller
 import my.miraiplus.Injector
 import net.mamoe.mirai.event.events.MessageEvent
 import net.mamoe.mirai.message.data.At
@@ -21,7 +21,7 @@ annotation class NeedAt(val bot: Boolean = false) {
 			}
 			val list = event.message.filterIsInstance<At>()
 			if (list.isEmpty()) return false
-			tmpMap["atList"] = list
+			tmpMap["NeedAt"] = list
 			return true
 		}
 	}

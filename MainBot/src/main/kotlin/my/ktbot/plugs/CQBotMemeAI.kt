@@ -56,11 +56,11 @@ object CQBotMemeAI {
 	}
 
 	@MiraiEventHandle("(AI自动回复)", priority = EventPriority.LOW)
-	@RegexAnn("(?<text>.+)")
+	@RegexAnn("(.+)")
 	@NeedAt(true)
 	@LimitAll(1000 * 15)
 	@SendAuto
-	suspend fun invoke(event: MessageEvent, @Qualifier("text") text: String): Message {
+	suspend fun invoke(event: MessageEvent, @Qualifier("0") text: String): Message {
 		val message = event.message
 		val completion = KtorUtils.openAiCompletion(text)
 		return buildMessageChain {
@@ -69,4 +69,5 @@ object CQBotMemeAI {
 		}
 	}
 
+	private val MessageChain.textString get() = filterIsInstance<PlainText>().joinToString("") { it.content }
 }

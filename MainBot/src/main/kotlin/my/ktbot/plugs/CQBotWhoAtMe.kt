@@ -19,7 +19,7 @@ object CQBotWhoAtMe {
 	@MiraiEventHandle("谁@我-记录", priority = EventPriority.MONITOR)
 	@NeedAt(false)
 	@JvmStatic
-	private fun GroupMessageEvent.saveAt(@Qualifier("atList") atList: List<At>) {
+	private fun GroupMessageEvent.saveAt(@Qualifier("NeedAt") atList: List<At>) {
 		if (atList.isEmpty()) {
 			return
 		}
@@ -31,7 +31,7 @@ object CQBotWhoAtMe {
 	}
 
 	@MiraiEventHandle("谁@我")
-	@RegexAnn("^谁(@|at)我$", RegexOption.IGNORE_CASE)
+	@RegexAnn("^谁(?:@|at)我$", RegexOption.IGNORE_CASE)
 	@Helper("谁@我：当群内有@操作时记录24小时，仅记录最后一条@")
 	@SendGroup
 	@JvmStatic

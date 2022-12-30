@@ -13,7 +13,7 @@ dependencies {
 	implementation(kotlin("stdlib"))
 	implementation(kotlin("reflect"))
 	testImplementation(kotlin("test-junit"))
-	compileOnly("org.jetbrains:annotations:23.0.0")
+	compileOnly("org.jetbrains:annotations:23.1.0")
 	implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1")
 	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactive:1.6.4")
 	// clikt
@@ -28,7 +28,7 @@ dependencies {
 	implementation("org.ktorm:ktorm-ksp-api:1.0.0-RC2")
 	ksp("org.ktorm:ktorm-ksp-compiler:1.0.0-RC2")
 	// ktor-client
-	val ktorVersion = "2.1.3"
+	val ktorVersion = "2.2.1"
 	implementation("io.ktor:ktor-http:$ktorVersion")
 	implementation("io.ktor:ktor-client-okhttp:$ktorVersion")
 	implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
@@ -44,14 +44,14 @@ dependencies {
 	implementation("io.ktor:ktor-server-compression:$ktorVersion")
 	implementation("io.ktor:ktor-server-data-conversion:$ktorVersion")
 	// mirai插件注解
-	api("net.mamoe:mirai-console-compiler-annotations-jvm:2.12.2")
+	api("net.mamoe:mirai-console-compiler-annotations-jvm:2.13.2")
 	// implementation("net.mamoe:mirai-core-utils:2.12.1")
 	// 系统状况读取
-	implementation("com.github.oshi:oshi-core-java11:6.3.2")
+	implementation("com.github.oshi:oshi-core-java11:6.4.0")
 	// 分词器
 	implementation("com.huaban:jieba-analysis:1.0.2")
 	// hutool全家桶: https://hutool.cn/docs/#/
-	implementation("cn.hutool:hutool-core:5.8.10")
+	implementation("cn.hutool:hutool-core:5.8.11")
 	// 词云生成器
 	testImplementation("com.kennycason:kumo-core:1.28")
 	testImplementation("com.kennycason:kumo-tokenizers:1.28")

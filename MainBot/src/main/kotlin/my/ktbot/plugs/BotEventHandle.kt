@@ -7,7 +7,6 @@ import my.ktbot.annotation.Helper
 import my.ktbot.annotation.SendAdmin
 import my.ktbot.annotation.SendGroup
 import my.ktbot.database.Gmt.Companion.update
-import my.ktbot.utils.CacheMap
 import my.ktbot.utils.Counter
 import my.ktbot.utils.createLogger
 import my.miraiplus.annotation.MiraiEventHandle
@@ -56,19 +55,13 @@ object BotEventHandle {
 		logger.info("${bot.nameCardOrNick} 已重新登录")
 	}
 
-	private val inviteCount = CacheMap<Long, Unit>(Duration.ofHours(12).toMillis())
-
 	@MiraiEventHandle("添加好友事件")
 	@SendAdmin
 	private suspend fun NewFriendRequestEvent.run(): String {
 		val msg = "$fromNick（$fromId）来自群 ${fromGroup?.name ?: ""}（$fromGroupId）请求添加好友消息：\n$message"
 		logger.info("NewFriendRequestEvent: $msg")
-		if (inviteCount.size <= 10) {
-			inviteCount[fromId] = Unit
-			//自动同意好友申请
-			accept()
-		}
-		else reject()
+		//自动同意好友申请
+		accept()
 		return msg
 	}
 
@@ -81,11 +74,6 @@ object BotEventHandle {
 			exp = 20.0
 			invited = invitorId
 		}
-//		if (inviteCount.size <= 10) {
-//			inviteCount[groupId] = Unit
-//			//自动同意加群申请
-//			accept()
-//		}
 		return msg
 	}
 
