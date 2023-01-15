@@ -7,9 +7,15 @@ import kotlinx.serialization.Serializable
  * @date 2022/09/28
  */
 @Serializable
+class ZhiHu(
+	val data: List<Content> = emptyList(),
+	// val paging: Array<String> = emptyArray(),
+) {
+	@Serializable
+	class Content(val content: String)
+}
+
 class EveryDay60s(
-	val success: Boolean = false,
-	val name: String = "",
-	val time: Array<String> = emptyArray(),
-	val data: Array<String> = emptyArray(),
+	val img: String,
+	val texts: List<String>,
 )

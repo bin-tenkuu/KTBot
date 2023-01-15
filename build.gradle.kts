@@ -1,9 +1,10 @@
 import org.gradle.api.JavaVersion.VERSION_17
 
 plugins {
-	kotlin("jvm") version "1.7.20" apply false
-	kotlin("plugin.serialization") version "1.7.20" apply false
-	id("com.google.devtools.ksp") version "1.7.20-1.0.6" apply false
+	val kotlinVersion = "1.8.0"
+	kotlin("jvm") version kotlinVersion apply false
+	kotlin("plugin.serialization") version kotlinVersion apply false
+	id("com.google.devtools.ksp") version "1.8.0-1.0.8" apply false
 }
 
 buildscript {

@@ -15,6 +15,7 @@ import my.miraiplus.annotation.RegexAnn
 import net.mamoe.mirai.event.events.GroupMessageEvent
 import net.mamoe.mirai.event.events.MessageEvent
 import net.mamoe.mirai.message.data.*
+import net.mamoe.mirai.utils.ExternalResource.Companion.toExternalResource
 import net.mamoe.mirai.utils.ExternalResource.Companion.uploadAsImage
 import org.ktorm.entity.firstOrNull
 import org.ktorm.entity.sortedBy
@@ -158,23 +159,20 @@ object CQBotHelper {
 	 * @param event MessageEvent
 	 * @return Image
 	 */
-	// @MiraiEventHandle("60秒读懂世界")
-	@RegexAnn("^[.．。]60s(?<min> -txt)?\$", RegexOption.IGNORE_CASE)
+	@MiraiEventHandle("60秒读懂世界")
+	@RegexAnn("^[.．。]60s?\$", RegexOption.IGNORE_CASE)
 	@Helper("60秒读懂世界")
 	@SendAuto
 	@JvmStatic
-	private suspend fun read60s(event: MessageEvent, min: String?): Message {
-		val user = event.sender
-		if (min == null)
-			return KtorUtils.read60s().uploadAsImage(event.subject)
-		val day60s = KtorUtils.read60sJson()
-		return ForwardMessageBuilder(event.subject, 20).apply {
-			user says day60s.name
-			user says day60s.time.joinToString(separator = " ")
-			for (i in day60s.data.indices) {
-				user says day60s.data[i]
+	private suspend fun read60s(event: MessageEvent): Message {
+		val day60s = KtorUtils.read60sJson() ?: return "今日未更新".toPlainText()
+		return buildMessageChain {
+			+KtorUtils.pic(day60s.img).toExternalResource().toAutoCloseable().uploadAsImage(event.subject)
+			for (text in day60s.texts) {
+				+"\n"
+				+text
 			}
-		}.build()
+		}
 	}
 
 	@MiraiEventHandle("历史上的今天")

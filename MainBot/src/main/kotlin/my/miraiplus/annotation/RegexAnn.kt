@@ -33,7 +33,7 @@ annotation class RegexAnn(
 			val result = map[caller.fieldName]?.find(event.message.textString) ?: return false
 			val groups = result.groups
 			tmpMap + result + groups
-			for (i in 0..groups.size) {
+			for (i in groups.indices) {
 				groups[i]?.value?.let {
 					tmpMap[i.toString()] = it
 				}

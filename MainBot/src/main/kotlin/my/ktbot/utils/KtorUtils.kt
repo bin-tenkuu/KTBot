@@ -17,8 +17,7 @@ import my.ktbot.dao.blibili.LiveData
 import my.ktbot.dao.blibili.RoomInit
 import my.ktbot.dao.openai.CompletionRequest
 import my.ktbot.dao.openai.CompletionResult
-import net.mamoe.mirai.utils.ExternalResource
-import net.mamoe.mirai.utils.ExternalResource.Companion.toExternalResource
+import org.jsoup.Jsoup
 import java.nio.charset.StandardCharsets
 
 object KtorUtils {
@@ -110,6 +109,11 @@ object KtorUtils {
 	}
 
 	@JvmStatic
+	suspend fun pic(url: String): ByteArray {
+		return get(url).body()
+	}
+
+	@JvmStatic
 	suspend fun pixivCat(pid: Int): PixivCat {
 		return post("https://api.pixiv.cat/v1/generate", PixivCatRequest(pid)).body()
 	}
@@ -189,12 +193,17 @@ object KtorUtils {
 	 * 60s读懂世界
 	 * @return ExternalResource
 	 */
-	suspend fun read60s(): ExternalResource {
-		return get("https://api.qqsuu.cn/api/dm-60s").body<ByteArray>().toExternalResource("png").toAutoCloseable()
-	}
 
-	suspend fun read60sJson(): EveryDay60s {
-		return get("https://api.qqsuu.cn/api/dm-60s?type=json").body()
+	suspend fun read60sJson(): EveryDay60s? {
+		val everyDay60s = get(
+			"https://www.zhihu.com/api/v4/columns/c_1261258401923026944/items?limit=1"
+		).body<ZhiHu>()
+		val zhihu = everyDay60s.data.firstOrNull() ?: return null
+		val content = zhihu.content
+		val document = Jsoup.parse(content)
+		val src = document.select("figure>img").attr("src")
+		val texts = document.select("p").eachText()
+		return EveryDay60s(src, texts)
 	}
 
 	/**

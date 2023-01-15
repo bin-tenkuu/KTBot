@@ -4,7 +4,7 @@ plugins {
 	kotlin("jvm")
 	kotlin("plugin.serialization")
 
-	id("net.mamoe.mirai-console") version "2.13.0"
+	id("net.mamoe.mirai-console") version "2.13.3"
 	id("com.google.devtools.ksp")
 }
 
@@ -17,7 +17,7 @@ dependencies {
 	implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1")
 	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactive:1.6.4")
 	// clikt
-	testImplementation("com.github.ajalt.clikt:clikt:3.5.0")
+	testImplementation("com.github.ajalt.clikt:clikt:3.5.1")
 	// kotlin script
 	// none
 	// sqlite
@@ -56,11 +56,13 @@ dependencies {
 	testImplementation("com.kennycason:kumo-core:1.28")
 	testImplementation("com.kennycason:kumo-tokenizers:1.28")
 	// openAI: https://chat.openai.com/chat
-	testImplementation("com.theokanning.openai-gpt3-java:client:0.8.1")
+	testImplementation("com.theokanning.openai-gpt3-java:client:0.9.0")
 	// skiko
 	// val skikoVersion = "0.7.37"
 	// api("org.jetbrains.skiko:skiko-awt:$skikoVersion")
 	//implementation("org.jetbrains.skiko:skiko-awt-runtime-windows-x64:$skikoVersion")
+	// html 库
+	implementation("org.jsoup:jsoup:1.15.3")
 }
 // ksp 加入编译
 kotlin {
