@@ -9,7 +9,7 @@ import my.ktbot.PlugConfig
  * @author bin
  * @since 2022/12/07
  */
-object OpenAITest : Print {
+object OpenAITest {
 	private val service = OpenAiService(PlugConfig.openAiToken, 20)
 	private fun listModels() {
 		val listModels = service.listModels()

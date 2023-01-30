@@ -14,7 +14,7 @@ import kotlin.time.measureTime
  *  @author bin
  *  @version 1.0.0
  */
-object EventHandleTest : Print {
+object EventHandleTest {
 	private object Obj {
 		private fun a() = 1
 		private val b: Int = 0

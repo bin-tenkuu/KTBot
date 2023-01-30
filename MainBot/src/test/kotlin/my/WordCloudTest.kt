@@ -21,7 +21,7 @@ import java.awt.Dimension
 import java.io.ByteArrayOutputStream
 import java.io.File
 
-object WordCloudTest : Print {
+object WordCloudTest {
 	@JvmStatic
 	fun main(text: Array<String>) {
 		val frequencyAnalyzer = FrequencyAnalyzer()

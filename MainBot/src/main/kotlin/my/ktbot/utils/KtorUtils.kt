@@ -139,13 +139,13 @@ object KtorUtils {
 			parameter("id", id)
 		}.body<BaseApi<RoomInit>>()
 		if (baseApi.code != 0) return listOf(baseApi.message)
-		else if (baseApi.data.liveStatus != 1) return listOf("bilibili $id 未开播")
+		if (baseApi.data!!.liveStatus != 1) return listOf("bilibili $id 未开播")
 		val roomId = baseApi.data.roomId
 		val durl = get("https://api.live.bilibili.com/room/v1/Room/playUrl") {
 			parameter("cid", roomId)
 			parameter("qn", 10000)
 			parameter("platform", "web")
-		}.body<BaseApi<LiveData>>().data.durl
+		}.body<BaseApi<LiveData>>().data!!.durl
 		return durl.map { it.url }
 	}
 

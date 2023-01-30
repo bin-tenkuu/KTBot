@@ -9,7 +9,7 @@ import kotlinx.coroutines.runBlocking
  * @author bin
  * @since 2022/11/22
  */
-object CliKtTest : Print {
+object CliKtTest {
 	@JvmStatic
 	fun main(args: Array<String>) {
 		val subcommands = A().subcommands(B(), C())

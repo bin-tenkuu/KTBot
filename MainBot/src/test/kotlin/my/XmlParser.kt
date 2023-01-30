@@ -9,7 +9,7 @@ import javax.xml.parsers.SAXParserFactory
  *  @author bin
  *  @version 1.0.0
  */
-object XmlParser : Print {
+object XmlParser {
 	@JvmStatic
 	fun main(vararg args: String) {
 		val instance = SAXParserFactory.newInstance()

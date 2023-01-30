@@ -1,3 +1,5 @@
+@file:Suppress("NOTHING_TO_INLINE")
+
 package my
 
 /**
@@ -5,7 +7,5 @@ package my
  *  @author bin
  *  @version 1.0.0
  */
-interface Print {
-	fun <T : Any?> T.pl() = println(this)
-	fun <T : Any?> T.p() = print(this)
-}
+inline fun <T : Any?> T.pl() = println(this)
+inline fun <T : Any?> T.p() = print(this)

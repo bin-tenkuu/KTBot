@@ -7,7 +7,7 @@ import kotlin.reflect.jvm.isAccessible
 import kotlin.reflect.jvm.javaField
 import kotlin.reflect.jvm.javaGetter
 
-object TimeTest : Print {
+object TimeTest {
 	@JvmStatic
 	fun main(vararg args: String) {
 		fun Long.ofNanos(start: Long) = Duration.ofNanos(this - start)
