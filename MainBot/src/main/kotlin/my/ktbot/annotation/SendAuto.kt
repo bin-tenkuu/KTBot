@@ -54,7 +54,11 @@ annotation class SendAuto(
 				event.subject.sendMessage(message)
 			} ?: PluginMain.catch {
 				event.subject.sendMessage("发送失败")
-			} ?: return
+			} ?: run {
+				PluginMain.logger.error("\"发送失败\" 发送失败")
+				return
+			}
+			PluginMain.logger.info("发送成功")
 			if (event is GroupMessageEvent && ann.recall > 0) {
 				receipt.recallIn(ann.recall)
 			}
