@@ -1,4 +1,5 @@
 import org.gradle.api.JavaVersion.VERSION_17
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
 	val kotlinVersion = "1.8.0"
@@ -21,7 +22,7 @@ subprojects {
 	repositories {
 		mavenLocal()
 		mavenCentral()
-		maven("https://maven.aliyun.com/repository/public") // 阿里云国内代理仓库
+		maven("https://maven.aliyun.com/repository/central") // 阿里云国内代理仓库
 		maven("https://maven.google.com")
 	}
 	tasks {
@@ -33,7 +34,7 @@ subprojects {
 			sourceCompatibility = VERSION_17.toString()
 			targetCompatibility = VERSION_17.toString()
 		}
-		withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+		withType<KotlinCompile> {
 			kotlinOptions {
 				verbose = true
 				jvmTarget = VERSION_17.toString()

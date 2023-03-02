@@ -4,13 +4,14 @@ import com.theokanning.openai.OpenAiService
 import com.theokanning.openai.completion.CompletionRequest
 import com.theokanning.openai.moderation.ModerationRequest
 import my.ktbot.PlugConfig
+import java.time.Duration
 
 /**
  * @author bin
  * @since 2022/12/07
  */
 object OpenAITest {
-	private val service = OpenAiService(PlugConfig.openAiToken, 20)
+	private val service = OpenAiService(PlugConfig.openAiToken, Duration.ofSeconds(20))
 	private fun listModels() {
 		val listModels = service.listModels()
 		for (model in listModels) {

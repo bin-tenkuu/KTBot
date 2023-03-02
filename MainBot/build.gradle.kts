@@ -1,38 +1,43 @@
 import org.gradle.api.JavaVersion.VERSION_17
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
 	kotlin("jvm")
 	kotlin("plugin.serialization")
 
-	id("net.mamoe.mirai-console") version "2.13.3"
+	id("net.mamoe.mirai-console") version "2.14.0"
 	id("com.google.devtools.ksp")
 }
 
 dependencies {
 	// kotlin
-	implementation(kotlin("stdlib"))
-	implementation(kotlin("reflect"))
-	testImplementation(kotlin("test-junit"))
-	compileOnly("org.jetbrains:annotations:23.1.0")
-	implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1")
+	val kotlinVersion = "1.8.0"
+	implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
+	implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
+	implementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlinVersion")
+	implementation("org.jetbrains.kotlinx:kotlinx-serialization-json-jvm:1.4.1")
 	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactive:1.6.4")
+	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.4")
+	compileOnly("org.jetbrains:annotations:24.0.0")
 	// clikt
 	testImplementation("com.github.ajalt.clikt:clikt:3.5.1")
 	// kotlin script
 	// none
 	// sqlite
-	implementation("org.xerial:sqlite-jdbc:3.40.0.0")
-	implementation("org.ktorm:ktorm-core:3.5.0")
-	implementation("org.ktorm:ktorm-support-sqlite:3.5.0")
-	// ktorm-ksp
-	implementation("org.ktorm:ktorm-ksp-api:1.0.0-RC2")
-	ksp("org.ktorm:ktorm-ksp-compiler:1.0.0-RC2")
+	implementation("org.xerial:sqlite-jdbc:3.40.1.0")
+	implementation("org.ktorm:ktorm-core:3.6.0")
+	implementation("org.ktorm:ktorm-support-sqlite:3.6.0")
+	implementation("org.ktorm:ktorm-ksp-api:1.0.0-RC3")
+	ksp("org.ktorm:ktorm-ksp-compiler:1.0.0-RC3")
 	// ktor-client
-	val ktorVersion = "2.2.1"
+	val ktorVersion = "2.2.3"
+	implementation("io.ktor:ktor-client-auth:$ktorVersion")
 	implementation("io.ktor:ktor-http:$ktorVersion")
 	implementation("io.ktor:ktor-client-okhttp:$ktorVersion")
+	implementation("io.ktor:ktor-client-websockets:$ktorVersion")
 	implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
 	implementation("io.ktor:ktor-serialization-kotlinx:$ktorVersion")
+	implementation("io.ktor:ktor-client-encoding:$ktorVersion")
 	implementation("io.ktor:ktor-client-logging:$ktorVersion")
 	// ktor-server
 	implementation("io.ktor:ktor-server:$ktorVersion")
@@ -44,29 +49,21 @@ dependencies {
 	implementation("io.ktor:ktor-server-compression:$ktorVersion")
 	implementation("io.ktor:ktor-server-data-conversion:$ktorVersion")
 	// mirai插件注解
-	api("net.mamoe:mirai-console-compiler-annotations-jvm:2.13.2")
+	api("net.mamoe:mirai-console-compiler-annotations-jvm:2.14.0")
 	// implementation("net.mamoe:mirai-core-utils:2.12.1")
 	// 系统状况读取
 	implementation("com.github.oshi:oshi-core-java11:6.4.0")
 	// 分词器
 	implementation("com.huaban:jieba-analysis:1.0.2")
 	// hutool全家桶: https://hutool.cn/docs/#/
-	implementation("cn.hutool:hutool-core:5.8.11")
-	// 词云生成器
-	testImplementation("com.kennycason:kumo-core:1.28")
-	testImplementation("com.kennycason:kumo-tokenizers:1.28")
+	implementation("cn.hutool:hutool-core:5.8.12")
 	// openAI: https://chat.openai.com/chat
 	testImplementation("com.theokanning.openai-gpt3-java:client:0.9.0")
-	// skiko
-	// val skikoVersion = "0.7.37"
-	// api("org.jetbrains.skiko:skiko-awt:$skikoVersion")
-	//implementation("org.jetbrains.skiko:skiko-awt-runtime-windows-x64:$skikoVersion")
 	// html 库
 	implementation("org.jsoup:jsoup:1.15.3")
 }
 // ksp 加入编译
 kotlin {
-	// jvmToolchain(17) // 1.7.20
 	jvmToolchain {
 		languageVersion.set(JavaLanguageVersion.of(17))
 	}
@@ -92,7 +89,7 @@ mirai {
 }
 
 tasks {
-	withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+	withType<KotlinCompile> {
 		kotlinOptions.freeCompilerArgs += "-opt-in=net.mamoe.mirai.utils.MiraiExperimentalApi"
 	}
 	create("build2Jar") {

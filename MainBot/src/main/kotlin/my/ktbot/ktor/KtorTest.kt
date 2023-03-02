@@ -32,10 +32,12 @@ import my.ktbot.PluginMain
 object KtorTest {
 	fun run(block: Application.() -> Unit): NettyApplicationEngine {
 		return embeddedServer(Netty, port = 85, host = "0.0.0.0", configure = {
-		}) {
-			globalInit()
-			block()
-		}
+		}, module = init(block))
+	}
+
+	private fun init(block: Application.() -> Unit): Application.() -> Unit = {
+		globalInit()
+		block()
 	}
 
 	@JvmStatic
@@ -155,8 +157,7 @@ object KtorTest {
 							environment.monitor.raise(ApplicationStopPreparing, environment)
 							if (environment is ApplicationEngineEnvironment) {
 								environment.stop()
-							}
-							else {
+							} else {
 								application.dispose()
 							}
 
@@ -164,8 +165,7 @@ object KtorTest {
 						}
 						try {
 							call.respondText(Math.random().toString(), status = HttpStatusCode.Gone)
-						}
-						finally {
+						} finally {
 							latch.cancel()
 						}
 					}

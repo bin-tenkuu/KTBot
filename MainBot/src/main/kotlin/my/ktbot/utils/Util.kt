@@ -2,7 +2,6 @@
 
 package my.ktbot.utils
 
-import kotlinx.serialization.json.Json
 import my.ktbot.PlugConfig
 import my.ktbot.PluginMain
 import my.ktbot.annotation.*
@@ -12,18 +11,6 @@ import net.mamoe.mirai.event.events.BotEvent
 import net.mamoe.mirai.message.data.*
 import net.mamoe.mirai.utils.MiraiLogger
 import net.mamoe.mirai.utils.error
-
-val json = Json {
-	encodeDefaults = false
-	ignoreUnknownKeys = true
-	isLenient = false
-	allowStructuredMapKeys = false
-	prettyPrint = false
-	coerceInputValues = true
-	useArrayPolymorphism = false
-	allowSpecialFloatingPointValues = true
-	useAlternativeNames = true
-}
 
 /**
  * 给管理员发送消息

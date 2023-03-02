@@ -54,7 +54,7 @@ object SystemInfoUtil {
 
 	@JvmStatic
 	fun main(vararg args: String) {
-		println(SystemInfoUtil())
+		println(invoke())
 	}
 
 	operator fun invoke(): String = buildString {
@@ -132,9 +132,9 @@ object SystemInfoUtil {
 			for (part: HWPartition in disk.partitions ?: continue) {
 				appendLine(
 					" |- ${part.identification}: ${part.name} (${part.type}) " +
-						"Maj:Min=${part.major}:${part.minor}, " +
-						"size: ${formatBytesDecimal(part.size)}" +
-						if (part.mountPoint.isEmpty()) "" else " @ ${part.mountPoint}"
+							"Maj:Min=${part.major}:${part.minor}, " +
+							"size: ${formatBytesDecimal(part.size)}" +
+							if (part.mountPoint.isEmpty()) "" else " @ ${part.mountPoint}"
 				)
 			}
 		}
@@ -148,9 +148,9 @@ object SystemInfoUtil {
 			val total = fs.totalSpace
 			appendLine(
 				"  ${fs.name} (${fs.description.ifEmpty { "file system" }}) [${fs.type}] " +
-					"${formatBytes(usable)} of ${formatBytes(fs.totalSpace)} " +
-					"free (${String.format("%.1f", 100.0 * usable / total)}%) " +
-					"mounted at ${fs.mount}"
+						"${formatBytes(usable)} of ${formatBytes(fs.totalSpace)} " +
+						"free (${String.format("%.1f", 100.0 * usable / total)}%) " +
+						"mounted at ${fs.mount}"
 			)
 		}
 	}

@@ -1,5 +1,6 @@
 package my.ktbot
 
+import kotlinx.coroutines.runBlocking
 import my.ktbot.annotation.*
 import my.ktbot.plugs.*
 import my.ktbot.utils.Counter
@@ -31,7 +32,7 @@ object PluginMain : MyKotlinPlugin(
 		logger.info("管理员QQ：${PlugConfig.adminId}")
 		logger.info("管理员QQ群：${PlugConfig.adminGroup}")
 		injectMap + SendAuto + NeedAdmin + RegexAnn.Inject() + LimitAll +
-			SendGroup + SendAdmin + NeedExp + NeedAt + HasPerm + CheckPerm
+				SendGroup + SendAdmin + NeedExp + NeedAt + HasPerm + CheckPerm
 		Counter.start(this@PluginMain)
 		// ShareCertificateUtil.start(this@PluginMain)
 	}
@@ -62,6 +63,10 @@ object PluginMain : MyKotlinPlugin(
 			logger.debug(callers.mapIndexed { i, c ->
 				"\n$i :${c.name}"
 			}.joinToString(""))
+			runBlocking {
+				// MihoyoBbs()
+				// HonKai2()
+			}
 		}
 		// KtorTest.run {
 		// 	with(KtorTest) {
@@ -79,8 +84,7 @@ object PluginMain : MyKotlinPlugin(
 	inline fun <T> catch(block: () -> T): T? {
 		return try {
 			block()
-		}
-		catch (e: Exception) {
+		} catch (e: Exception) {
 			logger.error(e); null
 		}
 	}
