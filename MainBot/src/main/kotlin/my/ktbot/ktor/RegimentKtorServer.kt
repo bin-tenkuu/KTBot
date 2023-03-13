@@ -29,102 +29,115 @@ import java.time.Duration
  */
 private var regimentServer: ApplicationEngine? = null
 val roomConfig = HashMap<String?, RoomConfig>().apply {
-	this["test"] = RoomConfig("测试房间").apply {
-		roles["a"] = mutableListOf(Tag("a", ""))
-		roles["b"] = mutableListOf(Tag("b", ""))
-	}
+    this["test"] = RoomConfig("测试房间").apply {
+        roles["a"] = mutableListOf(Tag("a", ""))
+        roles["b"] = mutableListOf(Tag("b", ""))
+    }
 }
 
 fun main() {
-	server(8080).start(true)
+    server(8080).start(true)
 }
 
 fun server(port: Int = 80): ApplicationEngine {
-	if (regimentServer != null) {
-		return regimentServer!!
-	}
-	val server = embeddedServer(
-		factory = Netty,
-		port = port,
-		host = "0.0.0.0",
-		module = {
-			regimentKtorServer()
-		}
-	)
-	regimentServer = server
-	return server
+    if (regimentServer != null) {
+        return regimentServer!!
+    }
+    val server = embeddedServer(
+        factory = Netty,
+        port = port,
+        host = "0.0.0.0",
+        module = {
+            regimentKtorServer()
+        }
+    )
+    regimentServer = server
+    return server
 }
 
 private fun Application.regimentKtorServer() {
-	install(CORS) {
-		anyHost()
-	}
-	install(Compression)
-	install(Routing)
-	install(Resources)
-	install(StatusPages) {
-		exception<Throwable> { call, cause ->
-			call.respondText("500: ${cause.message}", status = HttpStatusCode.InternalServerError)
-		}
-	}
-	install(WebSockets) {
-		pingPeriod = Duration.ofSeconds(15)
-		timeout = Duration.ofSeconds(60)
-		maxFrameSize = Long.MAX_VALUE
-		masking = false
-		contentConverter = KotlinxWebsocketSerializationConverter(jsonGlobal)
-	}
-	install(ContentNegotiation) {
-		register(ContentType.Application.Json, KotlinxSerializationConverter(jsonGlobal))
-	}
-	install(DataConversion)
-	routing {
-		static("/static") {
-			defaultResource("regiment/index.html")
-			resources("regiment")
-		}
-		wsChat()
-	}
+    install(CORS) {
+        anyHost()
+    }
+    install(Compression)
+    install(Routing)
+    install(Resources)
+    install(StatusPages) {
+        exception<Throwable> { call, cause ->
+            call.respondText("500: ${cause.message}", status = HttpStatusCode.InternalServerError)
+        }
+    }
+    install(WebSockets) {
+        pingPeriod = Duration.ofSeconds(15)
+        timeout = Duration.ofSeconds(60)
+        maxFrameSize = Long.MAX_VALUE
+        masking = false
+        contentConverter = KotlinxWebsocketSerializationConverter(jsonGlobal)
+    }
+    install(ContentNegotiation) {
+        register(ContentType.Application.Json, KotlinxSerializationConverter(jsonGlobal))
+    }
+    install(DataConversion)
+    routing {
+        route("/api") {
+            route("room") {
+                get("list") {
+                    call.respond(roomConfig.keys)
+                }
+            }
+        }
+        static("/static") {
+            defaultResource("regiment/index.html")
+            resources("regiment")
+        }
+        wsChat()
+    }
 }
 
 private fun Routing.wsChat() {
-	webSocket("/ws/{roomId}") {
-		val room: RoomConfig = getRoom() ?: return@webSocket
-		println("${room.name} 新的连接")
-		try {
-			val role: String = getRole() ?: return@webSocket
-			room.clients += this
-			room.sendAll(Message.SysText("角色 ${role} 进入房间"))
-			sendSerialized(Message.Roles(room.roles))
-			while (true) {
-				val msg = receiveDeserialized<Message>()
-				room.sendAll(msg)
-			}
-		} catch (e: Exception) {
-			e.printStackTrace()
-		} finally {
-			println("${room.name} 连接断开")
-			room.clients -= this
-		}
-	}
+    webSocket("/ws/{roomId}") {
+        val room: RoomConfig = getRoom() ?: return@webSocket
+        println("${room.name} 新的连接")
+        try {
+            val role: String = getRole() ?: return@webSocket
+            room.clients += this
+            room.sendAll(Message.SysText("角色 $role 进入房间"))
+            sendSerialized(Message.Roles(room.roles))
+            while (true) {
+                val msg = receiveDeserialized<Message>()
+                when (msg) {
+                    is Message.Roles -> {
+                        // room.roles = msg.roles
+                    }
+                    else -> {}
+                }
+                room.sendAll(msg)
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        } finally {
+            println("${room.name} 连接断开")
+            room.clients -= this
+        }
+    }
 }
 
 private suspend fun DefaultWebSocketServerSession.getRoom(): RoomConfig? {
-	val roomId = call.parameters["roomId"] ?: run {
-		close(CloseReason(CloseReason.Codes.NORMAL, "需要 roomId"))
-		return null
-	}
-	return roomConfig[roomId] ?: run {
-		close(CloseReason(CloseReason.Codes.NORMAL, "roomId 不存在"))
-		return null
-	}
+    val roomId = call.parameters["roomId"] ?: run {
+        close(CloseReason(CloseReason.Codes.NORMAL, "需要 roomId"))
+        return null
+    }
+    return roomConfig[roomId] ?: run {
+        close(CloseReason(CloseReason.Codes.NORMAL, "roomId 不存在"))
+        return null
+    }
 }
 
 private suspend fun DefaultWebSocketServerSession.getRole(): String? {
-	val text = (incoming.receive() as? Frame.Text)?.readText()
-	if (text.isNullOrEmpty()) {
-		close(CloseReason(CloseReason.Codes.NORMAL, "需要定义角色"))
-		return null
-	}
-	return text
+    val text = (incoming.receive() as? Frame.Text)?.readText()
+    if (text.isNullOrEmpty()) {
+        close(CloseReason(CloseReason.Codes.NORMAL, "需要定义角色"))
+        return null
+    }
+    return text
 }
