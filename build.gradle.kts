@@ -21,8 +21,8 @@ description = "我的 QQBot"
 subprojects {
 	repositories {
 		mavenLocal()
+		maven("https://maven.aliyun.com/repository/public") // 阿里云国内代理仓库
 		mavenCentral()
-		maven("https://maven.aliyun.com/repository/central") // 阿里云国内代理仓库
 		maven("https://maven.google.com")
 	}
 	tasks {

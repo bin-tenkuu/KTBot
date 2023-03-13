@@ -21,23 +21,25 @@ object BiliTest {
 		runBlocking {
 			val info = KtorUtils.get(baseUrl) {
 				parameter("bvid", bv)
-			}.body<BaseApi<VedioInfo>>().data ?: return@runBlocking
-			"".pl()
-			val vedioUrl = KtorUtils.get(playUrl) {
-				parameter("bvid", bv)
-				parameter("cid", info.cid)
-				// parameter("qn", 16)
-				// parameter("fnval", 1)
-				// parameter("session", "")
-			}.body<BaseApi<VedioStreamUrl>>().data
-			vedioUrl.pl()
-			vedioUrl ?: return@runBlocking
-			"".pl()
-			if (vedioUrl.durl.isEmpty()) {
-				return@runBlocking
-			}
-			val durl = vedioUrl.durl[0]
-			durl.pl()
+			}.body<String>() ?: return@runBlocking
+			info.pl()
+			return@runBlocking
+			// "".pl()
+			// val vedioUrl = KtorUtils.get(playUrl) {
+			// 	parameter("bvid", bv)
+			// 	parameter("cid", info.cid)
+			// 	// parameter("qn", 16)
+			// 	// parameter("fnval", 1)
+			// 	// parameter("session", "")
+			// }.body<BaseApi<VedioStreamUrl>>().data
+			// vedioUrl.pl()
+			// vedioUrl ?: return@runBlocking
+			// "".pl()
+			// if (vedioUrl.durl.isEmpty()) {
+			// 	return@runBlocking
+			// }
+			// val durl = vedioUrl.durl[0]
+			// durl.pl()
 		}
 		// KtorUtils.get("${playUrl}bvid=BV1iy4y1d78B")
 	}

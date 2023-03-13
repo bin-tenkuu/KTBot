@@ -3,6 +3,7 @@ package my.ktbot.utils
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.serializer
 import my.ktbot.PlugConfig
+import my.ktbot.utils.global.jsonGlobal
 import java.io.*
 
 object NginxLogHandle {
@@ -78,7 +79,7 @@ object NginxLogHandle {
 			it.append(":\n")
 			for (logNginx in list) {
 				it.append("  - ")
-				it.append(json.encodeToString(serializer(), logNginx))
+				it.append(jsonGlobal.encodeToString(serializer(), logNginx))
 				it.append("\n")
 			}
 		}

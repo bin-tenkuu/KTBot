@@ -4,13 +4,13 @@ import io.ktor.client.*
 import io.ktor.client.engine.*
 import io.ktor.client.engine.okhttp.*
 import io.ktor.client.plugins.*
-import io.ktor.client.plugins.compression.*
+// import io.ktor.client.plugins.compression.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.plugins.logging.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.*
-import kotlinx.serialization.json.Json
 import my.ktbot.PlugConfig
+import my.ktbot.utils.global.jsonGlobal
 import java.nio.charset.StandardCharsets
 
 /**
@@ -19,18 +19,6 @@ import java.nio.charset.StandardCharsets
  */
 private object GlobalInstance
 
-private val log = createLogger<GlobalInstance>()
-val json = Json {
-	encodeDefaults = false
-	ignoreUnknownKeys = true
-	isLenient = false
-	allowStructuredMapKeys = false
-	prettyPrint = false
-	coerceInputValues = true
-	useArrayPolymorphism = false
-	allowSpecialFloatingPointValues = true
-	useAlternativeNames = true
-}
 const val userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36 Edg/96.0.1054.57"
 
 /** 使用代理的Ktor客户端 */
@@ -45,6 +33,7 @@ val httpClient = HttpClient(OkHttp) {
 	if (PlugConfig.debug) {
 		install(Logging) {
 			logger = object : Logger {
+				private val log = createLogger<GlobalInstance>()
 				override fun log(message: String) {
 					log.debug(message)
 				}
@@ -52,12 +41,12 @@ val httpClient = HttpClient(OkHttp) {
 			level = LogLevel.BODY
 		}
 	}
-	install(ContentEncoding) {
-		gzip(null)
-		deflate(null)
-	}
+	// install(ContentEncoding) {
+	// 	gzip(null)
+	// 	deflate(null)
+	// }
 	install(ContentNegotiation) {
-		register(ContentType.Application.Json, KotlinxSerializationConverter(json))
+		register(ContentType.Application.Json, KotlinxSerializationConverter(jsonGlobal))
 	}
 	install(HttpPlainText) {
 		register(StandardCharsets.UTF_8, 1.0F)

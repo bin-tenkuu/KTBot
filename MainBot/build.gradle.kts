@@ -48,6 +48,7 @@ dependencies {
 	implementation("io.ktor:ktor-server-content-negotiation:$ktorVersion")
 	implementation("io.ktor:ktor-server-compression:$ktorVersion")
 	implementation("io.ktor:ktor-server-data-conversion:$ktorVersion")
+	implementation("io.ktor:ktor-server-websockets:$ktorVersion")
 	// mirai插件注解
 	api("net.mamoe:mirai-console-compiler-annotations-jvm:2.14.0")
 	// implementation("net.mamoe:mirai-core-utils:2.12.1")
