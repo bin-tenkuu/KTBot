@@ -1,15 +1,19 @@
 <template id="app">
   <el-tabs v-model="activeName">
     <el-tab-pane label="创建房间" name="create">
+      <el-input></el-input>
       <el-button type="success">创建房间</el-button>
+    </el-tab-pane>
+    <el-tab-pane label="修改房间" name="edit">
+      <el-button type="success">保存房间</el-button>
     </el-tab-pane>
     <el-tab-pane label="进入房间" name="join">
       <div v-if="ws==null">
-        <el-input v-model="room.name" style="width: 50%;">
+        <el-input v-model="room.name" style="width: 20em" clearable>
           <template #prepend>房间：</template>
         </el-input>
         <br>
-        <el-input v-model="room.role" style="width: 50%;">
+        <el-input v-model="room.role" style="width: 20em;" clearable>
           <template #prepend>角色：</template>
         </el-input>
         <br>
@@ -79,10 +83,10 @@ export default {
     data() {
         return {
             activeName: "join",
-            host: "127.0.0.1:8080",
+            host: "127.0.0.1:8081",
             room: {
-                name: "",
-                role: "",
+                name: "test",
+                role: "admin",
             },
             /**
              * @type {WebSocket}
@@ -119,23 +123,38 @@ export default {
             }
         },
         connect() {
-            console.log(1)
             if (this.ws != null) {
                 return
             }
-            console.log(2)
             const ws = this.ws = new WebSocket(`ws://${this.host}/ws/${this.room.name}`);
             ws.onopen = () => {
                 this.append("------连接成功-----")
                 // ws.close()
-                ws.send(this.room.role)
+                this.send({
+                    type: "role",
+                    name: this.room.role
+                })
             }
-            ws.onclose = () => {
-                this.append("------断开连接-----")
+            /**
+             * @param ev {WebSocket.CloseEvent}
+             */
+            ws.onclose = (ev) => {
+                this.msgs.push({
+                    type: "text",
+                    msg: `------断开连接(${ev.code}):${ev.reason}-----`,
+                    role: "system"
+                })
                 this.disconnect()
             }
-            ws.onerror = () => {
-                this.append("------连接出错-----")
+            /**
+             * @param ev {WebSocket.ErrorEvent}
+             */
+            ws.onerror = (ev) => {
+                this.msgs.push({
+                    type: "text",
+                    msg: `------连接出错:${ev.message}-----`,
+                    role: "system"
+                })
                 this.disconnect()
             }
             ws.onmessage = (ev) => {
@@ -159,37 +178,19 @@ export default {
             this.image = null
         },
         sendMessage() {
-            this.ws.send(JSON.stringify({
+            this.send({
                 type: "text",
                 msg: this.message,
                 role: this.room.role,
-            }))
+            })
             this.message = ""
         },
-        /**
-         *
-         * @param msg {string}
-         */
-        send(msg) {
-            this.ws.send(JSON.stringify({
-                type: "text",
-                msg: msg,
-                role: this.room.role,
-            }))
+        send(json) {
+            console.log(json)
+            this.ws.send(JSON.stringify(json))
         },
-        /**
-         *
-         * @param msg {string|object}
-         */
         append(msg) {
-            console.log(msg)
-            if (typeof msg === 'string')
-                this.msgs.push({
-                    type: "sysText",
-                    msg: msg
-                })
-            else
-                this.msgs.push(msg)
+            this.msgs[msg.id] = msg
         },
         getRole(roleId) {
             return this.roles[roleId]
@@ -197,11 +198,11 @@ export default {
         sendBase64Image() {
             let reader = new FileReader();
             reader.onloadend = () => {
-                this.ws.send(JSON.stringify({
+                this.send({
                     type: "pic",
                     msg: reader.result,
                     role: this.room.role,
-                }))
+                })
                 this.image = null
             };
             reader.readAsDataURL(this.image.raw);

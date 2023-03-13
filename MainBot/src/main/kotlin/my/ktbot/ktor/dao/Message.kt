@@ -10,19 +10,21 @@ import kotlinx.serialization.Serializable
  */
 @Serializable
 sealed class Message {
-	@Serializable
-	@SerialName("text")
-	class Text(val msg: String, val role: String) : Message()
+    var id: Long? = null
 
-	@Serializable
-	@SerialName("sysText")
-	class SysText(val msg: String) : Message()
+    @Serializable
+    @SerialName("text")
+    class Text(val msg: String, val role: String) : Message()
 
-	@Serializable
-	@SerialName("pic")
-	class Pic(val msg: String, val role: String) : Message()
+    @Serializable
+    @SerialName("pic")
+    class Pic(val msg: String, val role: String) : Message()
 
-	@Serializable
-	@SerialName("roles")
-	class Roles(val roles: MutableMap<String?, MutableList<Tag>>) : Message()
+    @Serializable
+    @SerialName("roles")
+    class Roles(val roles: MutableMap<String?, MutableList<Tag>>) : Message()
+
+    @Serializable
+    @SerialName("role")
+    class Role(val name: String) : Message()
 }

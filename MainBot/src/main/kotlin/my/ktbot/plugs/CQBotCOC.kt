@@ -6,7 +6,6 @@ import my.ktbot.database.TCOCShortKey
 import my.ktbot.utils.CacheMap
 import my.ktbot.utils.DiceResult
 import my.ktbot.utils.Sqlite
-import my.ktbot.utils.Sqlite.set
 import my.miraiplus.annotation.MiraiEventHandle
 import my.miraiplus.annotation.RegexAnn
 import net.mamoe.mirai.event.events.MessageEvent
@@ -177,8 +176,8 @@ object CQBotCOC {
 			return "value长度不大于10".toPlainText()
 		}
 		Sqlite.insertOrUpdate(TCOCShortKey) {
-			it.key.set(key)
-			it.value.set(value)
+			set(it.key, key)
+			set(it.value, value)
 		}
 		return "添加key:${key}=${value}".toPlainText()
 	}

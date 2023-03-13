@@ -8,8 +8,6 @@ import my.ktbot.database.TPixivPic
 import my.ktbot.utils.KtorUtils
 import my.ktbot.utils.Sqlite
 import my.ktbot.utils.Sqlite.limit
-import my.ktbot.utils.Sqlite.set
-import my.ktbot.utils.Sqlite.setExcluded
 import my.ktbot.utils.createLogger
 import my.miraiplus.annotation.MiraiEventHandle
 import my.miraiplus.annotation.RegexAnn
@@ -105,19 +103,19 @@ object CQBotPicture {
 	private fun savePic(d: Lolicon) {
 		val url = d.urls.values.firstOrNull() ?: return
 		Sqlite.insertOrUpdate(TPixivPic) {
-			it.pid.set(d.pid)
-			it.p.set(d.p)
-			it.uid.set(d.uid)
-			it.r18.set(d.r18)
-			it.url.set(url)
-			it.author.set(d.author)
-			it.title.set(d.title)
+			set(it.pid, d.pid)
+			set(it.p, d.p)
+			set(it.uid, d.uid)
+			set(it.r18, d.r18)
+			set(it.url, url)
+			set(it.author, d.author)
+			set(it.title, d.title)
 			onConflict(it.pid, it.p) {
-				it.uid.setExcluded()
-				it.r18.setExcluded()
-				it.url.setExcluded()
-				it.author.setExcluded()
-				it.title.setExcluded()
+				set(it.uid, excluded(it.uid))
+				set(it.r18, excluded(it.r18))
+				set(it.url, excluded(it.url))
+				set(it.author, excluded(it.author))
+				set(it.title, excluded(it.title))
 			}
 		}
 	}

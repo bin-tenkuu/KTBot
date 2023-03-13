@@ -29,14 +29,14 @@ import java.time.Duration
  */
 private var regimentServer: ApplicationEngine? = null
 val roomConfig = HashMap<String?, RoomConfig>().apply {
-    this["test"] = RoomConfig("测试房间").apply {
+    this["a"] = RoomConfig("a").apply {
         roles["a"] = mutableListOf(Tag("a", ""))
         roles["b"] = mutableListOf(Tag("b", ""))
     }
 }
 
 fun main() {
-    server(8080).start(true)
+    server(8081).start(true)
 }
 
 fun server(port: Int = 80): ApplicationEngine {
@@ -79,13 +79,6 @@ private fun Application.regimentKtorServer() {
     }
     install(DataConversion)
     routing {
-        route("/api") {
-            route("room") {
-                get("list") {
-                    call.respond(roomConfig.keys)
-                }
-            }
-        }
         static("/static") {
             defaultResource("regiment/index.html")
             resources("regiment")
@@ -99,19 +92,11 @@ private fun Routing.wsChat() {
         val room: RoomConfig = getRoom() ?: return@webSocket
         println("${room.name} 新的连接")
         try {
-            val role: String = getRole() ?: return@webSocket
             room.clients += this
-            room.sendAll(Message.SysText("角色 $role 进入房间"))
             sendSerialized(Message.Roles(room.roles))
             while (true) {
                 val msg = receiveDeserialized<Message>()
-                when (msg) {
-                    is Message.Roles -> {
-                        // room.roles = msg.roles
-                    }
-                    else -> {}
-                }
-                room.sendAll(msg)
+                room.handle(msg)
             }
         } catch (e: Exception) {
             e.printStackTrace()
@@ -131,13 +116,4 @@ private suspend fun DefaultWebSocketServerSession.getRoom(): RoomConfig? {
         close(CloseReason(CloseReason.Codes.NORMAL, "roomId 不存在"))
         return null
     }
-}
-
-private suspend fun DefaultWebSocketServerSession.getRole(): String? {
-    val text = (incoming.receive() as? Frame.Text)?.readText()
-    if (text.isNullOrEmpty()) {
-        close(CloseReason(CloseReason.Codes.NORMAL, "需要定义角色"))
-        return null
-    }
-    return text
 }
