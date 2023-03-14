@@ -16,6 +16,8 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.websocket.*
 import io.ktor.websocket.*
+import kotlinx.coroutines.channels.ClosedReceiveChannelException
+import kotlinx.serialization.serializer
 import my.ktbot.ktor.dao.Message
 import my.ktbot.ktor.dao.RoomConfig
 import my.ktbot.ktor.dao.Tag
@@ -30,13 +32,21 @@ import java.time.Duration
 private var regimentServer: ApplicationEngine? = null
 val roomConfig = HashMap<String?, RoomConfig>().apply {
     this["a"] = RoomConfig("a").apply {
-        roles["a"] = mutableListOf(Tag("a", ""))
-        roles["b"] = mutableListOf(Tag("b", ""))
+        roles["a"] = mutableListOf(Tag("a"))
+        roles["b"] = mutableListOf(
+            Tag("b"),
+            Tag("success", "success"),
+            Tag("info", "info"),
+            Tag("warning", "warning"),
+            Tag("danger", "danger"),
+        )
     }
 }
 
 fun main() {
-    server(8081).start(true)
+    val port = 80
+    println("Starting server...($port)")
+    server(port).start(true)
 }
 
 fun server(port: Int = 80): ApplicationEngine {
@@ -90,18 +100,34 @@ private fun Application.regimentKtorServer() {
 private fun Routing.wsChat() {
     webSocket("/ws/{roomId}") {
         val room: RoomConfig = getRoom() ?: return@webSocket
-        println("${room.name} 新的连接")
         try {
             room.clients += this
-            sendSerialized(Message.Roles(room.roles))
+            sendSerialized(Message.Roles(room.roles) as Message)
+            var role = ""
             while (true) {
-                val msg = receiveDeserialized<Message>()
-                room.handle(msg)
+                val msg = when (val frame = incoming.receive()) {
+                    is Frame.Close -> break
+                    is Frame.Ping -> {
+                        send(Frame.Pong(frame.data))
+                        continue
+                    }
+                    is Frame.Pong -> continue
+                    is Frame.Binary -> break
+                    is Frame.Text -> jsonGlobal.decodeFromString<Message>(serializer(), frame.readText())
+                }
+                when (msg) {
+                    is Message.Text,
+                    is Message.Pic,
+                    is Message.Roles,
+                    -> room.save(msg, role)
+                    is Message.Role -> role = msg.role
+                }
+                room.sendAll(msg)
             }
+        } catch (_: ClosedReceiveChannelException) {
         } catch (e: Exception) {
             e.printStackTrace()
         } finally {
-            println("${room.name} 连接断开")
             room.clients -= this
         }
     }
@@ -112,8 +138,8 @@ private suspend fun DefaultWebSocketServerSession.getRoom(): RoomConfig? {
         close(CloseReason(CloseReason.Codes.NORMAL, "需要 roomId"))
         return null
     }
-    return roomConfig[roomId] ?: run {
-        close(CloseReason(CloseReason.Codes.NORMAL, "roomId 不存在"))
-        return null
+    val room = roomConfig.getOrPut(roomId) {
+        RoomConfig(roomId)
     }
+    return room
 }

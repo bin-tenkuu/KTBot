@@ -1,92 +1,105 @@
 <template id="app">
   <el-tabs v-model="activeName">
-    <el-tab-pane label="创建房间" name="create">
-      <el-input></el-input>
-      <el-button type="success">创建房间</el-button>
-    </el-tab-pane>
     <el-tab-pane label="修改房间" name="edit">
-      <el-button type="success">保存房间</el-button>
+      <template v-if="activeName==='edit'">
+        <el-button type="success">保存房间</el-button>
+      </template>
     </el-tab-pane>
     <el-tab-pane label="进入房间" name="join">
-      <div v-if="ws==null">
-        <el-input v-model="room.name" style="width: 20em" clearable>
-          <template #prepend>房间：</template>
-        </el-input>
-        <br>
-        <el-input v-model="room.role" style="width: 20em;" clearable>
-          <template #prepend>角色：</template>
-        </el-input>
-        <br>
-        <el-button type="primary" @click="connect">进入房间</el-button>
-      </div>
-      <template v-else>
-        <div v-for="(msg,index) in msgs" :key="index">
-          <template v-if="msg.type==='sysText'">
-            <span>{{ msg.msg }}</span>
-          </template>
-          <template v-else-if="msg.type==='text'">
-            <el-tag
-                v-for="tag in getRole(msg.role)"
-                size="large"
-                :key="tag.key"
-                :color="tag.color"
-                effect="plain">
-              {{ tag.key }}
-            </el-tag>
-            <span>：{{ msg.msg }}</span>
-          </template>
-          <template v-else-if="msg.type==='pic'">
-            <el-tag
-                v-for="tag in getRole(msg.role)"
-                size="large"
-                :key="tag.key"
-                :color="tag.color"
-                effect="plain">
-              {{ tag.key }}
-            </el-tag>
-            <img alt="img" :src="msg.msg"/>
-          </template>
+      <template v-if="activeName==='join'">
+        <div v-if="ws==null">
+          <el-input v-model="room.name" style="width: 20em" clearable>
+            <template #prepend>房间：</template>
+          </el-input>
+          <br>
+          <el-input v-model="room.role" style="width: 20em;" clearable>
+            <template #prepend>角色：</template>
+          </el-input>
+          <br>
+          <el-button type="primary" @click="connect">进入房间</el-button>
         </div>
-        <el-divider>
-          <el-icon>
-            <star-filled/>
-          </el-icon>
-        </el-divider>
-        <label>输入框：</label><br>
-        <el-input type="textarea" class="el-textarea" placeholder="请输入内容" v-model="message"/>
-        <br>
-        <el-button type="primary" :disabled="message.length<1" @click="sendMessage">发送</el-button>
-        <el-button type="primary" :disabled="image==null" @click="sendBase64Image">发送图片</el-button>
-        <el-button type="info" @click="clear"><i class="el-icon-delete"></i>清空</el-button>
-        <el-button type="danger" @click="disconnect">离开房间</el-button>
-        <el-upload
-            class="avatar-uploader"
-            accept="image"
-            list-type="picture"
-            :show-file-list="false" :auto-upload="false" action="#"
-            :on-change="handlePictureChange">
-          <img v-if="image" :src="image.url" class="avatar" alt="img"/>
-          <el-icon v-else class="avatar-uploader-icon">
-            <Plus/>
-          </el-icon>
-        </el-upload>
+        <template v-else>
+          <div v-for="(msg,index) in msgs" :key="index">
+            <template v-if="msg==null">
+            </template>
+            <template v-else-if="msg.type==='text'">
+              <el-tag
+                  v-for="(tag,index) in getRole(msg.role)"
+                  size="large"
+                  :key="index"
+                  :type="tag.type??''"
+                  :color="tag.color??''"
+                  effect="plain">
+                {{ tag.key }}
+              </el-tag>&nbsp;
+              <span>{{ msg.msg }}</span>
+              <!--<el-button v-if="msg.role===room.role" class="edit-button">
+                <el-icon>
+                  <Edit/>
+                </el-icon>
+              </el-button>-->
+            </template>
+            <template v-else-if="msg.type==='pic'">
+              <el-tag
+                  v-for="tag in getRole(msg.role)"
+                  size="large"
+                  :key="tag.key"
+                  :color="tag.color"
+                  effect="plain">
+                {{ tag.key }}
+              </el-tag>&nbsp;
+              <img alt="img" :src="msg.msg"/>
+            </template>
+          </div>
+          <el-divider>
+            <el-icon>
+              <star-filled/>
+            </el-icon>
+          </el-divider>
+          <label>输入框：</label><br>
+          <el-input type="textarea" class="el-textarea" placeholder="请输入内容" v-model="message"/>
+          <br>
+          <el-button type="primary" :disabled="message.length<1" @click="sendMessage">
+            发送
+          </el-button>
+          <el-button type="primary" :disabled="image==null" @click="sendBase64Image">发送图片</el-button>
+          <el-button type="info" @click="clear"><i class="el-icon-delete"></i>清空</el-button>
+          <el-button type="danger" @click="disconnect">离开房间</el-button>
+          <el-upload
+              class="avatar-uploader"
+              accept="image"
+              list-type="picture"
+              :show-file-list="false" :auto-upload="false" action="#"
+              :on-change="handlePictureChange">
+            <img v-if="image" :src="image.url" class="avatar" alt="img"/>
+            <el-icon v-else class="avatar-uploader-icon">
+              <Plus/>
+            </el-icon>
+          </el-upload>
+        </template>
       </template>
     </el-tab-pane>
   </el-tabs>
+  <el-dialog>
+  </el-dialog>
 </template>
 
 <script>
-import {Plus, StarFilled} from '@element-plus/icons-vue'
+import {Edit, Plus, StarFilled} from '@element-plus/icons-vue'
 
 export default {
     name: 'App',
     data() {
         return {
             activeName: "join",
-            host: "127.0.0.1:8081",
+            host: "127.0.0.1:80",
+            edit: {
+                inputVisible: false,
+                inputValue: "",
+            },
             room: {
-                name: "test",
-                role: "admin",
+                name: "a",
+                role: "a",
             },
             /**
              * @type {WebSocket}
@@ -95,11 +108,13 @@ export default {
             roles: {
                 a: [{
                     key: "a",
-                    color: ""
                 }],
                 b: [{
                     key: "b",
-                    color: ""
+                    type: ""
+                }, {
+                    key: "b",
+                    type: "success",
                 }],
             },
             /**
@@ -129,10 +144,9 @@ export default {
             const ws = this.ws = new WebSocket(`ws://${this.host}/ws/${this.room.name}`);
             ws.onopen = () => {
                 this.append("------连接成功-----")
-                // ws.close()
                 this.send({
                     type: "role",
-                    name: this.room.role
+                    role: this.room.role
                 })
             }
             /**
@@ -181,7 +195,6 @@ export default {
             this.send({
                 type: "text",
                 msg: this.message,
-                role: this.room.role,
             })
             this.message = ""
         },
@@ -201,14 +214,17 @@ export default {
                 this.send({
                     type: "pic",
                     msg: reader.result,
-                    role: this.room.role,
                 })
                 this.image = null
             };
             reader.readAsDataURL(this.image.raw);
         },
     },
-    components: {Plus, StarFilled}
+    components: {
+        Edit,
+        Plus,
+        StarFilled
+    }
 }
 </script>
 <style scoped>
@@ -218,6 +234,7 @@ export default {
   display: block;
 }
 </style>
+<!--suppress CssUnusedSymbol -->
 <style>
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
@@ -251,5 +268,9 @@ img {
   width: 178px;
   height: 178px;
   text-align: center;
+}
+
+.edit-button {
+  /*position: absolute;*/
 }
 </style>

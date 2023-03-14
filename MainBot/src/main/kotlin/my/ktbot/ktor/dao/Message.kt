@@ -11,14 +11,15 @@ import kotlinx.serialization.Serializable
 @Serializable
 sealed class Message {
     var id: Long? = null
+    var role: String = ""
 
     @Serializable
     @SerialName("text")
-    class Text(val msg: String, val role: String) : Message()
+    class Text(val msg: String) : Message()
 
     @Serializable
     @SerialName("pic")
-    class Pic(val msg: String, val role: String) : Message()
+    class Pic(val msg: String) : Message()
 
     @Serializable
     @SerialName("roles")
@@ -26,5 +27,5 @@ sealed class Message {
 
     @Serializable
     @SerialName("role")
-    class Role(val name: String) : Message()
+    class Role : Message()
 }

@@ -19,7 +19,7 @@ import org.ktorm.support.sqlite.insertReturning
  * @Date:2023/3/12
  */
 @Serializable
-class Tag(val key: String, val color: String)
+class Tag(val key: String, val type: String = "", val color: String = "")
 
 class RoomConfig(
     val name: String,
@@ -56,26 +56,26 @@ class RoomConfig(
         }
     }
 
-    suspend fun handle(msg: Message) {
+    fun save(msg: Message, role: String) {
+        msg.role = role
         when (msg) {
             is Message.Text -> {
                 if (msg.id == null) {
-                    msg.id = save("text", msg.msg, msg.role)
+                    msg.id = save("text", msg.msg, role)
                 } else {
-                    save(msg.id!!, msg.msg, msg.role)
+                    save(msg.id!!, msg.msg, role)
                 }
             }
             is Message.Pic -> {
                 if (msg.id == null) {
-                    msg.id = save("pic", msg.msg, msg.role)
+                    msg.id = save("pic", msg.msg, role)
                 } else {
-                    save(msg.id!!, msg.msg, msg.role)
+                    save(msg.id!!, msg.msg, role)
                 }
             }
-            is Message.Role -> sendAll(Message.Text("角色 ${msg.name} 进入房间", "system"))
-            is Message.Roles -> save(msg.roles)
+            is Message.Roles -> saveRoles(msg.roles)
+            else -> return
         }
-        sendAll(msg)
     }
 
     private fun save(type: String, msg: String, role: String): Long {
@@ -94,7 +94,7 @@ class RoomConfig(
         } as Long
     }
 
-    private fun save(roles: MutableMap<String?, MutableList<Tag>>) {
+    private fun saveRoles(roles: MutableMap<String?, MutableList<Tag>>) {
         val sequence = dataSource.sequenceOf(TRole)
         val iterator = this.roles.entries.iterator()
         for (entry in iterator) {
@@ -103,7 +103,7 @@ class RoomConfig(
                 continue
             }
             val list = roles.remove(name)
-            if (list == null) {
+            if (list.isNullOrEmpty()) {
                 iterator.remove()
                 sequence.removeIf { it.name eq name }
                 continue
@@ -127,7 +127,7 @@ class RoomConfig(
         roles.putAll(this.roles)
     }
 
-    private suspend fun sendAll(msg: Message) {
+    suspend fun sendAll(msg: Message) {
         for (client in clients) {
             client.sendSerialized(msg)
         }
