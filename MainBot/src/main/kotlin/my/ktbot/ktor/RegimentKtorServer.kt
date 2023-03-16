@@ -119,10 +119,15 @@ private fun Routing.wsChat() {
                     is Message.Text,
                     is Message.Pic,
                     is Message.Roles,
-                    -> room.save(msg, role)
-                    is Message.Role -> role = msg.role
+                    -> {
+                        room.save(msg, role)
+                        room.sendAll(msg)
+                    }
+                    is Message.Role -> {
+                        role = msg.role
+                        continue
+                    }
                 }
-                room.sendAll(msg)
             }
         } catch (_: ClosedReceiveChannelException) {
         } catch (e: Exception) {
