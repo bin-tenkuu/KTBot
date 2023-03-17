@@ -29,3 +29,10 @@ sealed class Message {
     @SerialName("role")
     class Role : Message()
 }
+
+@Serializable
+class RoomMessage(
+    val id: String,
+    val name: String,
+    val roles: Map<out String?, MutableList<Tag>>,
+)

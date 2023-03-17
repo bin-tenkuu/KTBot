@@ -1,5 +1,5 @@
 <template id="app">
-  <component :is="currentView"/>
+  <component :is="currentView" :host="host"/>
 </template>
 
 <script>
@@ -19,6 +19,7 @@ export default {
     },
     data() {
         return {
+            host: "127.0.0.1:80",
             currentPath: window.location.hash
         }
     },

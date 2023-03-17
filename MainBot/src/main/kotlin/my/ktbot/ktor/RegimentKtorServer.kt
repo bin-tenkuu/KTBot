@@ -11,6 +11,7 @@ import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.plugins.cors.routing.*
 import io.ktor.server.plugins.dataconversion.*
 import io.ktor.server.plugins.statuspages.*
+import io.ktor.server.request.*
 import io.ktor.server.resources.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -18,9 +19,7 @@ import io.ktor.server.websocket.*
 import io.ktor.websocket.*
 import kotlinx.coroutines.channels.ClosedReceiveChannelException
 import kotlinx.serialization.serializer
-import my.ktbot.ktor.dao.Message
-import my.ktbot.ktor.dao.RoomConfig
-import my.ktbot.ktor.dao.Tag
+import my.ktbot.ktor.dao.*
 import my.ktbot.utils.global.jsonGlobal
 import java.time.Duration
 
@@ -31,7 +30,7 @@ import java.time.Duration
  */
 private var regimentServer: ApplicationEngine? = null
 val roomConfig = HashMap<String?, RoomConfig>().apply {
-    this["a"] = RoomConfig("a").apply {
+    this["a"] = RoomConfig("a", "a").apply {
         roles["a"] = mutableListOf(Tag("a"))
         roles["b"] = mutableListOf(
             Tag("b"),
@@ -98,6 +97,40 @@ private fun Application.regimentKtorServer() {
 }
 
 private fun Routing.wsChat() {
+    route("/api") {
+        get("/rooms") {
+            call.respond(roomConfig.keys)
+        }
+        route("/room") {
+            post r@{
+                val roomId = call.getOrBad("roomId") ?: return@r
+                val roomName = call.getOrBad("roomName") ?: return@r
+                roomConfig[roomId] = RoomConfig(roomId, roomName)
+                return@r
+            }
+            delete r@{
+                val room = call.getRoom() ?: return@r
+                roomConfig -= room.id
+                for (client in room.clients) {
+                    client.close(CloseReason(CloseReason.Codes.NORMAL, "room deleted"))
+                }
+                room.close()
+                return@r
+            }
+            put r@{
+                val receive = call.receive<RoomMessage>()
+                val room = roomConfig.computeIfAbsent(receive.id) { RoomConfig(receive.id, receive.name) }
+                room.roles.putAll(receive.roles)
+                return@r
+            }
+            get r@{
+                val room = call.getRoom() ?: return@r
+                RoomMessage(room.id, room.name, room.roles).let {
+                    call.respond(it)
+                }
+            }
+        }
+    }
     webSocket("/ws/{roomId}") {
         val room: RoomConfig = getRoom() ?: return@webSocket
         try {
@@ -133,6 +166,7 @@ private fun Routing.wsChat() {
         } catch (e: Exception) {
             e.printStackTrace()
         } finally {
+            println("client closed")
             room.clients -= this
         }
     }
@@ -143,8 +177,25 @@ private suspend fun DefaultWebSocketServerSession.getRoom(): RoomConfig? {
         close(CloseReason(CloseReason.Codes.NORMAL, "需要 roomId"))
         return null
     }
-    val room = roomConfig.getOrPut(roomId) {
-        RoomConfig(roomId)
+    val room = roomConfig[roomId] ?: run {
+        close(CloseReason(CloseReason.Codes.NORMAL, "房间不存在"))
+        return null
+    }
+    return room
+}
+
+private suspend fun ApplicationCall.getOrBad(key: String): String? {
+    return parameters[key] ?: run {
+        respond(HttpStatusCode.BadRequest)
+        return null
+    }
+}
+
+private suspend fun ApplicationCall.getRoom(): RoomConfig? {
+    val roomId = getOrBad("roomId") ?: return null
+    val room = roomConfig[roomId] ?: run {
+        respond(HttpStatusCode.BadRequest)
+        return null
     }
     return room
 }

@@ -76,9 +76,11 @@ import {Edit, Plus, StarFilled} from '@element-plus/icons-vue'
 
 export default {
     name: 'Index-page',
+    props: {
+        host: String
+    },
     data() {
         return {
-            host: "127.0.0.1:80",
             edit: {
                 inputVisible: false,
                 inputValue: "",

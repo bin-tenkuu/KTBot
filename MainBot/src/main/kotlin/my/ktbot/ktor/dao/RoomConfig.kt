@@ -1,6 +1,7 @@
 package my.ktbot.ktor.dao
 
 import io.ktor.server.websocket.*
+import io.ktor.utils.io.core.*
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.serializer
 import my.ktbot.utils.global.jsonGlobal
@@ -22,13 +23,14 @@ import org.ktorm.support.sqlite.insertReturning
 class Tag(val key: String, val type: String = "", val color: String = "")
 
 class RoomConfig(
+    val id: String,
     val name: String,
-) {
+) : Closeable {
 
     val roles = HashMap<String?, MutableList<Tag>>()
     val clients = HashSet<DefaultWebSocketServerSession>()
     private val dataSource: Database = Database.connect(
-        url = "jdbc:sqlite:${name}.db",
+        url = "jdbc:sqlite:${id}.db",
         driver = "org.sqlite.JDBC",
         dialect = SQLiteDialect(),
         alwaysQuoteIdentifiers = true,
@@ -131,5 +133,13 @@ class RoomConfig(
         for (client in clients) {
             client.sendSerialized(msg)
         }
+    }
+
+    /**
+     * 关闭时清空数据，需要外部发送关闭 clients 消息
+     */
+    override fun close() {
+        roles.clear()
+        clients.clear()
     }
 }
