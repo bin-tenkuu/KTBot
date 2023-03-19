@@ -2,7 +2,7 @@
   <configuration default="false" name="RegimentKtorServerKt" type="JetRunConfigurationType" nameIsGenerated="true">
     <option name="MAIN_CLASS_NAME" value="my.ktbot.ktor.RegimentKtorServerKt" />
     <module name="KTBot.MainBot.main" />
-    <shortenClasspath name="NONE" />
+    <shortenClasspath name="ARGS_FILE" />
     <method v="2">
       <option name="Make" enabled="true" />
     </method>

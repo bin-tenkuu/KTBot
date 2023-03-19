@@ -15,12 +15,11 @@ dependencies {
 	implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
 	implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
 	implementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlinVersion")
-	implementation("org.jetbrains.kotlinx:kotlinx-serialization-json-jvm:1.4.1")
-	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactive:1.6.4")
+	implementation("org.jetbrains.kotlinx:kotlinx-serialization-json-jvm:1.5.0")
 	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.4")
-	compileOnly("org.jetbrains:annotations:24.0.0")
+	compileOnly("org.jetbrains:annotations:24.0.1")
 	// clikt
-	testImplementation("com.github.ajalt.clikt:clikt:3.5.1")
+	testImplementation("com.github.ajalt.clikt:clikt:3.5.2")
 	// kotlin script
 	// none
 	// sqlite
@@ -57,11 +56,11 @@ dependencies {
 	// 分词器
 	implementation("com.huaban:jieba-analysis:1.0.2")
 	// hutool全家桶: https://hutool.cn/docs/#/
-	implementation("cn.hutool:hutool-core:5.8.12")
+	implementation("cn.hutool:hutool-core:5.8.15")
 	// openAI: https://chat.openai.com/chat
-	testImplementation("com.theokanning.openai-gpt3-java:client:0.9.0")
+	testImplementation("com.theokanning.openai-gpt3-java:client:0.11.0")
 	// html 库
-	implementation("org.jsoup:jsoup:1.15.3")
+	implementation("org.jsoup:jsoup:1.15.4")
 }
 // ksp 加入编译
 kotlin {

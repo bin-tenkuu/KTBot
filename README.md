@@ -1,101 +1,89 @@
-# MyBot
+# Mirai Console Loader
 
-[Mirai Console](https://github.com/mamoe/mirai-console) 插件, 使用 Kotlin + Gradle.kts.
+[![GitHub release](https://img.shields.io/github/v/release/itxtech/mirai-console-loader?label=stable)](https://github.com/iTXTech/mirai-console-loader/releases)
+[![Maven Central](https://img.shields.io/maven-central/v/org.itxtech/mcl)](https://repo.maven.apache.org/maven2/org/itxtech/mcl/)
+[![MiraiForum](https://img.shields.io/badge/post-on%20MiraiForum-yellow)](https://mirai.mamoe.net/topic/177)
 
-# 当前功能
+模块化、轻量级且支持完全自定义的 [mirai](https://github.com/mamoe/mirai) 加载器。
 
-### 聊天相关
+开发者请参见 [MCL 开发文档](docs/README.md)。
 
-1. 骰子：。d
-    - 主功能
-    - 特殊模式
-    - 常用模式简写
-        - 设置/删除简写
-    - 加骰
-    - 全1模式
-2. SBI特化骰子：。s
-    - 主功能
-    - 加骰
-    - 结果处理
-3. 消息转发（群聊）：。cstart
-   - 转发消息（私聊）：。c
-4. 来点色图（关闭）
-5. 看看p站（关闭）
-6. 管理员控制群内事件开关（群管理）
-7. 开发者信息
-8. ping
-9. 系统信息
-10. 情话
-11. help
-12. jeff笑话
-13. 能不能好好说话
-14. 夸我
-15. 60秒读懂世界
-16. 给开发者的话：给管理员发送
-17. 历史上的今天
-18. （玩梗用自动回复）
-19. 谁@我
-20. qq活跃（暂时无用）
-21. 经验增加
-22. （复读）
+## 简介
 
-### 其他事件
+`iTX Technologies Mirai Console Loader`（下简称`MCL`）采用模块化设计，包含以下几个基础模块：
 
-1. Bot 被邀请加群： 自动通过（取消）
-2. Bot 加入群事件： 仅日志
-3. Bot 离开群事件： 仅日志
-4. Bot 被禁言事件： 禁用群内功能
-5. Bot 下线事件： 仅日志
-6. Bot 上线事件： 仅日志
-7. Bot 重新登录事件： 仅日志
-8. Bot 被取消禁言事件： 启用群内功能
-9. 成员加入群事件： 发送入群消息
-10. 成员离开群事件： 发送离群消息
-11. 添加好友事件： 给管理员发送
-12. 其他客户端上线事件： 给管理员发送
-13. 其他客户端下线事件： 给管理员发送
+* `Module` 模块管理器，用于加载和执行模块，`MCL`的主要功能均由模块实现。模块执行有各个阶段，详见开发文档。
+* `Config` 配置文件模块，用于配置的持久化。
+* `Package` 包管理器。
+* `Downloader` 下载器模块，用于下载文件，并实时返回进度。
+* `Logger` 日志模块，用于向控制台输出日志。
 
-# 如何编译
+## [`MCL` 命令行文档](cli.md)
 
-`gradle build2Jar` (因为使用了ksp，从未编译过的情况下会有报错，直接编译即可)
+该文档将教会您如何`安装插件`，`禁用和启用脚本`，`修改包的更新频道`等操作。
 
-# 如何使用
+## 使用 `iTXTech MCL`
 
-1. 编译
-	1. 克隆项目
-	2. 编译项目
-	3. 成功打包后插件自动复制到 [./plugins/](./plugins/KTBot-1.0.0.mirai2.jar) 文件夹下
-2. 运行
-	1. 将 jar 文件放入服务器上对应文件夹下
-	2. 将根目录下方的 [./db.db](./db.db) 文件移动到服务器上 `./data` 目录下
-	3. 启动 mirai
+### 一键安装
 
-# 如何本地启动/调试
+[iTXTech MCL Installer](https://github.com/iTXTech/mcl-installer) 能在所有操作系统上一键安装 `iTXTech MCL`。
 
-1. 首次启动/调试/更新版本
-	1. 下载 [`mcl-installer`](https://github.com/iTXTech/mcl-installer/releases) 至项目目录下
-	2. 运行 `mcl-installer`，下载 `jdk17` 或 `jre17` 并全部 `yes`
-	3. 运行 `./mcl --disable-module addon` `./mcl --remove-package org.itxtech:mcl-addon`
-2. 开始运行/调试
-	1. 运行/调试 `run mcl`
+### 手动安装
 
-**注：** 运行 `mcl-installer` 之后会覆盖 `README.md` 和 `LICENSE` 文件
+1. 安装 Java 运行时（版本必须 >= 11）
+2. 从 [Releases](https://github.com/iTXTech/mirai-console-loader/releases) 下载最新版本的`MCL`
+3. 解压到某处
+4. 在命令行中执行`.\mcl`以启动`MCL`
 
-# GitHub Action
+#### 在`*nix`下通过命令行安装
 
-* `TagRelease.yml` 为增加 tag 时触发，tag格式为 `v*`，触发后自动发布新版本
-* `build2Jar.yml` 为手动触发，触发后在事件内上传 `Artifacts`
+```bash
+mkdir mcl
+cd mcl
+wget https://github.com/iTXTech/mirai-console-loader/releases/download/v2.1.1/mcl-2.1.1.zip
+unzip mcl-2.1.1.zip
+chmod +x mcl
+./mcl
+```
 
-# 其他情况
+## `Mirai Repo` 列表
 
-~~踩坑记录~~
+* [iTXTech](https://repo.itxtech.org) - **默认** - Cloudflare Pages
+* [Mamoe](https://mcl.repo.mamoe.net) - GitHub Pages
+* [GitHub](https://github.com/project-mirai/mirai-repo-mirror) - 源仓库
 
-* 启动时如果一直卡注不动，并且服务器在国外，那么可以在 [PluginDependencies.yml](./config/Console/PluginDependencies.yml)
-  加上 `https://repo.maven.apache.org/maven2`
-* kotlin 继承 java 类时有可能出现明明有对应方法但是编译时提示未找到继承的目标，大概是 kotlin 可空类型的
-  bug，手动写个接口，把报错的方法再写一遍，就像 [XmlHandler.kt](./src/main/kotlin/my/ktbot/utils/xml/XmlHandler.kt) 一样
+## `Maven Repo` 列表
 
-# 日志
+* [Maven Central](https://repo1.maven.org/maven2/) - `Maven Central`上游
+* [Aliyun](https://maven.aliyun.com/repository/public) - **默认**，阿里云`Maven`镜像，国内访问速度快
+* [HuaweiCloud](https://mirrors.huaweicloud.com/repository/maven) - 华为云`Maven`镜像，阿里云不可用时的备选方案
 
-- 2022/08/02 增加了 GitHub Action ~~，妈妈再也不用担心我不会打包了~~
-- 2022/02/10 删除历史提交，防止账号密码泄露，公开仓库
+## 安装`MCL Module`扩展组件
+
+1. 在 `mcl` 运行目录下新建 `modules` 目录
+2. 将 目标Jar 放入该目录
+3. ~~编辑 `config.json` 中 `module_packages` 字段，添加入 `jar文件名（不带扩展名）:包名`~~ 
+
+新版 MCL Module 加载将使用 Java SPI Service 的加载方式，不需要再配置 `module_packages` 字段
+
+## `MCL` 默认支持 `Mirai 2.11` 及以上插件格式
+
+若需要默认使用旧版插件格式，请移除`config.json`的`archiveSuffix`中的`.mirai2.jar`字段。
+
+## 开源许可证
+
+    iTXTech Mirai Console Loader
+    Copyright (C) 2020-2022 iTX Technologies
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as
+    published by the Free Software Foundation, either version 3 of the
+    License, or (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.

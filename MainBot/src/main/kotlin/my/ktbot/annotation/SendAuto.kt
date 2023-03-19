@@ -21,51 +21,52 @@ import java.time.Duration
 @Retention
 @MustBeDocumented
 annotation class SendAuto(
-	val log: Boolean = true,
-	/**
-	 * 在此时间后撤回（单位；ms）
-	 */
-	val recall: Long = 0,
+    val log: Boolean = true,
+    /**
+     * 在此时间后撤回（单位；ms）
+     */
+    val recall: Long = 0,
 ) {
-	companion object Inject : Injector.Message<SendAuto> {
-		override val weight: Double
-			get() = 1.0
+    companion object Inject : Injector.Message<SendAuto> {
+        override val weight: Double
+            get() = 1.0
 
-		override suspend fun doBefore(ann: SendAuto, event: MessageEvent, tmpMap: ArgsMap, caller: Caller): Boolean {
-			tmpMap["time"] = System.currentTimeMillis()
-			return event is FriendMessageEvent || event is GroupMessageEvent
-		}
+        override suspend fun doBefore(ann: SendAuto, tmpMap: ArgsMap, caller: Caller): Boolean {
+            val event = tmpMap[event]!!
+            tmpMap["time"] = System.currentTimeMillis()
+            return event is FriendMessageEvent || event is GroupMessageEvent
+        }
 
-		override suspend fun doAfter(
-			ann: SendAuto, event: MessageEvent, tmpMap: ArgsMap, caller: Caller, result: Any?,
-		) {
-			val message = result.toMessage()
-			if (message === null || message.isContentBlank()) {
-				return
-			}
-			if (ann.log) {
-				PluginMain.logger.info(
-					"${tmpMap["time", 0L].toNow()}:${caller.name} 来源：${event.subject}.${event.sender}"
-				)
-				Counter.log(event)
-			}
-			event.intercept()
-			val receipt = PluginMain.catch {
-				event.subject.sendMessage(message)
-			} ?: PluginMain.catch {
-				event.subject.sendMessage("发送失败")
-			} ?: run {
-				PluginMain.logger.error("\"发送失败\" 发送失败")
-				return
-			}
-			PluginMain.logger.info("发送成功")
-			if (event is GroupMessageEvent && ann.recall > 0) {
-				receipt.recallIn(ann.recall)
-			}
-		}
+        override suspend fun doAfter(
+            ann: SendAuto, event: MessageEvent, tmpMap: ArgsMap, caller: Caller, result: Any?,
+        ) {
+            val message = result.toMessage()
+            if (message === null || message.isContentBlank()) {
+                return
+            }
+            if (ann.log) {
+                PluginMain.logger.info(
+                    "${tmpMap["time", 0L].toNow()}:${caller.name} 来源：${event.subject}.${event.sender}"
+                )
+                Counter.log(event)
+            }
+            event.intercept()
+            val receipt = PluginMain.catch {
+                event.subject.sendMessage(message)
+            } ?: PluginMain.catch {
+                event.subject.sendMessage("发送失败")
+            } ?: run {
+                PluginMain.logger.error("\"发送失败\" 发送失败")
+                return
+            }
+            PluginMain.logger.info("发送成功")
+            if (event is GroupMessageEvent && ann.recall > 0) {
+                receipt.recallIn(ann.recall)
+            }
+        }
 
-		private fun Long.toNow() = Duration.ofMillis(System.currentTimeMillis() - this)
-	}
+        private fun Long.toNow() = Duration.ofMillis(System.currentTimeMillis() - this)
+    }
 }
 
 

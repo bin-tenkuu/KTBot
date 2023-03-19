@@ -1,33 +1,36 @@
 package my.ktbot.ktor.dao
 
+import cn.hutool.core.compress.Gzip
+import cn.hutool.core.compress.ZipWriter
+import cn.hutool.core.util.ZipUtil
 import io.ktor.server.websocket.*
 import io.ktor.utils.io.core.*
-import kotlinx.serialization.Serializable
+import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.serializer
+import my.ktbot.ktor.vo.Message
+import my.ktbot.utils.Sqlite.limit
 import my.ktbot.utils.global.jsonGlobal
 import org.ktorm.database.Database
-import org.ktorm.dsl.eq
-import org.ktorm.dsl.insert
-import org.ktorm.entity.removeIf
-import org.ktorm.entity.sequenceOf
-import org.ktorm.entity.update
+import org.ktorm.dsl.*
+import org.ktorm.entity.*
 import org.ktorm.support.sqlite.SQLiteDialect
 import org.ktorm.support.sqlite.insertReturning
+import java.io.BufferedInputStream
+import java.io.ByteArrayInputStream
+import java.io.OutputStream
+import java.io.SequenceInputStream
+import java.nio.charset.StandardCharsets
 
 /**
  * @author bin
  * @version 1.0.0
  * @Date:2023/3/12
  */
-@Serializable
-class Tag(val key: String, val type: String = "", val color: String = "")
-
 class RoomConfig(
     val id: String,
     val name: String,
+    val roles: MutableMap<String, RoleConfig> = HashMap(),
 ) : Closeable {
-
-    val roles = HashMap<String?, MutableList<Tag>>()
     val clients = HashSet<DefaultWebSocketServerSession>()
     private val dataSource: Database = Database.connect(
         url = "jdbc:sqlite:${id}.db",
@@ -50,11 +53,16 @@ class RoomConfig(
                 """.trimIndent())
                 it.executeUpdate("""
                     CREATE TABLE IF NOT EXISTS Role(
-                    name TEXT PRIMARY KEY ,
+                    id TEXT PRIMARY KEY ,
+                    name TEXT ,
                     tags TEXT
                     )
                 """.trimIndent())
             }
+        }
+        dataSource.sequenceOf(TRole).forEach {
+            val tags = jsonGlobal.decodeFromString<MutableList<Tag>>(it.tags)
+            roles[it.id] = RoleConfig(it.id, it.name, tags)
         }
     }
 
@@ -75,7 +83,6 @@ class RoomConfig(
                     save(msg.id!!, msg.msg, role)
                 }
             }
-            is Message.Roles -> saveRoles(msg.roles)
             else -> return
         }
     }
@@ -96,33 +103,31 @@ class RoomConfig(
         } as Long
     }
 
-    private fun saveRoles(roles: MutableMap<String?, MutableList<Tag>>) {
+    fun saveRoles(roles: MutableMap<String, RoleConfig>) {
         val sequence = dataSource.sequenceOf(TRole)
         val iterator = this.roles.entries.iterator()
         for (entry in iterator) {
-            val (name, tags) = entry
-            if (name == null) {
-                continue
-            }
-            val list = roles.remove(name)
-            if (list.isNullOrEmpty()) {
+            val id = entry.key
+            val config = roles.remove(id)
+            if (config == null) {
                 iterator.remove()
-                sequence.removeIf { it.name eq name }
+                sequence.removeIf {
+                    it.name eq id
+                }
                 continue
             } else {
-                entry.setValue(list)
-                val string = jsonGlobal.encodeToString(serializer(), tags)
-                sequence.update(Role(name, string))
+                entry.setValue(config)
+                val string = jsonGlobal.encodeToString(serializer(), config.tags)
+                sequence.update(Role(config.id, id, string))
             }
         }
-        for ((name, tags) in roles.entries) {
-            if (name == null) {
-                continue
-            }
-            val string = jsonGlobal.encodeToString(serializer(), tags)
-            this.roles[name] = tags
+        for ((id, config) in roles.entries) {
+            this.roles[id] = config
+            val string = jsonGlobal.encodeToString(serializer(), config.tags)
+            Role(id, config.name, string)
             dataSource.insert(TRole) {
-                set(it.name, name)
+                set(it.id, id)
+                set(it.name, config.name)
                 set(it.tags, string)
             }
         }
@@ -142,4 +147,45 @@ class RoomConfig(
         roles.clear()
         clients.clear()
     }
+
+    fun history(id: Long): Message.Msgs {
+        val list = dataSource.sequenceOf(THisMsg)
+            .filter { it.id less id }
+            .limit(20)
+            .sortedBy { it.id.desc() }
+            .map {
+                when (it.type) {
+                    "pic" -> Message.Pic(it.id, it.msg, it.role)
+                    "text" -> Message.Text(it.id, it.msg, it.role)
+                    else -> Message.Msgs()
+                }
+            }
+        return Message.Msgs(list)
+    }
+
+    fun historyAll(outputStream: OutputStream) {
+        val builder = StringBuilder()
+        val roles: Map<String, RoleConfig> = roles
+        for (msg in dataSource.sequenceOf(THisMsg)) {
+            val config = roles[msg.role]
+            if (config != null) {
+                for (tag in config.tags) {
+                    builder.append("<span>${tag.name}</span>")
+                }
+            } else {
+                builder.append("<span>${msg.role}</span>")
+            }
+            builder.append(":")
+            when (msg.type) {
+                "text" -> builder.append("<span>${msg.msg}</span>")
+                "pic" -> builder.append("<img src=\"${msg.msg}\"/>")
+                else -> {}
+            }
+            builder.append("<br/>\n")
+        }
+        ZipWriter.of(outputStream, StandardCharsets.UTF_8).use {
+            it.add("index.html", ByteArrayInputStream(builder.toString().toByteArray()))
+        }
+    }
 }
+

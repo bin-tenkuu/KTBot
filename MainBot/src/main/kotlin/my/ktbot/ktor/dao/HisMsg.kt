@@ -12,15 +12,8 @@ import org.ktorm.ksp.api.Table
 @Table(tableName = "HisMsg", tableClassName = "THisMsg", alias = "hm")
 interface HisMsg : Entity<HisMsg> {
     @PrimaryKey
-    var id: Long
-    var type: String
-    var msg: String
-    var role: String
-}
-
-@Table(tableName = "Role", tableClassName = "TRole", alias = "r")
-interface Role : Entity<Role> {
-    @PrimaryKey
-    var name: String
-    var tags: String
+    val id: Long
+    val type: String
+    val msg: String
+    val role: String
 }

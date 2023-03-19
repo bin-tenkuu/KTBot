@@ -12,16 +12,35 @@ import io.ktor.server.plugins.cors.routing.*
 import io.ktor.server.plugins.dataconversion.*
 import io.ktor.server.plugins.statuspages.*
 import io.ktor.server.request.*
-import io.ktor.server.resources.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.websocket.*
 import io.ktor.websocket.*
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.channels.ClosedReceiveChannelException
+import kotlinx.coroutines.launch
 import kotlinx.serialization.serializer
-import my.ktbot.ktor.dao.*
+import my.ktbot.PluginMain
+import my.ktbot.ktor.dao.RoleConfig
+import my.ktbot.ktor.dao.RoomConfig
+import my.ktbot.ktor.dao.THisMsg.Companion.role
+import my.ktbot.ktor.dao.Tag
+import my.ktbot.ktor.vo.Message
 import my.ktbot.utils.global.jsonGlobal
+import my.ktbot.utils.toMessage
+import my.miraiplus.annotation.RegexAnn
+import net.mamoe.mirai.message.data.isContentBlank
+import java.io.File
 import java.time.Duration
+import java.time.LocalDateTime
+import java.time.ZonedDateTime
+import java.util.concurrent.TimeUnit
+import kotlin.collections.HashMap
+import kotlin.collections.joinToString
+import kotlin.collections.minusAssign
+import kotlin.collections.mutableListOf
+import kotlin.collections.plusAssign
+import kotlin.collections.set
 
 /**
  *  @Date:2023/3/11
@@ -29,22 +48,21 @@ import java.time.Duration
  *  @version 1.0.0
  */
 private var regimentServer: ApplicationEngine? = null
-val roomConfig = HashMap<String?, RoomConfig>().apply {
-    this["a"] = RoomConfig("a", "a").apply {
-        roles["a"] = mutableListOf(Tag("a"))
-        roles["b"] = mutableListOf(
+val roomConfig = HashMap<String, RoomConfig>().apply {
+    this["default"] = RoomConfig("default", "默认房间").apply {
+        roles["a"] = RoleConfig("a", "角色a", mutableListOf(Tag("a")))
+        roles["b"] = RoleConfig("b", "角色b", mutableListOf(
             Tag("b"),
             Tag("success", "success"),
             Tag("info", "info"),
             Tag("warning", "warning"),
             Tag("danger", "danger"),
-        )
+        ))
     }
 }
 
 fun main() {
-    val port = 80
-    println("Starting server...($port)")
+    val port = 8088
     server(port).start(true)
 }
 
@@ -61,24 +79,30 @@ fun server(port: Int = 80): ApplicationEngine {
         }
     )
     regimentServer = server
+    println("Server created...($port)")
     return server
 }
 
 private fun Application.regimentKtorServer() {
     install(CORS) {
         anyHost()
+        methods.addAll(HttpMethod.DefaultMethods)
+        allowCredentials = true
+        allowOrigins { true }
+        headerPredicates += { true }
+        allowNonSimpleContentTypes = true
     }
     install(Compression)
     install(Routing)
-    install(Resources)
+    // install(Resources)
     install(StatusPages) {
         exception<Throwable> { call, cause ->
             call.respondText("500: ${cause.message}", status = HttpStatusCode.InternalServerError)
         }
     }
     install(WebSockets) {
-        pingPeriod = Duration.ofSeconds(15)
-        timeout = Duration.ofSeconds(60)
+        pingPeriod = Duration.ofSeconds(60)
+        timeout = Duration.ofSeconds(120)
         maxFrameSize = Long.MAX_VALUE
         masking = false
         contentConverter = KotlinxWebsocketSerializationConverter(jsonGlobal)
@@ -88,54 +112,29 @@ private fun Application.regimentKtorServer() {
     }
     install(DataConversion)
     routing {
-        static("/static") {
-            defaultResource("regiment/index.html")
-            resources("regiment")
+        get("/") {
+            val filePath = "index.html"
+            call.static(filePath)
+        }
+        get("/{static-content-path-parameter...}") {
+            val relativePath = call.parameters.getAll("static-content-path-parameter")
+                ?.joinToString(File.separator) ?: return@get
+            call.static(relativePath)
+        }
+        // defaultResource("dist/index.html")
+        // resources("dist")
+        route("/api") {
+            roomApi()
         }
         wsChat()
     }
 }
 
 private fun Routing.wsChat() {
-    route("/api") {
-        get("/rooms") {
-            call.respond(roomConfig.keys)
-        }
-        route("/room") {
-            post r@{
-                val roomId = call.getOrBad("roomId") ?: return@r
-                val roomName = call.getOrBad("roomName") ?: return@r
-                roomConfig[roomId] = RoomConfig(roomId, roomName)
-                return@r
-            }
-            delete r@{
-                val room = call.getRoom() ?: return@r
-                roomConfig -= room.id
-                for (client in room.clients) {
-                    client.close(CloseReason(CloseReason.Codes.NORMAL, "room deleted"))
-                }
-                room.close()
-                return@r
-            }
-            put r@{
-                val receive = call.receive<RoomMessage>()
-                val room = roomConfig.computeIfAbsent(receive.id) { RoomConfig(receive.id, receive.name) }
-                room.roles.putAll(receive.roles)
-                return@r
-            }
-            get r@{
-                val room = call.getRoom() ?: return@r
-                RoomMessage(room.id, room.name, room.roles).let {
-                    call.respond(it)
-                }
-            }
-        }
-    }
     webSocket("/ws/{roomId}") {
         val room: RoomConfig = getRoom() ?: return@webSocket
         try {
             room.clients += this
-            sendSerialized(Message.Roles(room.roles) as Message)
             var role = ""
             while (true) {
                 val msg = when (val frame = incoming.receive()) {
@@ -149,10 +148,12 @@ private fun Routing.wsChat() {
                     is Frame.Text -> jsonGlobal.decodeFromString<Message>(serializer(), frame.readText())
                 }
                 when (msg) {
-                    is Message.Text,
-                    is Message.Pic,
-                    is Message.Roles,
-                    -> {
+                    is Message.Text -> {
+                        room.save(msg, role)
+                        handleBot(room, msg.msg)
+                        room.sendAll(msg)
+                    }
+                    is Message.Pic -> {
                         room.save(msg, role)
                         room.sendAll(msg)
                     }
@@ -160,6 +161,11 @@ private fun Routing.wsChat() {
                         role = msg.role
                         continue
                     }
+                    is Message.History -> {
+                        val history = room.history(msg.id ?: continue)
+                        sendSerialized(history as Message)
+                    }
+                    else -> continue
                 }
             }
         } catch (_: ClosedReceiveChannelException) {
@@ -172,7 +178,7 @@ private fun Routing.wsChat() {
     }
 }
 
-private suspend fun DefaultWebSocketServerSession.getRoom(): RoomConfig? {
+suspend fun DefaultWebSocketServerSession.getRoom(): RoomConfig? {
     val roomId = call.parameters["roomId"] ?: run {
         close(CloseReason(CloseReason.Codes.NORMAL, "需要 roomId"))
         return null
@@ -191,11 +197,51 @@ private suspend fun ApplicationCall.getOrBad(key: String): String? {
     }
 }
 
-private suspend fun ApplicationCall.getRoom(): RoomConfig? {
-    val roomId = getOrBad("roomId") ?: return null
+suspend fun ApplicationCall.getRoom(): RoomConfig? {
+    val roomId = getOrBad("id") ?: return null
     val room = roomConfig[roomId] ?: run {
         respond(HttpStatusCode.BadRequest)
         return null
     }
     return room
+}
+
+private suspend fun ApplicationCall.static(relativePath: String) {
+    if (
+        request.header("If-Modified-Since").isNullOrEmpty()
+        || request.header("If-None-Match").isNullOrEmpty()
+    ) {
+        val filePath = "front/dist/${relativePath}"
+        val file = File(filePath)
+        val response = response
+        // response.lastModified(ZonedDateTime.now())
+        response.header("Last-Modified", file.lastModified())
+        response.etag(filePath)
+        response.cacheControl(CacheControl.NoCache(
+            visibility = CacheControl.Visibility.Public
+        ))
+        response.expires(LocalDateTime.now().plusDays(1))
+        respond(LocalFileContent(file))
+    } else {
+        respond(HttpStatusCode.NotModified)
+        return
+    }
+}
+
+private fun handleBot(room: RoomConfig, msg: String) {
+    GlobalScope.launch {
+        try {
+            for (caller in PluginMain.callers) {
+                val message = caller.invoke(msg).toMessage()?.contentToString()
+                if (message.isNullOrBlank()) {
+                    continue
+                }
+                val text = Message.Text(message)
+                room.save(text, "bot")
+                room.sendAll(text)
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
 }

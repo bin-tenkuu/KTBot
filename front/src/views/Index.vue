@@ -1,67 +1,98 @@
 <template id="app">
   <div v-if="ws==null">
-    <el-input v-model="room.name" style="width: 20em" clearable>
+    <el-input v-model="room.id" style="width: 20em" clearable>
       <template #prepend>房间：</template>
     </el-input>
     <br>
-    <el-input v-model="room.role" style="width: 20em;" clearable>
+    <el-input v-model="role" style="width: 20em;" clearable>
       <template #prepend>角色：</template>
     </el-input>
     <br>
     <el-button type="primary" @click="connect">进入房间</el-button>
   </div>
-  <template v-else>
-    <div v-for="(msg,index) in msgs" :key="index">
-      <template v-if="msg==null">
+  <el-table :data="msgs" stripe>
+    <el-table-column label="角色" width="150">
+      <template #default="{row}">
+        {{ role.name }}
+        <template v-for="(role,index) in getRole(row.role)" :key="index">
+          <template v-for="(tag,index) in role.tags" :key="index">
+            <el-tag
+                :type="tag.type??''"
+                :color="tag.color??''"
+                size="large"
+                effect="light">
+              {{ tag.name }}
+            </el-tag>
+            <br>
+          </template>
+        </template>
       </template>
-      <template v-else-if="msg.type==='text'">
-        <el-tag
-            v-for="(tag,index) in getRole(msg.role)"
-            size="large"
-            :key="index"
-            :type="tag.type??''"
-            :color="tag.color??''"
-            effect="plain">
-          {{ tag.key }}
-        </el-tag>&nbsp;
-        <span>{{ msg.msg }}</span>
-        <!--<el-button v-if="msg.role===room.role" class="edit-button">
+    </el-table-column>
+    <el-table-column prop="msg" label="消息">
+      <template #default="{row}">
+        <template v-if="row.type==='text'">
+          <span>{{ row.msg }}</span>
+        </template>
+        <template v-else-if="row.type==='pic'">
+          <img alt="img" :src="row.msg"/>
+        </template>
+      </template>
+    </el-table-column>
+    <el-table-column label="操作" width="100">
+      <template #default="{row}">
+        <el-button v-if="row.role===role">
           <el-icon>
             <Edit/>
           </el-icon>
-        </el-button>-->
+        </el-button>
       </template>
-      <template v-else-if="msg.type==='pic'">
-        <el-tag
-            v-for="tag in getRole(msg.role)"
-            size="large"
-            :key="tag.key"
-            :color="tag.color"
-            effect="plain">
-          {{ tag.key }}
-        </el-tag>&nbsp;
-        <img alt="img" :src="msg.msg"/>
-      </template>
-    </div>
+    </el-table-column>
+  </el-table>
+  <template v-if="ws">
     <el-divider>
       <el-icon>
-        <star-filled/>
+        <StarFilled/>
       </el-icon>
     </el-divider>
-    <label>输入框：</label><br>
-    <el-input type="textarea" class="el-textarea" placeholder="请输入内容" v-model="message"/>
+    <el-space>
+      <template v-for="(role,index) in getRole(role)" :key="index">
+        {{ role?.name }}
+        <el-tag
+            v-for="(tag,index) in role?.tags??[]" :key="index"
+            :type="tag.type??''"
+            :color="tag.color??''"
+            size="large"
+            effect="light">
+          {{ tag.name }}
+        </el-tag>
+      </template>
+      <br>
+      <label>输入框：</label>
+    </el-space>
+    <el-input ref="textarea" type="textarea" class="el-textarea" placeholder="请输入内容"
+        v-model="message"
+        :autosize="{ minRows: 2, maxRows: 10 }"
+    />
     <br>
-    <el-button type="primary" :disabled="message.length<1" @click="sendMessage">
-      发送
+    <el-button
+        type="primary"
+        :disabled="message.length<1"
+        @click="sendMessage"
+    >
+      发送 <kbd>⌘/Ctrl</kbd>+<kbd>S</kbd>
     </el-button>
-    <el-button type="primary" :disabled="image==null" @click="sendBase64Image">发送图片</el-button>
-    <el-button type="info" @click="clear"><i class="el-icon-delete"></i>清空</el-button>
+    <el-button type="primary" @click="sendBase64Image">发送图片</el-button>
+    <el-button type="info" @click="sendHistory" :disabled="minId<=1">20条历史消息</el-button>
+    <el-button type="info" @click="clear">清空</el-button>
     <el-button type="danger" @click="disconnect">离开房间</el-button>
     <el-upload
+        ref="picture"
         class="avatar-uploader"
         accept="image"
         list-type="picture"
-        :show-file-list="false" :auto-upload="false" action="#"
+        :show-file-list="false"
+        :auto-upload="false"
+        action="#"
         :on-change="handlePictureChange">
       <img v-if="image" :src="image.url" class="avatar" alt="img"/>
       <el-icon v-else class="avatar-uploader-icon">
@@ -72,12 +103,41 @@
 </template>
 
 <script>
-import {Edit, Plus, StarFilled} from '@element-plus/icons-vue'
+import {Edit, Key, Plus, StarFilled} from '@element-plus/icons-vue'
+import axios from "axios";
+import {ElMessage} from "element-plus";
+import {onMounted, onUnmounted, ref} from "vue";
 
 export default {
     name: 'Index-page',
     props: {
         host: String
+    },
+    setup() {
+        let textarea = ref()
+        let picture = ref()
+        const listener = (e) => {
+            if (e.key === "Enter") {
+                if (e.ctrlKey) {
+                    if (e.altKey) {
+                        this.sendBase64Image()
+                    } else {
+                        this.sendMessage()
+                    }
+                }
+                e.preventDefault()
+            }
+        }
+        onMounted(() => {
+            document.addEventListener("keyup", listener)
+        })
+        onUnmounted(() => {
+            document.removeEventListener("keyup", listener)
+        })
+        return {
+            textarea,
+            picture
+        }
     },
     data() {
         return {
@@ -86,25 +146,19 @@ export default {
                 inputValue: "",
             },
             room: {
-                name: "a",
-                role: "a",
+                id: "default",
+                name: "default",
+                /**
+                 * @type {Record<string, {id: string, name: string, tags: Array<{name: string, type: string, color: string}>}>}
+                 */
+                roles: {},
             },
             /**
              * @type {WebSocket}
              */
             ws: null,
-            roles: {
-                a: [{
-                    key: "a",
-                }],
-                b: [{
-                    key: "b",
-                    type: ""
-                }, {
-                    key: "b",
-                    type: "success",
-                }],
-            },
+            role: "a",
+            minId: Number.MAX_SAFE_INTEGER,
             /**
              * @type {[{type:string,msg:string,role:string}]}
              */
@@ -129,44 +183,80 @@ export default {
             if (this.ws != null) {
                 return
             }
-            const ws = this.ws = new WebSocket(`ws://${this.host}/ws/${this.room.name}`);
-            ws.onopen = () => {
-                this.append("------连接成功-----")
-                this.send({
-                    type: "role",
-                    role: this.room.role
-                })
-            }
-            /**
-             * @param ev {WebSocket.CloseEvent}
-             */
-            ws.onclose = (ev) => {
-                this.msgs.push({
-                    type: "text",
-                    msg: `------断开连接(${ev.code}):${ev.reason}-----`,
-                    role: "system"
-                })
-                this.disconnect()
-            }
-            /**
-             * @param ev {WebSocket.ErrorEvent}
-             */
-            ws.onerror = (ev) => {
-                this.msgs.push({
-                    type: "text",
-                    msg: `------连接出错:${ev.message}-----`,
-                    role: "system"
-                })
-                this.disconnect()
-            }
-            ws.onmessage = (ev) => {
-                const json = JSON.parse(ev.data);
-                if (json.type === 'roles') {
-                    this.roles = json["roles"];
-                } else {
-                    this.append(json)
+            axios.get(`http://${this.host}/api/room`, {
+                params: {
+                    id: this.room.id,
                 }
-            }
+            }).then((res) => {
+                this.room = res.data
+                const ws = this.ws = new WebSocket(`ws://${this.host}/ws/${this.room.id}`);
+                ws.onopen = () => {
+                    ElMessage({
+                        message: `连接成功`,
+                        type: 'success',
+                        duration: 1000,
+                    });
+                    this.send({
+                        type: "role",
+                        role: this.role
+                    })
+                }
+                /**
+                 * @param ev {WebSocket.CloseEvent}
+                 */
+                ws.onclose = (ev) => {
+                    if (ev.code === 1000) {
+                        ElMessage({
+                            message: `断开连接`,
+                            duration: 1000,
+                        });
+                    } else {
+                        ElMessage({
+                            message: `断开连接(${ev.code}):${ev.reason}`,
+                            type: 'error',
+                            showClose: true
+                        });
+                    }
+                    this.disconnect()
+                }
+                /**
+                 * @param ev {WebSocket.ErrorEvent}
+                 */
+                ws.onerror = (ev) => {
+                    ElMessage({
+                        message: `连接出错:${ev.message}`,
+                        type: 'error',
+                        showClose: true
+                    });
+                    this.disconnect()
+                }
+                ws.onmessage = (ev) => {
+                    const json = JSON.parse(ev.data);
+                    const setMsg = (json) => {
+                        if (json.type === 'msgs') {
+                            for (const msg of Array.from(json.msgs)) {
+                                setMsg(msg)
+                            }
+                        } else {
+                            if (this.minId > json.id) {
+                                this.minId = json.id
+                            }
+                            this.msgs[json.id] = json
+                        }
+                    }
+                    if (json.type === 'roles') {
+                        this.room.roles = json["roles"];
+                    } else {
+                        setMsg(json)
+                    }
+                }
+            }).catch(() => {
+                ElMessage({
+                    message: `获取房间信息失败`,
+                    type: 'error',
+                    showClose: true
+                });
+            })
         },
         disconnect() {
             if (this.ws == null) {
@@ -179,36 +269,47 @@ export default {
             this.message = "";
             this.image = null
         },
-        sendMessage() {
+        sendHistory() {
             this.send({
-                type: "text",
-                msg: this.message,
+                id: this.minId,
+                type: "his",
             })
-            this.message = ""
         },
-        send(json) {
-            console.log(json)
-            this.ws.send(JSON.stringify(json))
-        },
-        append(msg) {
-            this.msgs[msg.id] = msg
-        },
-        getRole(roleId) {
-            return this.roles[roleId]
+        sendMessage() {
+            let trim = this.message.trim();
+            if (trim.length !== 0) {
+                this.send({
+                    type: "text",
+                    msg: trim,
+                })
+                this.message = ""
+            }
+            this.textarea?.focus()
         },
         sendBase64Image() {
-            let reader = new FileReader();
-            reader.onloadend = () => {
-                this.send({
-                    type: "pic",
-                    msg: reader.result,
-                })
-                this.image = null
-            };
-            reader.readAsDataURL(this.image.raw);
+            if (this.image != null) {
+                let reader = new FileReader();
+                reader.onloadend = () => {
+                    this.send({
+                        type: "pic",
+                        msg: reader.result,
+                    })
+                    this.image = null
+                };
+                reader.readAsDataURL(this.image.raw);
+            } else {
+                console.log(this.picture);
+            }
+        },
+        send(json) {
+            this.ws.send(JSON.stringify(json))
+        },
+        getRole(roleId) {
+            return [this.room.roles[roleId]]
         },
     },
     components: {
+        Key,
         Edit,
         Plus,
         StarFilled
@@ -258,7 +359,4 @@ img {
   text-align: center;
 }
 
-.edit-button {
-  /*position: absolute;*/
-}
 </style>

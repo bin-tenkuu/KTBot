@@ -16,31 +16,32 @@ import net.mamoe.mirai.event.events.MessageEvent
  */
 @MustBeDocumented
 annotation class NeedExp(val private: Double, val group: Double) {
-	companion object Inject : Injector.Message<NeedExp> {
-		override val weight: Double
-			get() = -5.0
-		override suspend fun doBefore(ann: NeedExp, event: MessageEvent, tmpMap: ArgsMap, caller: Caller): Boolean {
-			return when (event) {
-				is FriendMessageEvent -> ann.private > 0
-					|| Counter.members[event.sender.id].exp > 0
-				is GroupMessageEvent -> ann.group > 0
-					|| Counter.groups[event.group.id].exp > 0
-					|| Counter.members[event.sender.id].exp > 0
-				else -> false
-			}
-		}
+    companion object Inject : Injector.Message<NeedExp> {
+        override val weight: Double
+            get() = -5.0
 
-		override suspend fun doAfter(ann: NeedExp, event: MessageEvent, tmpMap: ArgsMap, caller: Caller, result: Any?) {
-			when (event) {
-				is FriendMessageEvent -> {
-					Counter.members[event.sender.id].add(ann.private)
-				}
-				is GroupMessageEvent -> {
-					Counter.groups[event.group.id].add(ann.group)
-					Counter.members[event.sender.id].add(ann.group)
-				}
-				else -> {}
-			}
-		}
-	}
+        override suspend fun doBefore(ann: NeedExp, tmpMap: ArgsMap, caller: Caller): Boolean {
+            return when (val event =  tmpMap[event] ?: return false) {
+                is FriendMessageEvent -> ann.private > 0
+                        || Counter.members[event.sender.id].exp > 0
+                is GroupMessageEvent -> ann.group > 0
+                        || Counter.groups[event.group.id].exp > 0
+                        || Counter.members[event.sender.id].exp > 0
+                else -> false
+            }
+        }
+
+        override suspend fun doAfter(ann: NeedExp, event: MessageEvent, tmpMap: ArgsMap, caller: Caller, result: Any?) {
+            when (event) {
+                is FriendMessageEvent -> {
+                    Counter.members[event.sender.id].add(ann.private)
+                }
+                is GroupMessageEvent -> {
+                    Counter.groups[event.group.id].add(ann.group)
+                    Counter.members[event.sender.id].add(ann.group)
+                }
+                else -> {}
+            }
+        }
+    }
 }

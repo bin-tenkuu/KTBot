@@ -3,7 +3,6 @@ package my.ktbot.annotation
 import my.miraiplus.ArgsMap
 import my.miraiplus.Caller
 import my.miraiplus.Injector
-import net.mamoe.mirai.event.events.MessageEvent
 import net.mamoe.mirai.message.data.At
 
 /**
@@ -14,15 +13,16 @@ import net.mamoe.mirai.message.data.At
  */
 @MustBeDocumented
 annotation class NeedAt(val bot: Boolean = false) {
-	companion object Inject : Injector.Message<NeedAt> {
-		override suspend fun doBefore(ann: NeedAt, event: MessageEvent, tmpMap: ArgsMap, caller: Caller): Boolean {
-			if (ann.bot) {
-				return event.message.contains(At(event.bot.id))
-			}
-			val list = event.message.filterIsInstance<At>()
-			if (list.isEmpty()) return false
-			tmpMap["NeedAt"] = list
-			return true
-		}
-	}
+    companion object Inject : Injector.Message<NeedAt> {
+        override suspend fun doBefore(ann: NeedAt, tmpMap: ArgsMap, caller: Caller): Boolean {
+            val event =  tmpMap[event] ?: return false
+            if (ann.bot) {
+                return event.message.contains(At(event.bot.id))
+            }
+            val list = event.message.filterIsInstance<At>()
+            if (list.isEmpty()) return false
+            tmpMap["NeedAt"] = list
+            return true
+        }
+    }
 }

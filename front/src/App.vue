@@ -6,26 +6,30 @@
 import Index from "@/views/Index.vue";
 import Admin from "@/views/Admin.vue";
 
-const routes = {
-    '/': Index,
-    '/admin': Admin
-}
 export default {
     name: 'App',
     setup() {
+        const routes = {
+            '/': Index,
+            '/admin': Admin
+        }
         window.addEventListener('hashchange', () => {
             this.currentPath = window.location.hash
         })
+        return {
+            routes
+        }
     },
     data() {
         return {
-            host: "127.0.0.1:80",
+            // host: "127.0.0.1:8088",
+            host: location.host,
             currentPath: window.location.hash
         }
     },
     computed: {
         currentView() {
-            return routes[this.currentPath.slice(1) || '/'] || Index
+            return this.routes[this.currentPath.slice(1) || '/'] || this.routes["/"]
         }
     }
 }

@@ -20,33 +20,34 @@ import kotlin.reflect.KClass
  */
 @MustBeDocumented
 annotation class HasPerm(
-	@ResolveContext(ResolveContext.Kind.PERMISSION_ID)
-	val permId: String,
-	val checkUser: Boolean = true,
-	val checkGroup: Boolean = true,
+    @ResolveContext(ResolveContext.Kind.PERMISSION_ID)
+    val permId: String,
+    val checkUser: Boolean = true,
+    val checkGroup: Boolean = true,
 ) {
-	companion object Inject : Injector<HasPerm, BotEvent> {
-		override val event: KClass<BotEvent> = BotEvent::class
-		override fun doInit(ann: HasPerm, caller: Caller) {
-			PluginPerm.map[ann.permId] = PluginPerm.instance[PermissionId.parseFromString(ann.permId)]
-				?: error("need register before: ${ann.permId}")
-		}
+    companion object Inject : Injector<HasPerm, BotEvent> {
+        override val event: KClass<BotEvent> = BotEvent::class
+        override fun doInit(ann: HasPerm, caller: Caller) {
+            PluginPerm.map[ann.permId] = PluginPerm.instance[PermissionId.parseFromString(ann.permId)]
+                ?: error("need register before: ${ann.permId}")
+        }
 
-		override suspend fun doBefore(
-			ann: HasPerm, event: BotEvent, tmpMap: ArgsMap, caller: Caller,
-		): Boolean {
-			val permission = PluginPerm.map[ann.permId]!!
-			if (ann.checkUser && event is UserEvent) {
-				if (event.user.permitteeId in permission) {
-					return true
-				}
-			}
-			if (ann.checkGroup && event is GroupEvent) {
-				if (event.group.permitteeId in permission) {
-					return true
-				}
-			}
-			return false
-		}
-	}
+        override suspend fun doBefore(
+            ann: HasPerm, tmpMap: ArgsMap, caller: Caller,
+        ): Boolean {
+            val event = tmpMap[event] ?: return false
+            val permission = PluginPerm.map[ann.permId]!!
+            if (ann.checkUser && event is UserEvent) {
+                if (event.user.permitteeId in permission) {
+                    return true
+                }
+            }
+            if (ann.checkGroup && event is GroupEvent) {
+                if (event.group.permitteeId in permission) {
+                    return true
+                }
+            }
+            return false
+        }
+    }
 }

@@ -4,6 +4,8 @@
     <option name="WORKING_DIRECTORY" value="D:\github\KTBot" />
     <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
     <option name="ALTERNATIVE_JRE_PATH" value="17" />
-    <method v="2" />
+    <method v="2">
+      <option name="RunConfigurationTask" enabled="true" run_configuration_name="KTBot [build2Jar]" run_configuration_type="GradleRunConfiguration" />
+    </method>
   </configuration>
 </component>

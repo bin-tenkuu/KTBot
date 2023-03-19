@@ -14,44 +14,45 @@ import org.ktorm.entity.add
 import org.ktorm.entity.removeIf
 
 object CheckPerm : Injector<MiraiEventHandle, GroupEvent> {
-	override val event = GroupEvent::class
+    override val event = GroupEvent::class
 
-	private val map = HashMap<Long, HashSet<String>>()
+    private val map = HashMap<Long, HashSet<String>>()
 
-	init {
-		for (check in Sqlite[TPermCheck]) {
-			map.getOrPut(check.id) { HashSet() }.add(check.name)
-		}
-	}
+    init {
+        for (check in Sqlite[TPermCheck]) {
+            map.getOrPut(check.id) { HashSet() }.add(check.name)
+        }
+    }
 
-	override suspend fun doBefore(ann: MiraiEventHandle, event: GroupEvent, tmpMap: ArgsMap, caller: Caller): Boolean {
-		return check(event.group.id, caller.name)
-	}
+    override suspend fun doBefore(ann: MiraiEventHandle, tmpMap: ArgsMap, caller: Caller): Boolean {
+        val event = tmpMap[event] ?: return false
+        return check(event.group.id, caller.name)
+    }
 
-	/**
-	 *
-	 * @param group Long 使用 [Caller.name]
-	 * @param name String
-	 * @return Boolean
-	 */
-	fun check(group: Long, name: String): Boolean {
-		val set = map[group] ?: return true
-		return name !in set
-	}
+    /**
+     *
+     * @param group Long 使用 [Caller.name]
+     * @param name String
+     * @return Boolean
+     */
+    fun check(group: Long, name: String): Boolean {
+        val set = map[group] ?: return true
+        return name !in set
+    }
 
-	fun open(group: Long, name: String) {
-		val set = map[group] ?: return
-		set -= name
-		Sqlite[TPermCheck].removeIf { (it.id eq group).and(it.name eq name) }
-	}
+    fun open(group: Long, name: String) {
+        val set = map[group] ?: return
+        set -= name
+        Sqlite[TPermCheck].removeIf { (it.id eq group).and(it.name eq name) }
+    }
 
-	fun close(group: Long, name: String) {
-		map.getOrPut(group) { HashSet() }.add(name)
-		Sqlite[TPermCheck].add(PermCheck {
-			this.id = group
-			this.name = name
-		})
-	}
+    fun close(group: Long, name: String) {
+        map.getOrPut(group) { HashSet() }.add(name)
+        Sqlite[TPermCheck].add(PermCheck {
+            this.id = group
+            this.name = name
+        })
+    }
 }
 
 
