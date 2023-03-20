@@ -27,8 +27,8 @@ import java.nio.charset.StandardCharsets
  */
 class RoomConfig(
     val id: String,
-    val name: String,
-    val roles: MutableMap<String, RoleConfig> = HashMap(),
+    var name: String,
+    var roles: MutableMap<String, RoleConfig> = HashMap(),
 ) : Closeable {
     val clients = HashSet<DefaultWebSocketServerSession>()
     private val dataSource: Database = Database.connect(

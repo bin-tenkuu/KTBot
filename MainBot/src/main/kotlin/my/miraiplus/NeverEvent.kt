@@ -7,5 +7,5 @@ import net.mamoe.mirai.event.Event
  *  @author bin
  *  @version 1.0.0
  */
-interface MsgEvent : Event {
+interface NeverEvent : Event {
 }

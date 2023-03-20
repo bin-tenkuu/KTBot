@@ -40,10 +40,17 @@ fun Route.roomApi() {
         }
         post r@{
             val receive = call.receive<RoomMessage>()
-            val room = RoomConfig(receive.id, receive.name, receive.roles)
-            roomConfig[receive.id] = room
-            room.saveRoles()
-            room.sendAll(Message.Roles(room.roles))
+            val room = roomConfig[receive.id]
+            if (room == null) {
+                val config = RoomConfig(receive.id, receive.name, receive.roles)
+                roomConfig[receive.id] = config
+                config.saveRoles()
+            } else {
+                room.name = receive.name
+                room.roles = receive.roles
+                room.saveRoles()
+                room.sendAll(Message.Roles(room.roles))
+            }
             call.respond(HttpStatusCode.OK, true)
         }
         get("del") r@{

@@ -4,8 +4,9 @@ import my.ktbot.annotation.Helper
 import my.ktbot.annotation.SendAuto
 import my.ktbot.utils.CacheMap
 import my.ktbot.utils.DiceResult
-import my.miraiplus.MsgEvent
+import my.miraiplus.NeverEvent
 import my.miraiplus.annotation.MiraiEventHandle
+import my.miraiplus.annotation.Qualifier
 import my.miraiplus.annotation.RegexAnn
 import net.mamoe.mirai.event.events.MessageEvent
 import net.mamoe.mirai.message.data.Message
@@ -15,6 +16,7 @@ object CQBotCOCSBI {
 
     @JvmStatic
     val cache = CacheMap<Long, DiceResult>()
+    val cacheString = CacheMap<String, DiceResult>()
 
     @JvmStatic
     val cheater: Boolean get() = CQBotCOC.cheater
@@ -33,14 +35,15 @@ object CQBotCOCSBI {
         return "${diceResult.origin}：[${diceResult.list.joinToString()}]（${getRes(diceResult.list)}）".toPlainText()
     }
 
-    @MiraiEventHandle("骰子SBI：主功能", eventType = MsgEvent::class)
+    @MiraiEventHandle("骰子SBI：主功能", eventType = NeverEvent::class)
     @RegexAnn("^[.．。]s +(?<num>\\d*)d(?<max>\\d*)", RegexOption.IGNORE_CASE)
     @JvmStatic
-    private fun invoke(groups: MatchGroupCollection): Message? {
+    private fun invoke(@Qualifier("id") id: String, groups: MatchGroupCollection): Message? {
         val num = (groups["num"]?.value?.toIntOrNull() ?: return null).coerceAtLeast(3)
         val max = groups["max"]?.value?.toIntOrNull() ?: return null
         val diceResult = DiceResult(num, max)
         if (!cheater) diceResult.dice()
+        cacheString[id] = diceResult
         return "${diceResult.origin}：[${diceResult.list.joinToString()}]（${getRes(diceResult.list)}）".toPlainText()
     }
 
@@ -87,6 +90,23 @@ object CQBotCOCSBI {
         if (!cheater) dice.dice()
         diceResult += dice
         cache[id] = diceResult
+        return """${dice.origin}：[${dice.list.joinToString(", ")}]=${dice.sum}
+			|[${diceResult.list.joinToString(", ")}]（${getRes(diceResult.list)}）
+		""".trimMargin()
+    }
+
+    @MiraiEventHandle("骰子SBI：加骰")
+    @RegexAnn("^[.．。]sp(?<num> ?\\d*)", RegexOption.IGNORE_CASE)
+    @Helper("10分钟之内加投骰")
+    @SendAuto
+    @JvmStatic
+    private fun addedDice(@Qualifier("id") id: String, groups: MatchGroupCollection): String {
+        val num = groups["num"]?.run { value.trim().toIntOrNull() } ?: 1
+        var diceResult: DiceResult = cacheString[id] ?: return "10分钟之内没有投任何骰子"
+        val dice = DiceResult(num, diceResult.max)
+        if (!cheater) dice.dice()
+        diceResult += dice
+        cacheString[id] = diceResult
         return """${dice.origin}：[${dice.list.joinToString(", ")}]=${dice.sum}
 			|[${diceResult.list.joinToString(", ")}]（${getRes(diceResult.list)}）
 		""".trimMargin()

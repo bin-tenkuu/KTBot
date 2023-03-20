@@ -23,18 +23,13 @@ import kotlinx.serialization.serializer
 import my.ktbot.PluginMain
 import my.ktbot.ktor.dao.RoleConfig
 import my.ktbot.ktor.dao.RoomConfig
-import my.ktbot.ktor.dao.THisMsg.Companion.role
 import my.ktbot.ktor.dao.Tag
 import my.ktbot.ktor.vo.Message
 import my.ktbot.utils.global.jsonGlobal
 import my.ktbot.utils.toMessage
-import my.miraiplus.annotation.RegexAnn
-import net.mamoe.mirai.message.data.isContentBlank
 import java.io.File
 import java.time.Duration
 import java.time.LocalDateTime
-import java.time.ZonedDateTime
-import java.util.concurrent.TimeUnit
 import kotlin.collections.HashMap
 import kotlin.collections.joinToString
 import kotlin.collections.minusAssign
@@ -150,7 +145,7 @@ private fun Routing.wsChat() {
                 when (msg) {
                     is Message.Text -> {
                         room.save(msg, role)
-                        handleBot(room, msg.msg)
+                        handleBot(room, role, msg.msg)
                         room.sendAll(msg)
                     }
                     is Message.Pic -> {
@@ -215,7 +210,6 @@ private suspend fun ApplicationCall.static(relativePath: String) {
         val file = File(filePath)
         val response = response
         // response.lastModified(ZonedDateTime.now())
-        response.header("Last-Modified", file.lastModified())
         response.etag(filePath)
         response.cacheControl(CacheControl.NoCache(
             visibility = CacheControl.Visibility.Public
@@ -228,11 +222,11 @@ private suspend fun ApplicationCall.static(relativePath: String) {
     }
 }
 
-private fun handleBot(room: RoomConfig, msg: String) {
+private fun handleBot(room: RoomConfig, role: String, msg: String) {
     GlobalScope.launch {
         try {
             for (caller in PluginMain.callers) {
-                val message = caller.invoke(msg).toMessage()?.contentToString()
+                val message = caller.invoke(role, msg).toMessage()?.contentToString()
                 if (message.isNullOrBlank()) {
                     continue
                 }

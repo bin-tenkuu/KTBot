@@ -6,7 +6,7 @@ import my.ktbot.database.TCOCShortKey
 import my.ktbot.utils.CacheMap
 import my.ktbot.utils.DiceResult
 import my.ktbot.utils.Sqlite
-import my.miraiplus.MsgEvent
+import my.miraiplus.NeverEvent
 import my.miraiplus.annotation.MiraiEventHandle
 import my.miraiplus.annotation.RegexAnn
 import net.mamoe.mirai.event.events.MessageEvent
@@ -50,7 +50,7 @@ object CQBotCOC {
         return str.toPlainText()
     }
 
-    @MiraiEventHandle("骰子主功能", eventType = MsgEvent::class)
+    @MiraiEventHandle("骰子主功能", eventType = NeverEvent::class)
     @RegexAnn("^[.．。]d +(?:(?<times>\\d)#)?(?<dice>[^ ]+)", IGNORE_CASE)
     fun invoke(groups: MatchGroupCollection): Message? {
         val times: Int = groups["times"]?.run { value.trim().toIntOrNull() } ?: 1

@@ -300,7 +300,8 @@ export default {
             this.ws.send(JSON.stringify(json))
         },
         getRole(roleId) {
-            return [this.room.roles[roleId]]
+            let role = this.room.roles[roleId];
+            return role ? [role] : []
         },
     },
     components: {

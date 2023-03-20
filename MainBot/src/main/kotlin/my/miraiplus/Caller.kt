@@ -34,7 +34,7 @@ sealed class Caller(
 
     @JvmField
     val eventClass = callable.parameters.mapNotNull {
-        it.type.classifier.safeCast<KClass<Event>>()
+        it.type.classifier.safeCast<KClass<out Event>>()
     }.find { Event::class.isSuperclassOf(it) } ?: eventHandle.eventType
 
     @JvmField
@@ -69,8 +69,12 @@ sealed class Caller(
 
     protected abstract suspend operator fun invoke(tmp: ArgsMap): Any?
 
-    suspend operator fun invoke(msg: String): Any? {
+    suspend operator fun invoke(id: String, msg: String): Any? {
+        if (eventClass != NeverEvent::class) {
+            return null
+        }
         val tmp = ArgsMap("tmp")
+        tmp["id"] = id
         tmp["msg"] = msg
         var run = true
         for (it in injects) {
