@@ -97,7 +97,7 @@ private fun Application.regimentKtorServer() {
     }
     install(WebSockets) {
         pingPeriod = Duration.ofSeconds(60)
-        timeout = Duration.ofSeconds(120)
+        timeout = Duration.ofSeconds(600)
         maxFrameSize = Long.MAX_VALUE
         masking = false
         contentConverter = KotlinxWebsocketSerializationConverter(jsonGlobal)

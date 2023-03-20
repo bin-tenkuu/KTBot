@@ -9,14 +9,13 @@ import my.ktbot.ktor.vo.Message
 import my.ktbot.utils.Sqlite.limit
 import my.ktbot.utils.global.jsonGlobal
 import org.ktorm.database.Database
-import org.ktorm.dsl.deleteAll
-import org.ktorm.dsl.desc
-import org.ktorm.dsl.less
+import org.ktorm.dsl.*
 import org.ktorm.entity.*
 import org.ktorm.support.sqlite.SQLiteDialect
 import org.ktorm.support.sqlite.insertOrUpdate
 import org.ktorm.support.sqlite.insertReturning
 import java.io.ByteArrayInputStream
+import java.io.File
 import java.io.OutputStream
 import java.nio.charset.StandardCharsets
 
@@ -94,12 +93,14 @@ class RoomConfig(
         } as Long
     }
 
-    private fun save(id: Long, msg: String, role: String): Long {
-        return dataSource.insertReturning(THisMsg, THisMsg.id) {
-            set(it.id, id)
+    private fun save(id: Long, msg: String, role: String) {
+        dataSource.update(THisMsg) {
             set(it.msg, msg)
             set(it.role, role)
-        } as Long
+            where {
+                it.id eq id
+            }
+        }
     }
 
     fun saveRoles() {
@@ -122,6 +123,11 @@ class RoomConfig(
         for (client in clients) {
             client.sendSerialized(msg)
         }
+    }
+
+    fun delete() {
+        File("${id}.db").delete()
+        close()
     }
 
     /**

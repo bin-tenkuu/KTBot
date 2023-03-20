@@ -1,105 +1,109 @@
 <template id="app">
-  <div v-if="ws==null">
-    <el-input v-model="room.id" style="width: 20em" clearable>
-      <template #prepend>房间：</template>
-    </el-input>
-    <br>
-    <el-input v-model="role" style="width: 20em;" clearable>
-      <template #prepend>角色：</template>
-    </el-input>
-    <br>
-    <el-button type="primary" @click="connect">进入房间</el-button>
-  </div>
-  <el-table :data="msgs" stripe>
-    <el-table-column label="角色" width="150">
-      <template #default="{row}">
-        {{ role.name }}
-        <template v-for="(role,index) in getRole(row.role)" :key="index">
-          <template v-for="(tag,index) in role.tags" :key="index">
-            <el-tag
-                :type="tag.type??''"
-                :color="tag.color??''"
-                size="large"
-                effect="light">
-              {{ tag.name }}
-            </el-tag>
-            <br>
+  <div class="el-main">
+    <div v-if="ws==null">
+      <el-input v-model="room.id" style="width: 20em" clearable>
+        <template #prepend>房间：</template>
+      </el-input>
+      <br>
+      <el-input v-model="role" style="width: 20em;" clearable>
+        <template #prepend>角色：</template>
+      </el-input>
+      <br>
+      <el-button type="primary" @click="connect">进入房间</el-button>
+    </div>
+    <el-table :data="msgs" stripe>
+      <el-table-column label="角色">
+        <template #default="{row}">
+          {{ role.name }}
+          <template v-for="(role,index) in getRole(row.role)" :key="index">
+            <template v-for="(tag,index) in role.tags" :key="index">
+              <el-tag
+                  :type="tag.type??''"
+                  :color="tag.color??''"
+                  size="large"
+                  effect="light">
+                {{ tag.name }}
+              </el-tag>
+              <br>
+            </template>
           </template>
         </template>
-      </template>
-    </el-table-column>
-    <el-table-column prop="msg" label="消息">
-      <template #default="{row}">
-        <template v-if="row.type==='text'">
-          <span>{{ row.msg }}</span>
+      </el-table-column>
+      <el-table-column prop="msg" label="消息">
+        <template #default="{row}">
+          <template v-if="row.type==='text'">
+            <span v-html="row.msg"></span>
+          </template>
+          <template v-else-if="row.type==='pic'">
+            <img alt="img" :src="row.msg"/>
+          </template>
         </template>
-        <template v-else-if="row.type==='pic'">
-          <img alt="img" :src="row.msg"/>
+      </el-table-column>
+      <el-table-column label="操作">
+        <template #default="{row}">
+          <el-button v-if="row.type==='text'||row.role===role" @click="editMsg(row.id)">
+            <el-icon>
+              <Edit/>
+            </el-icon>
+          </el-button>
         </template>
-      </template>
-    </el-table-column>
-    <el-table-column label="操作" width="100">
-      <template #default="{row}">
-        <el-button v-if="row.role===role">
-          <el-icon>
-            <Edit/>
-          </el-icon>
-        </el-button>
-      </template>
-    </el-table-column>
-  </el-table>
-  <template v-if="ws">
+      </el-table-column>
+    </el-table>
     <el-divider>
       <el-icon>
         <StarFilled/>
       </el-icon>
     </el-divider>
-    <el-space>
-      <template v-for="(role,index) in getRole(role)" :key="index">
-        {{ role?.name }}
-        <el-tag
-            v-for="(tag,index) in role?.tags??[]" :key="index"
-            :type="tag.type??''"
-            :color="tag.color??''"
-            size="large"
-            effect="light">
-          {{ tag.name }}
-        </el-tag>
-      </template>
+  </div>
+  <div class="el-footer">
+    <div v-if="ws">
+      <el-space>
+        <template v-for="(role,index) in getRole(role)" :key="index">
+          {{ role?.name }}
+          <el-tag
+              v-for="(tag,index) in role?.tags??[]" :key="index"
+              :type="tag.type??''"
+              :color="tag.color??''"
+              size="large"
+              effect="light">
+            {{ tag.name }}
+          </el-tag>
+        </template>
+        <br>
+        <label>输入框：</label>
+        <el-button
+            type="primary"
+            :disabled="message.length<1"
+            @click="sendMessage"
+        >
+          发送 <kbd>⌘/Ctrl</kbd>+<kbd>S</kbd>
+        </el-button>
+        <el-button type="primary" @click="sendBase64Image">发送图片</el-button>
+      </el-space>
+      <el-input ref="textarea" type="textarea" class="el-textarea" placeholder="请输入内容"
+          v-model="message"
+          :autosize="{ minRows: 2, maxRows: 10 }"
+      />
       <br>
-      <label>输入框：</label>
-    </el-space>
-    <el-input ref="textarea" type="textarea" class="el-textarea" placeholder="请输入内容"
-        v-model="message"
-        :autosize="{ minRows: 2, maxRows: 10 }"
-    />
-    <br>
-    <el-button
-        type="primary"
-        :disabled="message.length<1"
-        @click="sendMessage"
-    >
-      发送 <kbd>⌘/Ctrl</kbd>+<kbd>S</kbd>
-    </el-button>
-    <el-button type="primary" @click="sendBase64Image">发送图片</el-button>
-    <el-button type="info" @click="sendHistory" :disabled="minId<=1">20条历史消息</el-button>
-    <el-button type="info" @click="clear">清空</el-button>
-    <el-button type="danger" @click="disconnect">离开房间</el-button>
-    <el-upload
-        ref="picture"
-        class="avatar-uploader"
-        accept="image"
-        list-type="picture"
-        :show-file-list="false"
-        :auto-upload="false"
-        action="#"
-        :on-change="handlePictureChange">
-      <img v-if="image" :src="image.url" class="avatar" alt="img"/>
-      <el-icon v-else class="avatar-uploader-icon">
-        <Plus/>
-      </el-icon>
-    </el-upload>
-  </template>
+      <el-button type="info" @click="sendHistory" :disabled="minId<=1">20条历史消息</el-button>
+      <el-button type="info" @click="clear">清空</el-button>
+      <el-button type="danger" @click="disconnect">离开房间</el-button>
+      <el-upload
+          ref="picture"
+          class="avatar-uploader"
+          accept="image"
+          list-type="picture"
+          :show-file-list="false"
+          :auto-upload="false"
+          action="#"
+          :on-change="handlePictureChange">
+        <img v-if="image" :src="image.url" class="avatar" alt="img"/>
+        <el-icon v-else class="avatar-uploader-icon">
+          <Plus/>
+        </el-icon>
+      </el-upload>
+    </div>
+  </div>
 </template>
 
 <script>
@@ -158,6 +162,7 @@ export default {
              * @type {[{type:string,msg:string,role:string}]}
              */
             msgs: [],
+            id: null,
             message: "",
             /**
              * @type {UploadFile}
@@ -236,6 +241,7 @@ export default {
                             if (this.minId > json.id) {
                                 this.minId = json.id
                             }
+                            json.msg = json.msg.replace(/\n/g, "<br/>")
                             this.msgs[json.id] = json
                         }
                     }
@@ -270,15 +276,21 @@ export default {
                 type: "his",
             })
         },
+        editMsg(id) {
+            this.id = id
+            this.message = this.msgs[id].msg
+        },
         sendMessage() {
             let trim = this.message.trim();
             if (trim.length !== 0) {
                 this.send({
+                    id: this.id,
                     type: "text",
                     msg: trim,
                 })
                 this.message = ""
             }
+            this.id = null
             this.textarea?.focus()
         },
         sendBase64Image() {
@@ -314,8 +326,8 @@ export default {
 </script>
 <style scoped>
 .avatar-uploader .avatar {
-  width: 178px;
-  height: 178px;
+  width: 170px;
+  height: 85px;
   display: block;
 }
 </style>
@@ -350,9 +362,25 @@ img {
 .el-icon.avatar-uploader-icon {
   font-size: 28px;
   color: #8c939d;
-  width: 178px;
-  height: 178px;
+  width: 170px;
+  height: 85px;
   text-align: center;
 }
 
+.el-main {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 210px;
+  overflow-y: scroll;
+}
+
+.el-footer {
+  position: absolute;
+  height: 210px;
+  width: 100%;
+  bottom: 0;
+  overflow-y: scroll;
+}
 </style>

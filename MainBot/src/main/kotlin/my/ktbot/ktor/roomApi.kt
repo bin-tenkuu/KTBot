@@ -59,7 +59,7 @@ fun Route.roomApi() {
             for (client in room.clients) {
                 client.close(CloseReason(CloseReason.Codes.NORMAL, "room deleted"))
             }
-            room.close()
+            room.delete()
             call.respond(HttpStatusCode.OK, true)
         }
     }

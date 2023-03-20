@@ -95,10 +95,8 @@ object CQBotCOCSBI {
 		""".trimMargin()
     }
 
-    @MiraiEventHandle("骰子SBI：加骰")
+    @MiraiEventHandle("骰子SBI：加骰", eventType = NeverEvent::class)
     @RegexAnn("^[.．。]sp(?<num> ?\\d*)", RegexOption.IGNORE_CASE)
-    @Helper("10分钟之内加投骰")
-    @SendAuto
     @JvmStatic
     private fun addedDice(@Qualifier("id") id: String, groups: MatchGroupCollection): String {
         val num = groups["num"]?.run { value.trim().toIntOrNull() } ?: 1
