@@ -42,7 +42,7 @@ fun Route.roomApi() {
             val receive = call.receive<RoomMessage>()
             val room = RoomConfig(receive.id, receive.name, receive.roles)
             roomConfig[receive.id] = room
-            room.saveRoles(room.roles)
+            room.saveRoles()
             room.sendAll(Message.Roles(room.roles))
             call.respond(HttpStatusCode.OK, true)
         }

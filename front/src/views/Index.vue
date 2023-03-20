@@ -106,7 +106,7 @@
 import {Edit, Key, Plus, StarFilled} from '@element-plus/icons-vue'
 import axios from "axios";
 import {ElMessage} from "element-plus";
-import {onMounted, onUnmounted, ref} from "vue";
+import {ref} from "vue";
 
 export default {
     name: 'Index-page',
@@ -116,8 +116,15 @@ export default {
     setup() {
         let textarea = ref()
         let picture = ref()
-        const listener = (e) => {
+        return {
+            textarea,
+            picture
+        }
+    },
+    data() {
+        document.addEventListener("keyup", (e) => {
             if (e.key === "Enter") {
+                console.log(e)
                 if (e.ctrlKey) {
                     if (e.altKey) {
                         this.sendBase64Image()
@@ -127,19 +134,7 @@ export default {
                 }
                 e.preventDefault()
             }
-        }
-        onMounted(() => {
-            document.addEventListener("keyup", listener)
         })
-        onUnmounted(() => {
-            document.removeEventListener("keyup", listener)
-        })
-        return {
-            textarea,
-            picture
-        }
-    },
-    data() {
         return {
             edit: {
                 inputVisible: false,

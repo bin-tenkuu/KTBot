@@ -1,8 +1,6 @@
 package my.ktbot.ktor.dao
 
-import cn.hutool.core.compress.Gzip
 import cn.hutool.core.compress.ZipWriter
-import cn.hutool.core.util.ZipUtil
 import io.ktor.server.websocket.*
 import io.ktor.utils.io.core.*
 import kotlinx.serialization.decodeFromString
@@ -11,14 +9,15 @@ import my.ktbot.ktor.vo.Message
 import my.ktbot.utils.Sqlite.limit
 import my.ktbot.utils.global.jsonGlobal
 import org.ktorm.database.Database
-import org.ktorm.dsl.*
+import org.ktorm.dsl.deleteAll
+import org.ktorm.dsl.desc
+import org.ktorm.dsl.less
 import org.ktorm.entity.*
 import org.ktorm.support.sqlite.SQLiteDialect
+import org.ktorm.support.sqlite.insertOrUpdate
 import org.ktorm.support.sqlite.insertReturning
-import java.io.BufferedInputStream
 import java.io.ByteArrayInputStream
 import java.io.OutputStream
-import java.io.SequenceInputStream
 import java.nio.charset.StandardCharsets
 
 /**
@@ -103,35 +102,20 @@ class RoomConfig(
         } as Long
     }
 
-    fun saveRoles(roles: MutableMap<String, RoleConfig>) {
-        val sequence = dataSource.sequenceOf(TRole)
-        val iterator = this.roles.entries.iterator()
-        for (entry in iterator) {
-            val id = entry.key
-            val config = roles.remove(id)
-            if (config == null) {
-                iterator.remove()
-                sequence.removeIf {
-                    it.name eq id
-                }
-                continue
-            } else {
-                entry.setValue(config)
-                val string = jsonGlobal.encodeToString(serializer(), config.tags)
-                sequence.update(Role(config.id, id, string))
-            }
-        }
-        for ((id, config) in roles.entries) {
-            this.roles[id] = config
+    fun saveRoles() {
+        dataSource.deleteAll(TRole)
+        for ((id, config) in this.roles.entries) {
             val string = jsonGlobal.encodeToString(serializer(), config.tags)
-            Role(id, config.name, string)
-            dataSource.insert(TRole) {
+            dataSource.insertOrUpdate(TRole) {
                 set(it.id, id)
                 set(it.name, config.name)
                 set(it.tags, string)
+                onConflict(it.id) {
+                    set(it.name, excluded(it.name))
+                    set(it.tags, excluded(it.tags))
+                }
             }
         }
-        roles.putAll(this.roles)
     }
 
     suspend fun sendAll(msg: Message) {
