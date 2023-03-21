@@ -142,7 +142,7 @@ private fun Routing.wsChat() {
                         continue
                     }
                     is Frame.Pong -> continue
-                    is Frame.Binary -> break
+                    is Frame.Binary -> continue
                     is Frame.Text -> jsonGlobal.decodeFromString<Message>(serializer(), frame.readText())
                 }
                 when (msg) {
@@ -170,9 +170,6 @@ private fun Routing.wsChat() {
         } catch (e: Exception) {
             e.printStackTrace()
         } finally {
-            if (isActive) {
-                send(Frame.Close(CloseReason(CloseReason.Codes.NORMAL, "")))
-            }
             room.clients -= this
         }
     }
