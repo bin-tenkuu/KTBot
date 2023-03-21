@@ -9,6 +9,7 @@ import io.ktor.client.plugins.logging.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
+import io.ktor.util.reflect.*
 import my.ktbot.PlugConfig
 import my.ktbot.dao.*
 import my.ktbot.dao.blibili.BaseApi
@@ -33,12 +34,11 @@ object KtorUtils {
     }
 
     @JvmStatic
-    fun post(urlString: String, body: Any, block: HttpRequestBuilder.() -> Unit = {}): HttpStatement {
+    fun post(urlString: String, block: HttpRequestBuilder.() -> Unit = {}): HttpStatement {
         return HttpRequestBuilder().apply {
             method = HttpMethod.Post
             url.takeFrom(urlString)
             header(HttpHeaders.ContentType, ContentType.Application.Json)
-            setBody(body)
             block()
         }.toStatement()
     }
@@ -185,7 +185,8 @@ object KtorUtils {
             maxTokens = 3000
         )
         return try {
-            val body = post("https://api.openai.com/v1/completions", completionRequest) {
+            val body = post("https://api.openai.com/v1/completions") {
+                setBody(completionRequest)
                 header("Authorization", "Bearer " + PlugConfig.openAiToken)
             }.body<CompletionResult>()
             body.choices.firstOrNull()?.text ?: body.error?.message ?: "[WARN]结果为空"

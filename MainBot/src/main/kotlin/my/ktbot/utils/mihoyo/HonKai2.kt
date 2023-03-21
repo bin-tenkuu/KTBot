@@ -1,5 +1,6 @@
 package my.ktbot.utils.mihoyo
 
+import io.ktor.client.request.*
 import kotlinx.coroutines.delay
 import my.ktbot.PlugConfig
 import my.ktbot.utils.KtorUtils
@@ -69,7 +70,8 @@ object HonKai2 : suspend () -> Unit {
 			} else {
 				delay((5L..15L).random())
 				val body = MihoyoLunaSignBody(Tools.honkai2_Act_id, gameBiz.region, gameBiz.gameUid)
-				val model = KtorUtils.post(Tools.honkai2_Sign_url, body) {
+				val model = KtorUtils.post(Tools.honkai2_Sign_url) {
+					setBody(body)
 					Tools.headers(header())
 				}.body<MihoyoModel<MihoyoLunaSign>>()
 				when (model.retcode) {
