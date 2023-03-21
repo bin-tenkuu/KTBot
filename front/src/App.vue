@@ -22,8 +22,8 @@ export default {
     },
     data() {
         return {
-            host: "127.0.0.1:8088",
-            // host: location.host,
+            // host: "127.0.0.1:8088",
+            host: location.host,
             currentPath: window.location.hash
         }
     },

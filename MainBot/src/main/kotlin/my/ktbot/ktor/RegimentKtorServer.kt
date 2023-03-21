@@ -18,6 +18,7 @@ import io.ktor.server.websocket.*
 import io.ktor.websocket.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.channels.ClosedReceiveChannelException
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.serialization.serializer
 import my.ktbot.PluginMain
@@ -27,6 +28,7 @@ import my.ktbot.ktor.dao.Tag
 import my.ktbot.ktor.vo.Message
 import my.ktbot.utils.global.jsonGlobal
 import my.ktbot.utils.toMessage
+import net.mamoe.mirai.console.util.cast
 import java.io.File
 import java.time.Duration
 import java.time.LocalDateTime
@@ -96,8 +98,8 @@ private fun Application.regimentKtorServer() {
         }
     }
     install(WebSockets) {
-        pingPeriod = Duration.ofSeconds(60)
-        timeout = Duration.ofSeconds(600)
+        pingPeriod = Duration.ofSeconds(10)
+        timeout = Duration.ofSeconds(60)
         maxFrameSize = Long.MAX_VALUE
         masking = false
         contentConverter = KotlinxWebsocketSerializationConverter(jsonGlobal)
@@ -130,6 +132,7 @@ private fun Routing.wsChat() {
         val room: RoomConfig = getRoom() ?: return@webSocket
         try {
             room.clients += this
+            sendSerialized(Message.Roles(room.roles) as Message)
             var role = ""
             while (true) {
                 val msg = when (val frame = incoming.receive()) {
@@ -167,7 +170,9 @@ private fun Routing.wsChat() {
         } catch (e: Exception) {
             e.printStackTrace()
         } finally {
-            println("client closed")
+            if (isActive) {
+                send(Frame.Close(CloseReason(CloseReason.Codes.NORMAL, "")))
+            }
             room.clients -= this
         }
     }

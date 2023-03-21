@@ -11,7 +11,7 @@
       <br>
       <el-button type="primary" @click="connect">进入房间</el-button>
     </div>
-    <el-table :data="msgs" stripe>
+    <el-table :data="msgs" table-layout="auto" stripe>
       <el-table-column label="角色">
         <template #default="{row}">
           {{ role.name }}
@@ -189,68 +189,6 @@ export default {
                 }
             }).then((res) => {
                 this.room = res.data
-                const ws = this.ws = new WebSocket(`ws://${this.host}/ws/${this.room.id}`);
-                ws.onopen = () => {
-                    ElMessage({
-                        message: `连接成功`,
-                        type: 'success',
-                        duration: 1000,
-                    });
-                    this.send({
-                        type: "role",
-                        role: this.role
-                    })
-                }
-                /**
-                 * @param ev {WebSocket.CloseEvent}
-                 */
-                ws.onclose = (ev) => {
-                    if (ev.code === 1000) {
-                        ElMessage({
-                            message: `断开连接`,
-                            duration: 1000,
-                        });
-                    } else {
-                        ElMessage({
-                            message: `断开连接(${ev.code}):${ev.reason}`,
-                            type: 'error',
-                            showClose: true
-                        });
-                    }
-                    this.disconnect()
-                }
-                /**
-                 * @param ev {WebSocket.ErrorEvent}
-                 */
-                ws.onerror = (ev) => {
-                    ElMessage({
-                        message: `连接出错:${ev.message}`,
-                        type: 'error',
-                        showClose: true
-                    });
-                    this.disconnect()
-                }
-                ws.onmessage = (ev) => {
-                    const json = JSON.parse(ev.data);
-                    const setMsg = (json) => {
-                        if (json.type === 'msgs') {
-                            for (const msg of Array.from(json.msgs)) {
-                                setMsg(msg)
-                            }
-                        } else {
-                            if (this.minId > json.id) {
-                                this.minId = json.id
-                            }
-                            json.msg = json.msg.replace(/\n/g, "<br/>")
-                            this.msgs[json.id] = json
-                        }
-                    }
-                    if (json.type === 'roles') {
-                        this.room.roles = json["roles"];
-                    } else {
-                        setMsg(json)
-                    }
-                }
             }).catch(() => {
                 ElMessage({
                     message: `获取房间信息失败`,
@@ -258,6 +196,68 @@ export default {
                     showClose: true
                 });
             })
+            const ws = this.ws = new WebSocket(`ws://${this.host}/ws/${this.room.id}`);
+            ws.onopen = () => {
+                ElMessage({
+                    message: `连接成功`,
+                    type: 'success',
+                    duration: 1000,
+                });
+                this.send({
+                    type: "role",
+                    role: this.role
+                })
+            }
+            /**
+             * @param ev {WebSocket.CloseEvent}
+             */
+            ws.onclose = (ev) => {
+                if (ev.code === 1000) {
+                    ElMessage({
+                        message: `断开连接`,
+                        duration: 1000,
+                    });
+                } else {
+                    ElMessage({
+                        message: `断开连接(${ev.code}):${ev.reason}`,
+                        type: 'error',
+                        showClose: true
+                    });
+                }
+                this.disconnect()
+            }
+            /**
+             * @param ev {WebSocket.ErrorEvent}
+             */
+            ws.onerror = (ev) => {
+                ElMessage({
+                    message: `连接出错:${ev.message}`,
+                    type: 'error',
+                    showClose: true
+                });
+                this.disconnect()
+            }
+            ws.onmessage = (ev) => {
+                const json = JSON.parse(ev.data);
+                const setMsg = (json) => {
+                    if (json.type === 'msgs') {
+                        for (const msg of Array.from(json.msgs)) {
+                            setMsg(msg)
+                        }
+                    } else {
+                        if (this.minId > json.id) {
+                            this.minId = json.id
+                        }
+                        json.msg = json.msg.replace(/\n/g, "<br/>")
+                        this.msgs[json.id] = json
+                    }
+                }
+                if (json.type === 'roles') {
+                    this.room.roles = json["roles"];
+                } else {
+                    setMsg(json)
+                }
+            }
         },
         disconnect() {
             if (this.ws == null) {
