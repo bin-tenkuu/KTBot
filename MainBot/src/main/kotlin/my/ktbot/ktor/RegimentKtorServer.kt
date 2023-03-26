@@ -109,10 +109,6 @@ private fun Application.regimentKtorServer() {
     }
     install(DataConversion)
     routing {
-        get("/") {
-            val filePath = "index.html"
-            call.static(filePath)
-        }
         get("/{static-content-path-parameter...}") {
             val relativePath = call.parameters.getAll("static-content-path-parameter")
                 ?.joinToString(File.separator) ?: return@get

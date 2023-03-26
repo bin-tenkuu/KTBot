@@ -20,8 +20,6 @@ dependencies {
 	compileOnly("org.jetbrains:annotations:24.0.1")
 	// clikt
 	testImplementation("com.github.ajalt.clikt:clikt:3.5.2")
-	// kotlin script
-	// none
 	// sqlite
 	implementation("org.xerial:sqlite-jdbc:3.40.1.0")
 	implementation("org.ktorm:ktorm-core:3.6.0")
@@ -58,7 +56,7 @@ dependencies {
 	// hutool全家桶: https://hutool.cn/docs/#/
 	implementation("cn.hutool:hutool-core:5.8.15")
 	// openAI: https://chat.openai.com/chat
-	testImplementation("com.theokanning.openai-gpt3-java:client:0.11.0")
+	testImplementation("com.theokanning.openai-gpt3-java:client:0.11.1")
 	// html 库
 	implementation("org.jsoup:jsoup:1.15.4")
 }
