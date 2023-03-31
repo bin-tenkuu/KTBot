@@ -1,7 +1,6 @@
 package my.ktbot
 
 import kotlinx.coroutines.runBlocking
-import kotlinx.serialization.modules.EmptySerializersModule
 import my.ktbot.annotation.*
 import my.ktbot.ktor.server
 import my.ktbot.plugs.*

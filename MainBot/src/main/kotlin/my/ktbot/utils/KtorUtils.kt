@@ -1,15 +1,8 @@
 package my.ktbot.utils
 
-import io.ktor.client.*
-import io.ktor.client.engine.*
-import io.ktor.client.engine.okhttp.*
-import io.ktor.client.plugins.*
-import io.ktor.client.plugins.contentnegotiation.*
-import io.ktor.client.plugins.logging.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
-import io.ktor.util.reflect.*
 import my.ktbot.PlugConfig
 import my.ktbot.dao.*
 import my.ktbot.dao.blibili.BaseApi
@@ -182,7 +175,8 @@ object KtorUtils {
             model = "text-davinci-003",
             prompt = "$text<->",
             stop = listOf("<->"),
-            maxTokens = 3000
+            maxTokens = 2048,
+            temperature = 0.2,
         )
         return try {
             val body = post("https://api.openai.com/v1/completions") {
