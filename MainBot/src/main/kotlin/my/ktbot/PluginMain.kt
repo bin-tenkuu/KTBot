@@ -5,6 +5,7 @@ import my.ktbot.annotation.*
 import my.ktbot.ktor.server
 import my.ktbot.plugs.*
 import my.ktbot.utils.Counter
+import my.ktbot.utils.global.Debugger
 import my.miraiplus.MyKotlinPlugin
 import my.miraiplus.annotation.RegexAnn
 import net.mamoe.mirai.console.command.BuiltInCommands
@@ -29,6 +30,7 @@ object PluginMain : MyKotlinPlugin(
 ), JvmPlugin {
 
     override fun PluginComponentStorage.onLoad() {
+        Debugger.debug = false
         // EmptySerializersModule()
         PlugConfig.reload()
         logger.info("管理员QQ：${PlugConfig.adminId}")
@@ -63,8 +65,8 @@ object PluginMain : MyKotlinPlugin(
             register(it)
         }
         register(BotEventHandle)
-        if (PlugConfig.debug) {
-            register(Debug)
+        Debugger.yes {
+            register(DebugPlug)
             logger.debug(callers.mapIndexed { i, c ->
                 "\n$i :${c.name}"
             }.joinToString(""))

@@ -10,11 +10,12 @@ import my.ktbot.dao.blibili.LiveData
 import my.ktbot.dao.blibili.RoomInit
 import my.ktbot.dao.openai.CompletionRequest
 import my.ktbot.dao.openai.CompletionResult
+import my.ktbot.utils.global.httpClientGlobal
 import org.jsoup.Jsoup
 
 object KtorUtils {
 
-    fun HttpRequestBuilder.toStatement() = HttpStatement(this, httpClient)
+    fun HttpRequestBuilder.toStatement() = HttpStatement(this, httpClientGlobal)
 
     @JvmStatic
     fun post(urlString: String, body: Any): HttpStatement {

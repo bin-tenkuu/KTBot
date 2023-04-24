@@ -1,14 +1,15 @@
 package my.ktbot.utils
 
-import my.ktbot.PluginMain
-import net.mamoe.mirai.utils.MiraiLogger
-import org.ktorm.database.Database
+import my.ktbot.utils.global.databaseGlobal
 import org.ktorm.entity.*
 import org.ktorm.expression.ArgumentExpression
-import org.ktorm.logging.Logger
-import org.ktorm.schema.*
-import org.ktorm.support.sqlite.*
-import kotlin.io.path.div
+import org.ktorm.schema.BaseTable
+import org.ktorm.schema.BooleanSqlType
+import org.ktorm.schema.ColumnDeclaring
+import org.ktorm.schema.Table
+import org.ktorm.support.sqlite.InsertOrUpdateStatementBuilder
+import org.ktorm.support.sqlite.insertOrUpdate
+import org.ktorm.support.sqlite.random
 
 /**
  *
@@ -17,21 +18,10 @@ import kotlin.io.path.div
  * @date 2022/1/10
  */
 object Sqlite {
-    @JvmStatic
-    val database: Database = Database.connect(
-        url = "jdbc:sqlite:${PluginMain.dataFolderPath / "../db.db"}",
-        driver = "org.sqlite.JDBC",
-        user = null,
-        password = null,
-        dialect = SQLiteDialect(),
-        logger = LoggerBridge(PluginMain.logger),
-        alwaysQuoteIdentifiers = true,
-        generateSqlInUpperCase = true
-    )
 
     @JvmStatic
     operator fun <E : Entity<E>, T : BaseTable<E>> get(table: T): EntitySequence<E, T> {
-        return database.sequenceOf(table)
+        return databaseGlobal.sequenceOf(table)
     }
 
     @JvmStatic
@@ -46,7 +36,7 @@ object Sqlite {
         sourceTable: T,
         block: InsertOrUpdateStatementBuilder.(T) -> Unit,
     ): Int {
-        return database.insertOrUpdate(sourceTable, block)
+        return databaseGlobal.insertOrUpdate(sourceTable, block)
     }
 
     fun <E : Any, T : BaseTable<E>> EntitySequence<E, T>.limit(
@@ -65,18 +55,4 @@ object Sqlite {
             add(it)
         }
     }
-
-    private class LoggerBridge(private val logger: MiraiLogger) : Logger {
-        override fun debug(msg: String, e: Throwable?) = logger.debug(msg, e)
-        override fun error(msg: String, e: Throwable?) = logger.error(msg, e)
-        override fun info(msg: String, e: Throwable?) = logger.info(msg, e)
-        override fun isDebugEnabled(): Boolean = logger.isDebugEnabled
-        override fun isErrorEnabled(): Boolean = logger.isErrorEnabled
-        override fun isInfoEnabled(): Boolean = logger.isInfoEnabled
-        override fun isTraceEnabled(): Boolean = logger.isVerboseEnabled
-        override fun isWarnEnabled(): Boolean = logger.isWarningEnabled
-        override fun trace(msg: String, e: Throwable?) = logger.verbose(msg, e)
-        override fun warn(msg: String, e: Throwable?) = logger.warning(msg, e)
-    }
-
 }

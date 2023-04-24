@@ -17,7 +17,6 @@ object PlugConfig : AutoSavePluginConfig("config") {
 	val socksProxy: String by value("")
 	val socksPort: Int by value(0)
 	val nginxLogPath: String by value("./logs")
-	val debug: Boolean by value(false)
 	val juheApi: Map<String, String> by value()
 	val openAiToken: String by value()
 	val mihoyo: Mihoyo by value(Mihoyo())

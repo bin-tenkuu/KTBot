@@ -1,4 +1,4 @@
-package my.ktbot.utils
+package my.ktbot.utils.global
 
 import io.ktor.client.*
 import io.ktor.client.engine.*
@@ -9,7 +9,7 @@ import io.ktor.client.plugins.logging.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.*
 import my.ktbot.PlugConfig
-import my.ktbot.utils.global.jsonGlobal
+import my.ktbot.utils.createLogger
 import java.nio.charset.StandardCharsets
 
 /**
@@ -17,18 +17,21 @@ import java.nio.charset.StandardCharsets
  * @since 2023/02/17
  */
 
-const val userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36 Edg/96.0.1054.57"
+const val userAgent =
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36 Edg/96.0.1054.57"
 
 /** 使用代理的Ktor客户端 */
-val httpClient = HttpClient(OkHttp) {
+val httpClientGlobal = HttpClient(OkHttp) {
     engine {
-        proxy = when {
-            PlugConfig.socksProxy.isNotBlank() -> ProxyBuilder.socks(PlugConfig.socksProxy, PlugConfig.socksPort)
-            PlugConfig.httpProxy.isNotBlank() -> ProxyBuilder.http(PlugConfig.httpProxy)
-            else -> null
+        Debugger.no {
+            proxy = when {
+                PlugConfig.socksProxy.isNotBlank() -> ProxyBuilder.socks(PlugConfig.socksProxy, PlugConfig.socksPort)
+                PlugConfig.httpProxy.isNotBlank() -> ProxyBuilder.http(PlugConfig.httpProxy)
+                else -> null
+            }
         }
     }
-    if (PlugConfig.debug) {
+    Debugger.yes {
         install(Logging) {
             logger = object : Logger {
                 private val log = createLogger<HttpClient>()

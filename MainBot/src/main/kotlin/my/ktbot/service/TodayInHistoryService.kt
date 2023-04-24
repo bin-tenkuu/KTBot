@@ -11,9 +11,13 @@ import my.ktbot.utils.KtorUtils
 import my.ktbot.utils.Sqlite
 import my.ktbot.utils.Sqlite.limit
 import my.ktbot.utils.Sqlite.random
+import my.ktbot.utils.global.databaseGlobal
 import org.ktorm.dsl.and
 import org.ktorm.dsl.eq
-import org.ktorm.entity.*
+import org.ktorm.entity.filter
+import org.ktorm.entity.isEmpty
+import org.ktorm.entity.sortedBy
+import org.ktorm.entity.toList
 import org.ktorm.support.sqlite.bulkInsertOrUpdate
 import java.time.LocalDate
 
@@ -49,7 +53,7 @@ object TodayInHistoryService {
 		val list = runBlocking {
 			todayInHistory(date)
 		} ?: return
-		Sqlite.database.bulkInsertOrUpdate(TTodayInHistory) {
+		databaseGlobal.bulkInsertOrUpdate(TTodayInHistory) {
 			for (history in list) {
 				item {
 					set(it.month, date.monthValue)

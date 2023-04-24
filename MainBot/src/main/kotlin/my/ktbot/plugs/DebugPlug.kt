@@ -12,7 +12,7 @@ import net.mamoe.mirai.message.data.*
 import net.mamoe.mirai.utils.ExternalResource.Companion.toExternalResource
 import net.mamoe.mirai.utils.ExternalResource.Companion.uploadAsImage
 
-object Debug {
+object DebugPlug {
 	@MiraiEventHandle("test")
 	@RegexAnn("^[.．。]test$", RegexOption.IGNORE_CASE)
 	@NeedAdmin
