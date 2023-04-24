@@ -2,6 +2,7 @@ package my.ktbot
 
 import kotlinx.coroutines.runBlocking
 import my.ktbot.annotation.*
+import my.ktbot.command.HelperCommand
 import my.ktbot.ktor.server
 import my.ktbot.plugs.*
 import my.ktbot.utils.Counter
@@ -9,6 +10,7 @@ import my.ktbot.utils.global.Debugger
 import my.miraiplus.MyKotlinPlugin
 import my.miraiplus.annotation.RegexAnn
 import net.mamoe.mirai.console.command.BuiltInCommands
+import net.mamoe.mirai.console.command.CommandManager
 import net.mamoe.mirai.console.command.ConsoleCommandSender
 import net.mamoe.mirai.console.extension.PluginComponentStorage
 import net.mamoe.mirai.console.plugin.jvm.JvmPlugin
@@ -74,6 +76,9 @@ object PluginMain : MyKotlinPlugin(
                 // MihoyoBbs()
                 // HonKai2()
             }
+        }
+        HelperCommand.all.forEach {
+            CommandManager.registerCommand(it)
         }
         // KtorTest.run {
         // 	with(KtorTest) {
