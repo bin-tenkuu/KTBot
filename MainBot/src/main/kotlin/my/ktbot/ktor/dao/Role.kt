@@ -1,13 +1,29 @@
 package my.ktbot.ktor.dao
 
 import org.ktorm.entity.Entity
-import org.ktorm.ksp.api.PrimaryKey
-import org.ktorm.ksp.api.Table
+import org.ktorm.schema.Column
+import org.ktorm.schema.Table
+import org.ktorm.schema.varchar
 
-@Table(tableName = "Role", tableClassName = "TRole", alias = "r")
+@Deprecated("use Role instead")
 interface Role : Entity<Role> {
-    @PrimaryKey
     var id: String
     var name: String
     var tags: String
+
+    companion object : Entity.Factory<Role>()
+}
+@Deprecated("use Role instead")
+open class TRole(
+    alias: String? = "r",
+) : Table<Role>(tableName = "Role", alias = alias, entityClass = Role::class) {
+    val id: Column<String> = varchar("id").bindTo { it.id }.primaryKey()
+
+    val name: Column<String> = varchar("name").bindTo { it.name }
+
+    val tags: Column<String> = varchar("tags").bindTo { it.tags }
+
+    override fun aliased(alias: String): TRole = TRole(alias)
+
+    companion object : TRole()
 }

@@ -11,47 +11,60 @@ import net.mamoe.mirai.event.events.GroupEvent
 import net.mamoe.mirai.event.events.MessageEvent
 
 object PlugConfig : AutoSavePluginConfig("config") {
-	val adminId: Long by value(2938137849L)
-	val adminGroup: Long by value(391287836L)
-	val httpProxy: String by value("")
-	val socksProxy: String by value("")
-	val socksPort: Int by value(0)
-	val nginxLogPath: String by value("./logs")
-	val juheApi: Map<String, String> by value()
-	val openAiToken: String by value()
-	val mihoyo: Mihoyo by value(Mihoyo())
+    val adminId: Long by value(2938137849L)
+    val adminGroup: Long by value(391287836L)
+    val proxy: Proxy by value(Proxy())
+    val nginxLogPath: String by value("./logs")
+    val juheApi: Map<String, String> by value(HashMap())
+    val openAiToken: String by value("")
+    val mihoyo: Mihoyo by value(Mihoyo())
+    val dataSource: DataSource by value(DataSource())
 
-	fun getAdmin(bot: Bot): Friend {
-		return bot.getFriendOrFail(adminId)
-	}
+    fun getAdmin(bot: Bot): Friend {
+        return bot.getFriendOrFail(adminId)
+    }
 
-	fun getAdminGroup(bot: Bot): Group {
-		return bot.getGroupOrFail(adminGroup)
-	}
+    fun getAdminGroup(bot: Bot): Group {
+        return bot.getGroupOrFail(adminGroup)
+    }
 
-	fun isAdmin(e: MessageEvent): Boolean =
-		if (e is GroupEvent && e.group.id == adminGroup) true else e.sender.id == adminId
+    fun isAdmin(e: MessageEvent): Boolean =
+        if (e is GroupEvent && e.group.id == adminGroup) true else e.sender.id == adminId
 
-	@Serializable
-	class Mihoyo(
-		var enable: Boolean = false,
-		var cookie: String = "",
-		@SerialName("login_ticket")
-		var loginTicket: String = "",
-		var stuid: String = "",
-		var stoken: String = "",
-		val games: MutableMap<String, Boolean> = HashMap(),
-	) {
-		fun clear_cookies() {
-			enable = false
-			loginTicket = ""
-			stuid = ""
-			stoken = ""
-			cookie = "CookieError"
-		}
+    @Serializable
+    class Proxy {
+        var http: String = ""
+        var socks: String = ""
+        var port: Int = 0
+    }
 
-		fun clear_cookie_game(game_id: String) {
-			games[game_id] = false
-		}
-	}
+    @Serializable
+    class DataSource(
+        var url: String = "",
+        var username: String = "",
+        var password: String = "",
+    )
+
+    @Serializable
+    class Mihoyo(
+        var enable: Boolean = false,
+        var cookie: String = "",
+        @SerialName("login_ticket")
+        var loginTicket: String = "",
+        var stuid: String = "",
+        var stoken: String = "",
+        val games: MutableMap<String, Boolean> = HashMap(),
+    ) {
+        fun clear_cookies() {
+            enable = false
+            loginTicket = ""
+            stuid = ""
+            stoken = ""
+            cookie = "CookieError"
+        }
+
+        fun clear_cookie_game(game_id: String) {
+            games[game_id] = false
+        }
+    }
 }

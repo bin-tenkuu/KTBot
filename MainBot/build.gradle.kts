@@ -26,8 +26,8 @@ dependencies {
 	implementation("org.ktorm:ktorm-core:3.6.0")
 	implementation("org.ktorm:ktorm-support-sqlite:3.6.0")
 	implementation("org.ktorm:ktorm-support-postgresql:3.6.0")
-	implementation("org.ktorm:ktorm-ksp-api:1.0.0-RC3")
-	ksp("org.ktorm:ktorm-ksp-compiler:1.0.0-RC3")
+	// implementation("org.ktorm:ktorm-ksp-api:1.0.0-RC3")
+	// ksp("org.ktorm:ktorm-ksp-compiler:1.0.0-RC3")
 	// ktor-client
 	val ktorVersion = "2.2.4"
 	implementation("io.ktor:ktor-client-auth-jvm:$ktorVersion")
@@ -44,6 +44,7 @@ dependencies {
 	implementation("io.ktor:ktor-server-netty-jvm:$ktorVersion")
 	implementation("io.ktor:ktor-server-resources:$ktorVersion")
 	implementation("io.ktor:ktor-server-status-pages:$ktorVersion")
+	implementation("io.ktor:ktor-server-caching-headers:$ktorVersion")
 	implementation("io.ktor:ktor-server-content-negotiation:$ktorVersion")
 	implementation("io.ktor:ktor-server-compression:$ktorVersion")
 	implementation("io.ktor:ktor-server-data-conversion:$ktorVersion")

@@ -1,6 +1,7 @@
 package my.ktbot.ktor
 
 import io.ktor.http.*
+import io.ktor.http.content.*
 import io.ktor.serialization.kotlinx.*
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
@@ -21,12 +22,13 @@ import kotlinx.coroutines.channels.ClosedReceiveChannelException
 import kotlinx.coroutines.launch
 import kotlinx.serialization.serializer
 import my.ktbot.PluginMain
-import my.ktbot.ktor.dao.RoleConfig
 import my.ktbot.ktor.dao.RoomConfig
-import my.ktbot.ktor.dao.Tag
+import my.ktbot.ktor.dao.TRoom
 import my.ktbot.ktor.vo.Message
+import my.ktbot.utils.global.databaseGlobal
 import my.ktbot.utils.global.jsonGlobal
 import my.ktbot.utils.toMessage
+import org.ktorm.entity.sequenceOf
 import java.io.File
 import java.time.Duration
 import kotlin.collections.set
@@ -38,15 +40,20 @@ import kotlin.collections.set
  */
 private var regimentServer: ApplicationEngine? = null
 val roomConfig = HashMap<String, RoomConfig>().apply {
-    this["default"] = RoomConfig("default", "默认房间").apply {
-        roles["a"] = RoleConfig("a", "角色a", mutableListOf(Tag("a")))
-        roles["b"] = RoleConfig("b", "角色b", mutableListOf(
-            Tag("b"),
-            Tag("success", "success"),
-            Tag("info", "info"),
-            Tag("warning", "warning"),
-            Tag("danger", "danger"),
-        ))
+    // this["default"] = RoomConfig("default", "默认房间").apply {
+    //     roles["a"] = RoleConfig("a", "角色a", mutableListOf(Tag("a")))
+    //     roles["b"] = RoleConfig(
+    //         "b", "角色b", mutableListOf(
+    //             Tag("b"),
+    //             Tag("success", "success"),
+    //             Tag("info", "info"),
+    //             Tag("warning", "warning"),
+    //             Tag("danger", "danger"),
+    //         )
+    //     )
+    // }
+    for (room in databaseGlobal.sequenceOf(TRoom)) {
+        this[room.id] = RoomConfig(room)
     }
 }
 
@@ -87,7 +94,7 @@ private fun Application.regimentKtorServer() {
         options { _, content ->
             val contentType = content.contentType ?: return@options null
             if (ContentType.Text.Any.match(contentType)) {
-                io.ktor.http.content.CachingOptions(
+                CachingOptions(
                     CacheControl.MaxAge(
                         maxAgeSeconds = 86400,
                         visibility = CacheControl.Visibility.Public
@@ -116,7 +123,7 @@ private fun Application.regimentKtorServer() {
     routing {
         static {
             default(File("./front/dist/index.html"))
-            files(File("./front/dist"))
+            files(File("./front/dist/"))
         }
         route("/api") {
             roomApi()
@@ -130,7 +137,7 @@ private fun Routing.wsChat() {
         val room: RoomConfig = getRoom() ?: return@webSocket
         try {
             room.clients += this
-            sendSerialized(Message.Roles(room.roles) as Message)
+            sendSerialized(Message.Roles(room.room.roles) as Message)
             var role = ""
             while (true) {
                 val msg = when (val frame = incoming.receive()) {

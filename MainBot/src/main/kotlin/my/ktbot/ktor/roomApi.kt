@@ -6,6 +6,7 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.websocket.*
+import my.ktbot.ktor.dao.Room
 import my.ktbot.ktor.dao.RoomConfig
 import my.ktbot.ktor.vo.Message
 import my.ktbot.ktor.vo.RoomMessage
@@ -19,43 +20,47 @@ fun Route.roomApi() {
     get("/rooms") {
         val name = call.parameters["name"] ?: ""
         call.respond(roomConfig.values.filter {
-            it.id.contains(name)
+            it.room.id.contains(name)
         }.map {
-            mapOf("id" to it.id, "name" to it.name)
+            mapOf("id" to it.room.id, "name" to it.room.name)
         })
     }
     route("/room") {
         get("/logs") r@{
             val room = call.getRoom() ?: return@r
             val response = call.response
-            response.header("Content-Disposition", "attachment; filename=${room.id}.zip")
+            response.header("Content-Disposition", "attachment; filename=${room.room.id}.zip")
             call.respondOutputStream(ContentType.Application.OctetStream, HttpStatusCode.OK) {
                 room.historyAll(this)
             }
         }
         get r@{
             val room = call.getRoom() ?: return@r
-            val message = RoomMessage(room.id, room.name, room.roles)
+            val message = RoomMessage(room.room.id, room.room.name, room.room.roles)
             call.respond(HttpStatusCode.OK, message)
         }
         post r@{
             val receive = call.receive<RoomMessage>()
             val room = roomConfig[receive.id]
             if (room == null) {
-                val config = RoomConfig(receive.id, receive.name, receive.roles)
+                val config = RoomConfig(Room {
+                    id = receive.id
+                    name = receive.name
+                    roles = receive.roles
+                })
                 roomConfig[receive.id] = config
-                config.saveRoles()
+                config.insert()
             } else {
-                room.name = receive.name
-                room.roles = receive.roles
-                room.saveRoles()
-                room.sendAll(Message.Roles(room.roles))
+                room.room.name = receive.name
+                room.room.roles = receive.roles
+                room.save()
+                room.sendAll(Message.Roles(room.room.roles))
             }
             call.respond(HttpStatusCode.OK, true)
         }
         get("del") r@{
             val room = call.getRoom() ?: return@r
-            roomConfig -= room.id
+            roomConfig -= room.room.id
             for (client in room.clients) {
                 client.close(CloseReason(CloseReason.Codes.NORMAL, "room deleted"))
             }

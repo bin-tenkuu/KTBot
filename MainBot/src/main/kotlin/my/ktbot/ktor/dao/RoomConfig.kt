@@ -3,16 +3,16 @@ package my.ktbot.ktor.dao
 import cn.hutool.core.compress.ZipWriter
 import io.ktor.server.websocket.*
 import io.ktor.utils.io.core.*
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.serializer
 import my.ktbot.ktor.vo.Message
 import my.ktbot.utils.Sqlite.limit
-import my.ktbot.utils.global.jsonGlobal
+import my.ktbot.utils.global.databaseGlobal
 import org.ktorm.database.Database
 import org.ktorm.dsl.*
-import org.ktorm.entity.*
+import org.ktorm.entity.filter
+import org.ktorm.entity.map
+import org.ktorm.entity.sequenceOf
+import org.ktorm.entity.sortedBy
 import org.ktorm.support.sqlite.SQLiteDialect
-import org.ktorm.support.sqlite.insertOrUpdate
 import org.ktorm.support.sqlite.insertReturning
 import java.io.ByteArrayInputStream
 import java.io.File
@@ -25,16 +25,24 @@ import java.nio.charset.StandardCharsets
  * @Date:2023/3/12
  */
 class RoomConfig(
-    val id: String,
-    var name: String,
-    var roles: MutableMap<String, RoleConfig> = HashMap(),
+    val room: Room,
 ) : Closeable {
+    val id: String get() = room.id
+    var name: String
+        get() = room.name
+        set(value) {
+            room.name = value
+        }
+    var roles: MutableMap<String, RoleConfig>
+        get() = room.roles
+        set(value) {
+            room.roles = value
+        }
     val clients = HashSet<DefaultWebSocketServerSession>()
     private val dataSource: Database = Database.connect(
         url = "jdbc:sqlite:${id}.db",
         driver = "org.sqlite.JDBC",
         dialect = SQLiteDialect(),
-        alwaysQuoteIdentifiers = true,
         generateSqlInUpperCase = true
     )
 
@@ -49,18 +57,7 @@ class RoomConfig(
                     role TEXT
                     )
                 """.trimIndent())
-                it.executeUpdate("""
-                    CREATE TABLE IF NOT EXISTS Role(
-                    id TEXT PRIMARY KEY ,
-                    name TEXT ,
-                    tags TEXT
-                    )
-                """.trimIndent())
             }
-        }
-        dataSource.sequenceOf(TRole).forEach {
-            val tags = jsonGlobal.decodeFromString<MutableList<Tag>>(it.tags)
-            roles[it.id] = RoleConfig(it.id, it.name, tags)
         }
     }
 
@@ -103,20 +100,15 @@ class RoomConfig(
         }
     }
 
-    fun saveRoles() {
-        dataSource.deleteAll(TRole)
-        for ((id, config) in this.roles.entries) {
-            val string = jsonGlobal.encodeToString(serializer(), config.tags)
-            dataSource.insertOrUpdate(TRole) {
-                set(it.id, id)
-                set(it.name, config.name)
-                set(it.tags, string)
-                onConflict(it.id) {
-                    set(it.name, excluded(it.name))
-                    set(it.tags, excluded(it.tags))
-                }
-            }
+    fun insert(){
+        databaseGlobal.insert(TRoom) {
+            set(it.id, room.id)
+            set(it.name, room.name)
+            set(it.roles, room.roles)
         }
+    }
+    fun save() {
+        room.flushChanges()
     }
 
     suspend fun sendAll(msg: Message) {
@@ -126,7 +118,8 @@ class RoomConfig(
     }
 
     fun delete() {
-        File("${id}.db").delete()
+        File("${room.id}.db").delete()
+        room.delete()
         close()
     }
 
@@ -134,7 +127,7 @@ class RoomConfig(
      * 关闭时清空数据，需要外部发送关闭 clients 消息
      */
     override fun close() {
-        roles.clear()
+        room.roles.clear()
         clients.clear()
     }
 
@@ -155,7 +148,7 @@ class RoomConfig(
 
     fun historyAll(outputStream: OutputStream) {
         val builder = StringBuilder()
-        val roles: Map<String, RoleConfig> = roles
+        val roles: Map<String, RoleConfig> = room.roles
         for (msg in dataSource.sequenceOf(THisMsg)) {
             val config = roles[msg.role]
             if (config != null) {

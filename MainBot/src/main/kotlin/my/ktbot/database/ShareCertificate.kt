@@ -1,8 +1,7 @@
 package my.ktbot.database
 
 import org.ktorm.entity.Entity
-import org.ktorm.ksp.api.PrimaryKey
-import org.ktorm.ksp.api.Table
+import org.ktorm.schema.*
 
 /**
  *
@@ -10,14 +9,29 @@ import org.ktorm.ksp.api.Table
  * @since 2022/1/6
  */
 
-@Table(tableName = "ShareCertificate", tableClassName = "TShareCertificate", alias = "sc")
+@Deprecated("")
 interface ShareCertificate : Entity<ShareCertificate> {
-	@PrimaryKey
-	val autoid: Long
-	var qq: Long
-	var code: String
-	var price: Float
-	var position: Int
+    val autoid: Long
+    var qq: Long
+    var code: String
+    var price: Float
+    var position: Int
 
-	companion object : Entity.Factory<ShareCertificate>()
+    companion object : Entity.Factory<ShareCertificate>()
+}
+
+@Deprecated("")
+object TShareCertificate : Table<ShareCertificate>(
+    tableName = "ShareCertificate",
+    alias = "sc", entityClass = ShareCertificate::class
+) {
+    val autoid: Column<Long> = long("autoid").bindTo { it.autoid }.primaryKey()
+
+    val qq: Column<Long> = long("qq").bindTo { it.qq }
+
+    val code: Column<String> = varchar("code").bindTo { it.code }
+
+    val price: Column<Float> = float("price").bindTo { it.price }
+
+    val position: Column<Int> = int("position").bindTo { it.position }
 }

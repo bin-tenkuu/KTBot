@@ -1,11 +1,19 @@
 package my.ktbot.database
 
 import org.ktorm.entity.Entity
-import org.ktorm.ksp.api.Table
+import org.ktorm.schema.*
 
-@Table(tableName = "QQMembers", tableClassName = "TMember", alias = "m")
 interface Member : Gmt<Member> {
-	var name: String
+    var name: String
 
-	companion object : Entity.Factory<Member>()
+    companion object : Entity.Factory<Member>()
+}
+
+object TMember : Table<Member>(tableName = "qq_mamber", entityClass = Member::class) {
+    val id: Column<Long> = long("id").bindTo { it.id }.primaryKey()
+    val name: Column<String> = varchar("name").bindTo { it.name }
+    val exp: Column<Double> = double("exp").bindTo { it.exp }
+    val gmtModified: Column<Long> = long("gmt_modified").bindTo { it.gmtModified }
+    val gmtCreate: Column<Long> = long("gmt_create").bindTo { it.gmtCreate }
+    val isBaned: Column<Boolean> = boolean("is_baned").bindTo { it.isBaned }
 }

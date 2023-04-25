@@ -24,9 +24,10 @@ const val userAgent =
 val httpClientGlobal = HttpClient(OkHttp) {
     engine {
         Debugger.no {
+            val p = PlugConfig.proxy
             proxy = when {
-                PlugConfig.socksProxy.isNotBlank() -> ProxyBuilder.socks(PlugConfig.socksProxy, PlugConfig.socksPort)
-                PlugConfig.httpProxy.isNotBlank() -> ProxyBuilder.http(PlugConfig.httpProxy)
+                p.socks.isNotBlank() -> ProxyBuilder.socks(p.socks, p.port)
+                p.http.isNotBlank() -> ProxyBuilder.http(p.http)
                 else -> null
             }
         }

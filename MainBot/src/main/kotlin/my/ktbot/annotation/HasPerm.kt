@@ -1,7 +1,6 @@
 package my.ktbot.annotation
 
 import my.ktbot.PluginPerm
-import my.ktbot.PluginPerm.contains
 import my.miraiplus.ArgsMap
 import my.miraiplus.Caller
 import my.miraiplus.Injector
@@ -38,12 +37,12 @@ annotation class HasPerm(
             val event = tmpMap[event] ?: return false
             val permission = PluginPerm.map[ann.permId]!!
             if (ann.checkUser && event is UserEvent) {
-                if (event.user.permitteeId in permission) {
+                if (PluginPerm.test(event.user.permitteeId, permission)) {
                     return true
                 }
             }
             if (ann.checkGroup && event is GroupEvent) {
-                if (event.group.permitteeId in permission) {
+                if (PluginPerm.test(event.group.permitteeId, permission)) {
                     return true
                 }
             }

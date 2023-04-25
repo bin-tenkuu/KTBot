@@ -38,7 +38,7 @@ object PluginMain : MyKotlinPlugin(
         logger.info("管理员QQ：${PlugConfig.adminId}")
         logger.info("管理员QQ群：${PlugConfig.adminGroup}")
         injectMap + SendAuto + NeedAdmin + RegexAnn.Inject + LimitAll +
-                SendGroup + SendAdmin + NeedExp + NeedAt + HasPerm + CheckPerm
+                SendGroup + SendAdmin + NeedExp + NeedAt + HasPerm
         Counter.start(this@PluginMain)
         // ShareCertificateUtil.start(this@PluginMain)
         // Thread {

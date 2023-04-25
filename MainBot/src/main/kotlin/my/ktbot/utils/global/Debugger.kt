@@ -16,6 +16,10 @@ object Debugger {
         return if (debug) t else f()
     }
 
+    fun <T> yes(t: () -> T, f: () -> T): T {
+        return if (debug) t() else f()
+    }
+
     inline fun yes(t: () -> Unit) {
         if (debug) t()
     }
