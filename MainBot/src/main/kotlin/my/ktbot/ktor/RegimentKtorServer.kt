@@ -6,19 +6,18 @@ import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.http.content.*
 import io.ktor.server.netty.*
+import io.ktor.server.plugins.cachingheaders.*
 import io.ktor.server.plugins.compression.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.plugins.cors.routing.*
 import io.ktor.server.plugins.dataconversion.*
 import io.ktor.server.plugins.statuspages.*
-import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.websocket.*
 import io.ktor.websocket.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.channels.ClosedReceiveChannelException
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.serialization.serializer
 import my.ktbot.PluginMain
@@ -28,15 +27,8 @@ import my.ktbot.ktor.dao.Tag
 import my.ktbot.ktor.vo.Message
 import my.ktbot.utils.global.jsonGlobal
 import my.ktbot.utils.toMessage
-import net.mamoe.mirai.console.util.cast
 import java.io.File
 import java.time.Duration
-import java.time.LocalDateTime
-import kotlin.collections.HashMap
-import kotlin.collections.joinToString
-import kotlin.collections.minusAssign
-import kotlin.collections.mutableListOf
-import kotlin.collections.plusAssign
 import kotlin.collections.set
 
 /**
@@ -91,6 +83,19 @@ private fun Application.regimentKtorServer() {
     }
     install(Compression)
     install(Routing)
+    install(CachingHeaders) {
+        options { _, content ->
+            val contentType = content.contentType ?: return@options null
+            if (ContentType.Text.Any.match(contentType)) {
+                io.ktor.http.content.CachingOptions(
+                    CacheControl.MaxAge(
+                        maxAgeSeconds = 86400,
+                        visibility = CacheControl.Visibility.Public
+                    )
+                )
+            } else null
+        }
+    }
     // install(Resources)
     install(StatusPages) {
         exception<Throwable> { call, cause ->
@@ -109,13 +114,10 @@ private fun Application.regimentKtorServer() {
     }
     install(DataConversion)
     routing {
-        get("/{static-content-path-parameter...}") {
-            val relativePath = call.parameters.getAll("static-content-path-parameter")
-                ?.joinToString(File.separator) ?: return@get
-            call.static(relativePath)
+        static {
+            default(File("./front/dist/index.html"))
+            files(File("./front/dist"))
         }
-        // defaultResource("dist/index.html")
-        // resources("dist")
         route("/api") {
             roomApi()
         }
@@ -197,27 +199,6 @@ suspend fun ApplicationCall.getRoom(): RoomConfig? {
         return null
     }
     return room
-}
-
-private suspend fun ApplicationCall.static(relativePath: String) {
-    if (
-        request.header("If-Modified-Since").isNullOrEmpty()
-        || request.header("If-None-Match").isNullOrEmpty()
-    ) {
-        val filePath = "front/dist/${relativePath}"
-        val file = File(filePath)
-        val response = response
-        // response.lastModified(ZonedDateTime.now())
-        response.etag(filePath)
-        response.cacheControl(CacheControl.NoCache(
-            visibility = CacheControl.Visibility.Public
-        ))
-        response.expires(LocalDateTime.now().plusDays(1))
-        respond(LocalFileContent(file))
-    } else {
-        respond(HttpStatusCode.NotModified)
-        return
-    }
 }
 
 private fun handleBot(room: RoomConfig, role: String, msg: String) {
