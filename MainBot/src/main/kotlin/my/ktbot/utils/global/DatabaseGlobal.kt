@@ -7,7 +7,7 @@ import org.ktorm.database.Database
 import org.ktorm.logging.ConsoleLogger
 import org.ktorm.logging.LogLevel
 import org.ktorm.logging.Logger
-import org.ktorm.support.sqlite.SQLiteDialect
+import org.ktorm.support.postgresql.PostgreSqlDialect
 
 /**
  * @author bin
@@ -18,7 +18,7 @@ val databaseGlobal: Database = Database.connect(
     driver = "org.postgresql.Driver",
     user = PlugConfig.dataSource.username,
     password = PlugConfig.dataSource.password,
-    dialect = SQLiteDialect(),
+    dialect = PostgreSqlDialect(),
     logger = Debugger.yes(ConsoleLogger(threshold = LogLevel.DEBUG)) { LoggerBridge(PluginMain.logger) },
     alwaysQuoteIdentifiers = false,
     generateSqlInUpperCase = true

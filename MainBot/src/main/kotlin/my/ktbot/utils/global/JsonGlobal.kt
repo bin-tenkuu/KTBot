@@ -9,14 +9,14 @@ import kotlinx.serialization.json.JsonConfiguration
  *  @version 1.0.0
  */
 val jsonGlobal = Json {
-	classDiscriminator = "type"
-	encodeDefaults = false
-	ignoreUnknownKeys = true
-	isLenient = false
-	allowStructuredMapKeys = false
-	prettyPrint = false
-	coerceInputValues = true
-	useArrayPolymorphism = false
-	allowSpecialFloatingPointValues = true
-	useAlternativeNames = true
+    classDiscriminator = "type"
+    encodeDefaults = false
+    ignoreUnknownKeys = true
+    isLenient = false
+    allowStructuredMapKeys = false
+    prettyPrint = false
+    coerceInputValues = true
+    useArrayPolymorphism = false
+    allowSpecialFloatingPointValues = true
+    useAlternativeNames = true
 }

@@ -2,14 +2,16 @@ package my.ktbot.command
 
 import my.ktbot.PlugConfig
 import my.ktbot.PluginMain
+import my.ktbot.utils.SystemInfoUtil
+import my.ktbot.utils.toMessage
 import net.mamoe.mirai.console.command.Command
-import net.mamoe.mirai.console.command.CommandContext
 import net.mamoe.mirai.console.command.CommandSender
 import net.mamoe.mirai.console.command.SimpleCommand
 import net.mamoe.mirai.console.command.descriptor.CommandArgumentContext
 import net.mamoe.mirai.console.command.descriptor.EmptyCommandArgumentContext
 import net.mamoe.mirai.console.compiler.common.ResolveContext
 import net.mamoe.mirai.console.util.ConsoleExperimentalApi
+import net.mamoe.mirai.contact.Contact
 import net.mamoe.mirai.message.data.Message
 
 /**
@@ -30,30 +32,30 @@ object HelperCommand {
     }
 
     open class SubCommand(
-        @ResolveContext(ResolveContext.Kind.COMMAND_NAME) primaryName: String,
-        description: String = "no description available",
-        @ResolveContext(ResolveContext.Kind.COMMAND_NAME) vararg secondaryNames: String,
+            @ResolveContext(ResolveContext.Kind.COMMAND_NAME) primaryName: String,
+            description: String = "no description available",
+            @ResolveContext(ResolveContext.Kind.COMMAND_NAME) vararg secondaryNames: String,
     ) : SimpleCommand(
-        owner = owner,
-        parentPermission = parentPermission,
-        primaryName = primaryName,
-        secondaryNames = secondaryNames,
-        description = description,
-        overrideContext = overrideContext
+            owner = owner,
+            parentPermission = parentPermission,
+            primaryName = primaryName,
+            secondaryNames = secondaryNames,
+            description = description,
+            overrideContext = overrideContext
     )
 
-    object PingCommand : SubCommand("ping", "用于测试连通性") {
+    private object Ping : SubCommand("ping", "用于测试连通性") {
         @Handler
         suspend fun CommandSender.invoke() {
             sendMessage("pong!")
         }
     }
 
-    object DeveloperCommand : SubCommand("data", "开发者信息") {
+    private object Developer : SubCommand("data", "开发者信息") {
         @Handler
         suspend fun CommandSender.invoke() {
             sendMessage(
-                """
+                    """
                 开发者QQ：2938137849
                 项目地址github：2938137849/KTBot
                 轮子github：mamoe/mirai
@@ -62,15 +64,61 @@ object HelperCommand {
         }
     }
 
-    object SendToAdmin : SubCommand("report", "发送消息给管理员") {
+    private object SendToAdmin : SubCommand("report", "发送消息给管理员") {
         @Handler
-        suspend fun invoke(context: CommandContext, @Suppress("UNUSED_PARAMETER") @Name("消息") txt: Message) {
-            val bot = context.sender.bot
+        suspend fun CommandSender.invoke(@Name("消息") vararg msgs: Message) {
+            val bot = bot
+            val msg = msgs.toMessage()
             if (bot == null) {
-                println(context.originalMessage.toString())
+                println(msg.toString())
+            } else if (msg == null) {
+                sendMessage("消息不能为空")
             } else {
-                PlugConfig.getAdmin(bot).sendMessage(context.originalMessage)
+                runCatching {
+                    PlugConfig.getAdmin(bot).sendMessage(msg)
+                }.onSuccess {
+                    sendMessage("已发送")
+                }.onFailure {
+                    sendMessage("发送失败")
+                }
             }
+        }
+    }
+
+    private object AdminSend : SubCommand("send", "管理员手动发送消息") {
+        @Handler
+        suspend fun CommandSender.invoke(@Name("目标") target: String, @Name("消息") vararg msgs: Message) {
+            val bot = bot
+            val msg = msgs.toMessage()
+            if (bot == null) {
+                println(msg.toString())
+            } else if (msg == null) {
+                sendMessage("消息不能为空")
+            } else {
+                val contact: Contact? = if (target.startsWith('g', true)) {
+                    bot.getGroup(target.substring(1).toLong())
+                } else {
+                    bot.getFriend(target.toLong())
+                }
+                runCatching {
+                    if (contact == null) {
+                        sendMessage("目标 '$target' 不存在")
+                    } else {
+                        contact.sendMessage(msg)
+                    }
+                }.onSuccess {
+                    sendMessage("已发送")
+                }.onFailure {
+                    sendMessage("发送失败")
+                }
+            }
+        }
+    }
+
+    private object SystemInfo : SubCommand("系统信息", "获取系统信息") {
+        @Handler
+        suspend fun CommandSender.invoke() {
+            sendMessage(SystemInfoUtil())
         }
     }
 }

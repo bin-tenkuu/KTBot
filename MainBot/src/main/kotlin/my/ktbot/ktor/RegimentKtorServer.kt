@@ -122,8 +122,8 @@ private fun Application.regimentKtorServer() {
     install(DataConversion)
     routing {
         static {
-            default(File("./front/dist/index.html"))
             files(File("./front/dist/"))
+            default(File("./front/dist/index.html"))
         }
         route("/api") {
             roomApi()
