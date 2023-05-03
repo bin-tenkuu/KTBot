@@ -39,23 +39,6 @@ import kotlin.collections.set
  *  @version 1.0.0
  */
 private var regimentServer: ApplicationEngine? = null
-val roomConfig = HashMap<String, RoomConfig>().apply {
-    // this["default"] = RoomConfig("default", "默认房间").apply {
-    //     roles["a"] = RoleConfig("a", "角色a", mutableListOf(Tag("a")))
-    //     roles["b"] = RoleConfig(
-    //         "b", "角色b", mutableListOf(
-    //             Tag("b"),
-    //             Tag("success", "success"),
-    //             Tag("info", "info"),
-    //             Tag("warning", "warning"),
-    //             Tag("danger", "danger"),
-    //         )
-    //     )
-    // }
-    for (room in databaseGlobal.sequenceOf(TRoom)) {
-        this[room.id] = RoomConfig(room)
-    }
-}
 
 fun main() {
     val port = 8088
@@ -185,7 +168,7 @@ suspend fun DefaultWebSocketServerSession.getRoom(): RoomConfig? {
         close(CloseReason(CloseReason.Codes.NORMAL, "需要 roomId"))
         return null
     }
-    val room = roomConfig[roomId] ?: run {
+    val room = RoomConfig[roomId] ?: run {
         close(CloseReason(CloseReason.Codes.NORMAL, "房间不存在"))
         return null
     }
@@ -201,7 +184,7 @@ private suspend fun ApplicationCall.getOrBad(key: String): String? {
 
 suspend fun ApplicationCall.getRoom(): RoomConfig? {
     val roomId = getOrBad("id") ?: return null
-    val room = roomConfig[roomId] ?: run {
+    val room = RoomConfig[roomId] ?: run {
         respond(HttpStatusCode.BadRequest)
         return null
     }

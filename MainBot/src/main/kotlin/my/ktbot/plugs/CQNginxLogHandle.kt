@@ -20,7 +20,7 @@ object CQNginxLogHandle {
 	private val nowFile: String get() = formater.format(LocalDateTime.now())
 
 	@MiraiEventHandle("nginx日志处理")
-	@RegexAnn("^[.．。]nginx$", RegexOption.IGNORE_CASE)
+	@RegexAnn("^.nginx$", RegexOption.IGNORE_CASE)
 	@NeedAdmin
 	@SendAuto
 	fun invoke(event: MessageEvent): Message {
@@ -46,7 +46,7 @@ object CQNginxLogHandle {
 		Regex("""((\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.){3}(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])""")
 
 	@MiraiEventHandle("添加banip")
-	@RegexAnn("^[.．。]banip(.+)$", RegexOption.IGNORE_CASE)
+	@RegexAnn("^.banip(.+)$", RegexOption.IGNORE_CASE)
 	@SendAuto
 	@NeedAdmin
 	private fun addIP(groups: MatchGroupCollection): String {

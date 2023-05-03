@@ -19,7 +19,7 @@ object BotProxy {
 	private val toDel = "“”\"【】《》「」".toSet()
 
 	@MiraiEventHandle("c 开始转发消息")
-	@RegexAnn("^[.．。]cstart", RegexOption.IGNORE_CASE)
+	@RegexAnn("^.cstart", RegexOption.IGNORE_CASE)
 	@SendAuto
 	suspend fun start(event: GroupMessageEvent): String {
 		val gId = this.groupId
@@ -35,7 +35,7 @@ object BotProxy {
 	}
 
 	@MiraiEventHandle("c 转发具体消息")
-	@RegexAnn("^[.．。]c (?<msg>.*)", RegexOption.IGNORE_CASE, RegexOption.MULTILINE, RegexOption.DOT_MATCHES_ALL)
+	@RegexAnn("^.c (?<msg>.*)", RegexOption.IGNORE_CASE, RegexOption.MULTILINE, RegexOption.DOT_MATCHES_ALL)
 	@SendAuto
 	suspend fun cProxy(event: FriendMessageEvent, groups: MatchGroupCollection): String {
 		val gId = this.groupId ?: return "无具体转发群"

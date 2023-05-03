@@ -2,6 +2,7 @@ package my.ktbot.plugs
 
 import my.ktbot.annotation.Helper
 import my.ktbot.annotation.SendAuto
+import my.ktbot.service.CocService
 import my.ktbot.utils.CacheMap
 import my.ktbot.utils.DiceResult
 import my.miraiplus.NeverEvent
@@ -18,11 +19,8 @@ object CQBotCOCSBI {
     val cache = CacheMap<Long, DiceResult>()
     val cacheString = CacheMap<String, DiceResult>()
 
-    @JvmStatic
-    val cheater: Boolean get() = CQBotCOC.cheater
-
     @MiraiEventHandle("骰子SBI：主功能")
-    @RegexAnn("^[.．。]s +(?<num>\\d*)d(?<max>\\d*)", RegexOption.IGNORE_CASE)
+    @RegexAnn("^.s +(?<num>\\d*)d(?<max>\\d*)", RegexOption.IGNORE_CASE)
     @Helper("SBI骰子主功能")
     @SendAuto
     @JvmStatic
@@ -30,19 +28,19 @@ object CQBotCOCSBI {
         val num = (groups["num"]?.value?.toIntOrNull() ?: return null).coerceAtLeast(3)
         val max = groups["max"]?.value?.toIntOrNull() ?: return null
         val diceResult = DiceResult(num, max)
-        if (!cheater) diceResult.dice()
+        if (!CocService.cheater) diceResult.dice()
         cache[event.sender.id] = diceResult
         return "${diceResult.origin}：[${diceResult.list.joinToString()}]（${getRes(diceResult.list)}）".toPlainText()
     }
 
     @MiraiEventHandle("骰子SBI：主功能", eventType = NeverEvent::class)
-    @RegexAnn("^[.．。]s +(?<num>\\d*)d(?<max>\\d*)", RegexOption.IGNORE_CASE)
+    @RegexAnn("^.s +(?<num>\\d*)d(?<max>\\d*)", RegexOption.IGNORE_CASE)
     @JvmStatic
     private fun invoke(@Qualifier("id") id: String, groups: MatchGroupCollection): Message? {
         val num = (groups["num"]?.value?.toIntOrNull() ?: return null).coerceAtLeast(3)
         val max = groups["max"]?.value?.toIntOrNull() ?: return null
         val diceResult = DiceResult(num, max)
-        if (!cheater) diceResult.dice()
+        if (!CocService.cheater) diceResult.dice()
         cacheString[id] = diceResult
         return "${diceResult.origin}：[${diceResult.list.joinToString()}]（${getRes(diceResult.list)}）".toPlainText()
     }
@@ -50,7 +48,7 @@ object CQBotCOCSBI {
     private val split = Regex("[ ,]+")
 
     @MiraiEventHandle("骰子SBI：结果处理")
-    @RegexAnn("^[.．。]stest(?<nums>[\\d ,]+)", RegexOption.IGNORE_CASE)
+    @RegexAnn("^.stest(?<nums>[\\d ,]+)", RegexOption.IGNORE_CASE)
     @Helper("10分钟之内加投骰")
     @SendAuto
     @JvmStatic
@@ -78,7 +76,7 @@ object CQBotCOCSBI {
     }
 
     @MiraiEventHandle("骰子SBI：加骰")
-    @RegexAnn("^[.．。]sp(?<num> ?\\d*)", RegexOption.IGNORE_CASE)
+    @RegexAnn("^.sp(?<num> ?\\d*)", RegexOption.IGNORE_CASE)
     @Helper("10分钟之内加投骰")
     @SendAuto
     @JvmStatic
@@ -87,7 +85,7 @@ object CQBotCOCSBI {
         val id = event.sender.id
         var diceResult: DiceResult = cache[id] ?: return "10分钟之内没有投任何骰子"
         val dice = DiceResult(num, diceResult.max)
-        if (!cheater) dice.dice()
+        if (!CocService.cheater) dice.dice()
         diceResult += dice
         cache[id] = diceResult
         return """${dice.origin}：[${dice.list.joinToString(", ")}]=${dice.sum}
@@ -96,13 +94,13 @@ object CQBotCOCSBI {
     }
 
     @MiraiEventHandle("骰子SBI：加骰", eventType = NeverEvent::class)
-    @RegexAnn("^[.．。]sp(?<num> ?\\d*)", RegexOption.IGNORE_CASE)
+    @RegexAnn("^.sp(?<num> ?\\d*)", RegexOption.IGNORE_CASE)
     @JvmStatic
     private fun addedDice(@Qualifier("id") id: String, groups: MatchGroupCollection): String {
         val num = groups["num"]?.run { value.trim().toIntOrNull() } ?: 1
         var diceResult: DiceResult = cacheString[id] ?: return "10分钟之内没有投任何骰子"
         val dice = DiceResult(num, diceResult.max)
-        if (!cheater) dice.dice()
+        if (!CocService.cheater) dice.dice()
         diceResult += dice
         cacheString[id] = diceResult
         return """${dice.origin}：[${dice.list.joinToString(", ")}]=${dice.sum}

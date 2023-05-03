@@ -30,7 +30,7 @@ object MemberExp {
 	}
 
 	@MiraiEventHandle("qq活跃")
-	@RegexAnn("^[.．。]state(?<qq> ?\\d{5,12})?$", RegexOption.IGNORE_CASE)
+	@RegexAnn("^.state(?<qq> ?\\d{5,12})?$", RegexOption.IGNORE_CASE)
 	@Helper("查看自己/<qq>的信息，群聊限时1次/分钟")
 	@SendAuto
 	fun invoke(event: MessageEvent, groups: MatchGroupCollection): Message {

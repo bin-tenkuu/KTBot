@@ -19,7 +19,7 @@ import my.ktbot.ktor.vo.RoomMessage
 fun Route.roomApi() {
     get("/rooms") {
         val name = call.parameters["name"] ?: ""
-        call.respond(roomConfig.values.filter {
+        call.respond(RoomConfig.values.filter {
             it.room.id.contains(name)
         }.map {
             mapOf("id" to it.room.id, "name" to it.room.name)
@@ -41,14 +41,14 @@ fun Route.roomApi() {
         }
         post r@{
             val receive = call.receive<RoomMessage>()
-            val room = roomConfig[receive.id]
+            val room = RoomConfig[receive.id]
             if (room == null) {
                 val config = RoomConfig(Room {
                     id = receive.id
                     name = receive.name
                     roles = receive.roles
                 })
-                roomConfig[receive.id] = config
+                RoomConfig[receive.id] = config
                 config.insert()
             } else {
                 room.room.name = receive.name
@@ -60,7 +60,7 @@ fun Route.roomApi() {
         }
         get("del") r@{
             val room = call.getRoom() ?: return@r
-            roomConfig -= room.room.id
+            RoomConfig -= room.room.id
             for (client in room.clients) {
                 client.close(CloseReason(CloseReason.Codes.NORMAL, "room deleted"))
             }

@@ -14,7 +14,7 @@ import net.mamoe.mirai.utils.ExternalResource.Companion.uploadAsImage
 
 object DebugPlug {
 	@MiraiEventHandle("test")
-	@RegexAnn("^[.．。]test$", RegexOption.IGNORE_CASE)
+	@RegexAnn("^.test$", RegexOption.IGNORE_CASE)
 	@NeedAdmin
 	@SendAuto
 	private fun MessageEvent.run(): Message {

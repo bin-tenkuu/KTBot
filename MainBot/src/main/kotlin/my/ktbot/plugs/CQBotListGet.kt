@@ -28,7 +28,7 @@ import org.ktorm.entity.joinTo
  */
 object CQBotListGet {
 	@MiraiEventHandle("获取<type>列表")
-	@RegexAnn("^[.．。]获取(?<type>[^ ]+)列表$")
+	@RegexAnn("^.获取(?<type>[^ ]+)列表$")
 	@NeedAdmin
 	@SendAuto
 	fun invoke(event: MessageEvent, groups: MatchGroupCollection): Message? {
@@ -54,7 +54,7 @@ object CQBotListGet {
 	}
 
 	@MiraiEventHandle("插件[<id>]")
-	@RegexAnn("^[.．。]插件(?<id> *\\d*)$")
+	@RegexAnn("^.插件(?<id> *\\d*)$")
 	@NeedAdmin
 	@Helper("查看插件信息")
 	@SendAuto
@@ -71,7 +71,7 @@ object CQBotListGet {
 	}
 
 	// @MessageHandle(".插件<open><nums[]>")
-	// @RegexAnn("^[.．。]插件(?<open>[开关])(?<nums>[\\d ]+)$")
+	// @RegexAnn("^.插件(?<open>[开关])(?<nums>[\\d ]+)$")
 	// @NeedAdmin
 	// @Helper("设置插件状态")
 	// @SendAuto
@@ -101,26 +101,11 @@ object CQBotListGet {
 	// }
 
 	@MiraiEventHandle("日志")
-	@RegexAnn("^[.．。]日志$")
+	@RegexAnn("^.日志$")
 	@NeedAdmin
 	@SendAuto
 	@JvmStatic
 	private fun cqBotCounter(event: MessageEvent): Message {
 		return Counter.state(event.subject)
-	}
-
-	@MiraiEventHandle("简易计算器")
-	@RegexAnn("^[.．。]calc (?<calc>[^ ]+)", RegexOption.IGNORE_CASE)
-	@Helper("表达式间不允许出现空格")
-	@SendAuto
-	@JvmStatic
-	private fun cqBotCalculate(groups: MatchGroupCollection): Message {
-		val calc = groups["calc"]?.value ?: return emptyMessageChain()
-		return try {
-			"结果为${Calculator(calc).v}".toPlainText()
-		}
-		catch (e: Exception) {
-			"表达式错误：${e.message}".toPlainText()
-		}
 	}
 }

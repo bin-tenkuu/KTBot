@@ -16,7 +16,7 @@ import net.mamoe.mirai.message.data.toPlainText
 
 object CQBotPerm {
 	@MiraiEventHandle("添加删除权限")
-	@RegexAnn("^[.．。]权限(?<op>[^ ]{2})(?<groupid>\\d+)(?<permid>\\w+)$")
+	@RegexAnn("^.权限(?<op>[^ ]{2})(?<groupid>\\d+)(?<permid>\\w+)$")
 	@NeedAdmin
 	@Helper("添加/删除")
 	@SendAuto

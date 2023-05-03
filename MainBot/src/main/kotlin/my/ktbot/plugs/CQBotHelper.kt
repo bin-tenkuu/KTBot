@@ -37,7 +37,7 @@ object CQBotHelper {
 	}
 
 	@MiraiEventHandle("help")
-	@RegexAnn("^[.．。](?:help|帮助) ?(\\d+)?(.+)?$", RegexOption.IGNORE_CASE)
+	@RegexAnn("^.(?:help|帮助) ?(\\d+)?(.+)?$", RegexOption.IGNORE_CASE)
 	@Helper("帮助专用功能\n.help后附带下标数字查看对应功能详情")
 	@SendAuto(recall = 30 * 1000)
 	fun invoke(@Qualifier("1") numS: String?, @Qualifier("2") key: String?): String {
@@ -73,7 +73,7 @@ object CQBotHelper {
 	}
 
 	@MiraiEventHandle("情话")
-	@RegexAnn("^[.．。]情话$|^来点情话$")
+	@RegexAnn("^.情话$|^来点情话$")
 	@Helper("y1s1，来点情话")
 	@SendAuto
 	@JvmStatic
@@ -88,13 +88,13 @@ object CQBotHelper {
 	 * @return [String]?
 	 */
 	@MiraiEventHandle("jeff笑话")
-	@RegexAnn("^[.．。]joke(?<name> *.+)?$", RegexOption.IGNORE_CASE)
+	@RegexAnn("^.joke(?<name> *.+)?$", RegexOption.IGNORE_CASE)
 	@Helper("简易Jeff笑话生成，参数：<name> ：名字；<times>：次数")
 	@SendAuto
 	@JvmStatic
 	private fun jeffJoke(event: MessageEvent, groups: MatchGroupCollection): String? {
 		val joke = Sqlite[TJeffJoke].limit(1).sortedBy {
-			Sqlite.random
+			Sqlite.random()
 		}.firstOrNull()?.text ?: return null
 		val name = groups["name"]?.value?.trim() ?: event.senderName
 		return joke.replace("%s", name)
@@ -106,7 +106,7 @@ object CQBotHelper {
 	 * @return Image
 	 */
 	@MiraiEventHandle("60秒读懂世界")
-	@RegexAnn("^[.．。]60s?\$", RegexOption.IGNORE_CASE)
+	@RegexAnn("^.60s?\$", RegexOption.IGNORE_CASE)
 	@Helper("60秒读懂世界")
 	@SendAuto
 	@JvmStatic

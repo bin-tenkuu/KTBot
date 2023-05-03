@@ -21,7 +21,7 @@ object CQBotBan {
 	private val empty = Regex(" +")
 
 	@MiraiEventHandle("设置ban状态")
-	@RegexAnn("^[.．。]设置(?<group>群)?(?<type>un)?ban(?<other>[ \\d]+)$", RegexOption.IGNORE_CASE)
+	@RegexAnn("^.设置(?<group>群)?(?<type>un)?ban(?<other>[ \\d]+)$", RegexOption.IGNORE_CASE)
 	@NeedAdmin
 	@Helper("设置群聊、私聊的ban状态。格式：.设置[群][un]ban <other>")
 	@SendAuto

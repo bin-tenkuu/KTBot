@@ -3,6 +3,7 @@ package my.ktbot.command
 import my.ktbot.PlugConfig
 import my.ktbot.PluginMain
 import my.ktbot.utils.SystemInfoUtil
+import my.ktbot.utils.calculator.Calculator
 import my.ktbot.utils.toMessage
 import net.mamoe.mirai.console.command.Command
 import net.mamoe.mirai.console.command.CommandSender
@@ -13,6 +14,7 @@ import net.mamoe.mirai.console.compiler.common.ResolveContext
 import net.mamoe.mirai.console.util.ConsoleExperimentalApi
 import net.mamoe.mirai.contact.Contact
 import net.mamoe.mirai.message.data.Message
+import net.mamoe.mirai.message.data.toPlainText
 
 /**
  * @author bin
@@ -21,9 +23,9 @@ import net.mamoe.mirai.message.data.Message
 @OptIn(ConsoleExperimentalApi::class)
 @Suppress("unused")
 object HelperCommand {
-    val owner = PluginMain
-    val parentPermission = PluginMain.parentPermission
-    val overrideContext: CommandArgumentContext = EmptyCommandArgumentContext
+    private val owner = PluginMain
+    private val parentPermission = PluginMain.parentPermission
+    private val overrideContext: CommandArgumentContext = EmptyCommandArgumentContext
 
     val all: Array<out Command> by lazy {
         this::class.nestedClasses.mapNotNull {
@@ -31,7 +33,7 @@ object HelperCommand {
         }.toTypedArray()
     }
 
-    open class SubCommand(
+    private open class SubCommand(
             @ResolveContext(ResolveContext.Kind.COMMAND_NAME) primaryName: String,
             description: String = "no description available",
             @ResolveContext(ResolveContext.Kind.COMMAND_NAME) vararg secondaryNames: String,
@@ -85,7 +87,7 @@ object HelperCommand {
         }
     }
 
-    private object AdminSend : SubCommand("send", "管理员手动发送消息") {
+    private object AdminSend : SubCommand("send", "管理员手动发送消息,普通") {
         @Handler
         suspend fun CommandSender.invoke(@Name("目标") target: String, @Name("消息") vararg msgs: Message) {
             val bot = bot
@@ -100,16 +102,16 @@ object HelperCommand {
                 } else {
                     bot.getFriend(target.toLong())
                 }
-                runCatching {
-                    if (contact == null) {
-                        sendMessage("目标 '$target' 不存在")
-                    } else {
+                if (contact == null) {
+                    sendMessage("目标 '$target' 不存在")
+                } else {
+                    runCatching {
                         contact.sendMessage(msg)
+                    }.onSuccess {
+                        sendMessage("已发送")
+                    }.onFailure {
+                        sendMessage("发送失败")
                     }
-                }.onSuccess {
-                    sendMessage("已发送")
-                }.onFailure {
-                    sendMessage("发送失败")
                 }
             }
         }
@@ -119,6 +121,17 @@ object HelperCommand {
         @Handler
         suspend fun CommandSender.invoke() {
             sendMessage(SystemInfoUtil())
+        }
+    }
+
+    private object Calc : SubCommand("calc", "简易计算器,表达式间不允许出现空格") {
+        @Handler
+        suspend fun CommandSender.invoke(@Name("表达式") expr: String) {
+            try {
+                sendMessage("结果为${Calculator(expr).v}".toPlainText())
+            } catch (e: Exception) {
+                sendMessage("表达式错误：${e.message}".toPlainText())
+            }
         }
     }
 }

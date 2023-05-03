@@ -11,7 +11,7 @@ object BotShareCertificate {
 
 	@MiraiEventHandle("股票设置")
 	@RegexAnn(
-		"^[.．。]股票(?<code>(s[hz])(\\d{6}))(?<operater>[ +-])(?<position>\\d+00)(?:\\*(?<price>\\d+.\\d+))?$"
+		"^.股票(?<code>(s[hz])(\\d{6}))(?<operater>[ +-])(?<position>\\d+00)(?:\\*(?<price>\\d+.\\d+))?$"
 	)
 	@NeedAdmin
 	@SendAuto

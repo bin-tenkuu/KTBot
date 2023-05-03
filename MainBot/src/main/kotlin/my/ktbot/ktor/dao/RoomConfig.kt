@@ -25,8 +25,16 @@ import java.nio.charset.StandardCharsets
  * @Date:2023/3/12
  */
 class RoomConfig(
-    val room: Room,
+        val room: Room,
 ) : Closeable {
+    companion object : HashMap<String, RoomConfig>() {
+        init {
+            for (room in databaseGlobal.sequenceOf(TRoom)) {
+                this[room.id] = RoomConfig(room)
+            }
+        }
+    }
+
     val id: String get() = room.id
     var name: String
         get() = room.name
@@ -40,10 +48,10 @@ class RoomConfig(
         }
     val clients = HashSet<DefaultWebSocketServerSession>()
     private val dataSource: Database = Database.connect(
-        url = "jdbc:sqlite:${id}.db",
-        driver = "org.sqlite.JDBC",
-        dialect = SQLiteDialect(),
-        generateSqlInUpperCase = true
+            url = "jdbc:sqlite:./${id}.db",
+            driver = "org.sqlite.JDBC",
+            dialect = SQLiteDialect(),
+            generateSqlInUpperCase = true
     )
 
     init {
@@ -71,6 +79,7 @@ class RoomConfig(
                     save(msg.id!!, msg.msg, role)
                 }
             }
+
             is Message.Pic -> {
                 if (msg.id == null) {
                     msg.id = save("pic", msg.msg, role)
@@ -78,6 +87,7 @@ class RoomConfig(
                     save(msg.id!!, msg.msg, role)
                 }
             }
+
             else -> return
         }
     }
@@ -100,13 +110,14 @@ class RoomConfig(
         }
     }
 
-    fun insert(){
+    fun insert() {
         databaseGlobal.insert(TRoom) {
             set(it.id, room.id)
             set(it.name, room.name)
             set(it.roles, room.roles)
         }
     }
+
     fun save() {
         room.flushChanges()
     }
@@ -133,16 +144,16 @@ class RoomConfig(
 
     fun history(id: Long): Message.Msgs {
         val list = dataSource.sequenceOf(THisMsg)
-            .filter { it.id less id }
-            .limit(20)
-            .sortedBy { it.id.desc() }
-            .map {
-                when (it.type) {
-                    "pic" -> Message.Pic(it.id, it.msg, it.role)
-                    "text" -> Message.Text(it.id, it.msg, it.role)
-                    else -> Message.Msgs()
+                .filter { it.id less id }
+                .limit(20)
+                .sortedBy { it.id.desc() }
+                .map {
+                    when (it.type) {
+                        "pic" -> Message.Pic(it.id, it.msg, it.role)
+                        "text" -> Message.Text(it.id, it.msg, it.role)
+                        else -> Message.Msgs()
+                    }
                 }
-            }
         return Message.Msgs(list)
     }
 

@@ -96,7 +96,7 @@ object CQBotPicture {
 
 	@JvmStatic
 	private fun getRandomPic(r18: Boolean): PixivPic? {
-		return Sqlite[TPixivPic].limit(1).sortedBy { Sqlite.random }.firstOrNull { it.r18 eq r18 }
+		return Sqlite[TPixivPic].limit(1).sortedBy { Sqlite.random() }.firstOrNull { it.r18 eq r18 }
 	}
 
 	@JvmStatic
@@ -121,7 +121,7 @@ object CQBotPicture {
 	}
 
 	@MiraiEventHandle("色图失败列表")
-	@RegexAnn("^[.．。]色图失败列表$")
+	@RegexAnn("^.色图失败列表$")
 	@NeedAdmin
 	@SendAuto
 	@JvmStatic
