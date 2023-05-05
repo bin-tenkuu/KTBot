@@ -13,7 +13,15 @@ object PluginPerm {
     val root: Permission = instance.rootPermission
 
     @JvmField
+    val main: Permission = PluginMain.parentPermission
+
+    val admin: Permission = instance.register(PluginMain.permissionId("admin"), "管理员权限")
+
+    @JvmField
     val setu: Permission = instance.register(PluginMain.permissionId("setu"), "色图调用权限")
+
+    @JvmField
+    val coc: Permission = instance.register(PluginMain.permissionId("coc"), "coc调用权限")
 
     @JvmField
     val map = HashMap<String, Permission>()

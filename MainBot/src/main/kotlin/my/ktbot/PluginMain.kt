@@ -2,6 +2,9 @@ package my.ktbot
 
 import kotlinx.coroutines.runBlocking
 import my.ktbot.annotation.*
+import my.ktbot.command.AdminCommand
+import my.ktbot.command.CocCommand
+import my.ktbot.command.CocSbiCommand
 import my.ktbot.command.HelperCommand
 import my.ktbot.ktor.server
 import my.ktbot.plugs.*
@@ -10,6 +13,7 @@ import my.ktbot.utils.global.Debugger
 import my.miraiplus.MyKotlinPlugin
 import my.miraiplus.annotation.RegexAnn
 import net.mamoe.mirai.console.command.BuiltInCommands
+import net.mamoe.mirai.console.command.Command
 import net.mamoe.mirai.console.command.CommandManager
 import net.mamoe.mirai.console.command.ConsoleCommandSender
 import net.mamoe.mirai.console.extension.PluginComponentStorage
@@ -21,14 +25,14 @@ import kotlin.coroutines.EmptyCoroutineContext
  * 插件入口
  */
 object PluginMain : MyKotlinPlugin(
-    JvmPluginDescription(
-        id = "my.ktbot.binbot",
-        version = "0.1"
-    ) {
-        author("bin.qq=2938137849")
-        info("这是一个测试插件,在这里描述插件的功能和用法等.")
-    },
-    EmptyCoroutineContext
+        JvmPluginDescription(
+                id = "my.ktbot.binbot",
+                version = "0.1"
+        ) {
+            author("bin.qq=2938137849")
+            info("这是一个测试插件,在这里描述插件的功能和用法等.")
+        },
+        EmptyCoroutineContext
 ), JvmPlugin {
 
     override fun PluginComponentStorage.onLoad() {
@@ -51,18 +55,18 @@ object PluginMain : MyKotlinPlugin(
         logger.info(Counter.members[2938137849].toString())
 
         arrayOf(
-            CQBotCOC, CQBotCOCSBI, BotProxy,
-            CQBotRepeat,
-            MemberExp,
-            CQBotBan,
-            // CQBotPicture, CQBotPixiv,
-            CQBotPerm,
-            CQBotHelper,
-            CQBotListGet,
-            CQBotMemeAI,
-            // CQBotWhoAtMe,
-            CQNginxLogHandle,
-            // BotShareCertificate,
+                CQBotCOC, CQBotCOCSBI, BotProxy,
+                CQBotRepeat,
+                MemberExp,
+                CQBotBan,
+                // CQBotPicture, CQBotPixiv,
+                CQBotPerm,
+                CQBotHelper,
+                CQBotListGet,
+                CQBotMemeAI,
+                // CQBotWhoAtMe,
+                CQNginxLogHandle,
+                // BotShareCertificate,
         ).forEach {
             register(it)
         }
@@ -77,9 +81,20 @@ object PluginMain : MyKotlinPlugin(
                 // HonKai2()
             }
         }
-        HelperCommand.all.forEach {
-            CommandManager.registerCommand(it)
+        fun registerCommand(vararg commandss: Array<out Command>) {
+            for (commands in commandss) {
+                for (command in commands) {
+                    CommandManager.registerCommand(command)
+                }
+            }
         }
+        registerCommand(
+                AdminCommand.all,
+                CocCommand.all,
+                CocSbiCommand.all,
+                HelperCommand.all,
+        )
+
         // KtorTest.run {
         // 	with(KtorTest) {
         // 		routingArticles()
@@ -90,6 +105,7 @@ object PluginMain : MyKotlinPlugin(
 
     override fun onDisable() {
         unregisterAll()
+        CommandManager.unregisterAllCommands(this)
         Counter.save()
     }
 

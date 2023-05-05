@@ -29,7 +29,7 @@ dependencies {
 	// implementation("org.ktorm:ktorm-ksp-api:1.0.0-RC3")
 	// ksp("org.ktorm:ktorm-ksp-compiler:1.0.0-RC3")
 	// ktor-client
-	val ktorVersion = "2.2.4"
+	val ktorVersion = "2.3.0"
 	implementation("io.ktor:ktor-client-auth-jvm:$ktorVersion")
 	implementation("io.ktor:ktor-http-jvm:$ktorVersion")
 	implementation("io.ktor:ktor-client-okhttp-jvm:$ktorVersion")

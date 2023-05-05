@@ -17,7 +17,7 @@ object CQBotCOCSBI {
 
     @JvmStatic
     val cache = CacheMap<Long, DiceResult>()
-    val cacheString = CacheMap<String, DiceResult>()
+    private val cacheString = CacheMap<String, DiceResult>()
 
     @MiraiEventHandle("骰子SBI：主功能")
     @RegexAnn("^.s +(?<num>\\d*)d(?<max>\\d*)", RegexOption.IGNORE_CASE)

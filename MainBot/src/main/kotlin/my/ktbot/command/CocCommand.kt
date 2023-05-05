@@ -1,8 +1,10 @@
 package my.ktbot.command
 
 import my.ktbot.PluginMain
+import my.ktbot.PluginPerm
 import my.ktbot.database.TCOCShortKey
 import my.ktbot.service.CocService
+import my.ktbot.utils.DiceResult
 import net.mamoe.mirai.console.command.Command
 import net.mamoe.mirai.console.command.CommandSender
 import net.mamoe.mirai.console.command.SimpleCommand
@@ -20,7 +22,7 @@ import net.mamoe.mirai.console.util.ConsoleExperimentalApi
 @Suppress("unused")
 object CocCommand {
     private val owner = PluginMain
-    private val parentPermission = PluginMain.parentPermission
+    private val parentPermission = PluginPerm.coc
     private val overrideContext: CommandArgumentContext = EmptyCommandArgumentContext
 
     val all: Array<out Command> by lazy {
@@ -98,6 +100,34 @@ object CocCommand {
         suspend fun CommandSender.invoke(@Name("简写") key: String, @Name("全称") value: String) {
             TCOCShortKey.all[key] = value
             sendMessage("设置成功")
+        }
+    }
+
+    private object Dp : SubCommand("dp", "10分钟之内加投骰，只有在上一次.d只有骰子时有效") {
+
+        @Handler
+        suspend fun CommandSender.invoke(@Name("数量") num: Int) {
+            val id = user?.id ?: 0
+            var cacheResult: DiceResult = CocService.cache[id] ?: run {
+                sendMessage("10分钟之内没有投任何骰子")
+                return
+            }
+            val dice = DiceResult(num, cacheResult.max)
+            if (!CocService.cheater) dice.dice()
+            cacheResult += dice
+            CocService.cache[id] = cacheResult
+            val msg = """${dice.origin}：[${dice.list.joinToString(", ")}]=${dice.sum}
+                |[${cacheResult.list.joinToString(", ")}]
+            """.trimMargin()
+            sendMessage(msg)
+        }
+    }
+
+    private object SetSpecial : SubCommand("dsp", "骰子：设置特殊骰子") {
+        @Handler
+        suspend fun CommandSender.invoke(@Name("特殊骰子") special: CocService.Effects) {
+            CocService.specialEffects = special
+            sendMessage("进入 ${special.state} 状态")
         }
     }
 }
