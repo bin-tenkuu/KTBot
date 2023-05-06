@@ -8,6 +8,7 @@ import org.ktorm.logging.ConsoleLogger
 import org.ktorm.logging.LogLevel
 import org.ktorm.logging.Logger
 import org.ktorm.support.postgresql.PostgreSqlDialect
+import org.postgresql.Driver
 
 /**
  * @author bin
@@ -15,7 +16,7 @@ import org.ktorm.support.postgresql.PostgreSqlDialect
  */
 val databaseGlobal: Database = Database.connect(
     url = PlugConfig.dataSource.url,
-    driver = "org.postgresql.Driver",
+    driver = Driver::class.java.name,
     user = PlugConfig.dataSource.username,
     password = PlugConfig.dataSource.password,
     dialect = PostgreSqlDialect(),

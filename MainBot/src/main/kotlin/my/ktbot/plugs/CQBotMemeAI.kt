@@ -22,52 +22,50 @@ import net.mamoe.mirai.message.data.MessageSource.Key.quote
  */
 object CQBotMemeAI {
 
-	@JvmStatic
-	private val replaceNode = ReplaceNode() + mapOf(
-		"不" to "很",
-		"你" to "我",
-		"我" to "你",
-		"有" to "没有",
-		"没有" to "有",
-		"有没有" to "肯定有",
-		"是" to "不是",
-		"不是" to "是",
-		"是不是" to "肯定是",
-		"？" to "!",
-		"?" to "!",
-		"吗" to "",
-	)
+    @JvmStatic
+    private val replaceNode = ReplaceNode() + mapOf(
+            "不" to "很",
+            "你" to "我",
+            "我" to "你",
+            "有" to "没有",
+            "没有" to "有",
+            "有没有" to "肯定有",
+            "是" to "不是",
+            "不是" to "是",
+            "是不是" to "肯定是",
+            "？" to "!",
+            "?" to "!",
+            "吗" to "",
+    )
 
-	// @MiraiEventHandle("(玩梗用自动回复)", priority = EventPriority.LOWEST)
-	// @NeedAt(true)
-	// @SendAuto
-	fun invoke(event: GroupMessageEvent): Message {
-		val message = event.message
-		val at = At(event.bot.id)
-		return buildMessageChain {
-			+message.quote()
-			+event.sender.at()
-			for (it in message) {
-				if (it == at) continue
-				if (it !is PlainText) +it
-				else +PlainText(replaceNode.replace(it.content))
-			}
-		}
-	}
+    @MiraiEventHandle("(玩梗用自动回复)", priority = EventPriority.LOWEST)
+    @NeedAt(true)
+    @SendAuto
+    fun invoke(event: GroupMessageEvent): Message {
+        val message = event.message
+        val at = At(event.bot.id)
+        return buildMessageChain {
+            +message.quote()
+            +event.sender.at()
+            for (it in message) {
+                if (it == at) continue
+                if (it !is PlainText) +it
+                else +PlainText(replaceNode.replace(it.content))
+            }
+        }
+    }
 
-	@MiraiEventHandle("(AI自动回复)", priority = EventPriority.LOW)
-	@RegexAnn("(.+)")
-	@NeedAt(true)
-	@LimitAll(1000 * 15)
-	@SendAuto
-	suspend fun invoke(event: MessageEvent, @Qualifier("0") text: String): Message {
-		val message = event.message
-		val completion = KtorUtils.openAiCompletion(text)
-		return buildMessageChain {
-			+message.quote()
-			+completion
-		}
-	}
-
-	private val MessageChain.textString get() = filterIsInstance<PlainText>().joinToString("") { it.content }
+    //	@MiraiEventHandle("(AI自动回复)", priority = EventPriority.LOW)
+    @RegexAnn("(.+)")
+    @NeedAt(true)
+    @LimitAll(1000 * 15)
+    @SendAuto
+    suspend fun invoke(event: MessageEvent, @Qualifier("0") text: String): Message {
+        val message = event.message
+        val completion = KtorUtils.openAiCompletion(text)
+        return buildMessageChain {
+            +message.quote()
+            +completion
+        }
+    }
 }

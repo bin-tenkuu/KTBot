@@ -31,7 +31,7 @@ object CocCommand {
         }.toTypedArray()
     }
 
-    private open class SubCommand(
+    open class SubCommand(
             @ResolveContext(ResolveContext.Kind.COMMAND_NAME) primaryName: String,
             description: String = "no description available",
             @ResolveContext(ResolveContext.Kind.COMMAND_NAME) vararg secondaryNames: String,
@@ -44,7 +44,7 @@ object CocCommand {
             overrideContext = overrideContext
     )
 
-    private object D : SubCommand("d", "掷骰子，附带简单计算（+-*），形如 '9#9d9+9'") {
+    object D : SubCommand("d", "掷骰子，附带简单计算（+-*），形如 '9#9d9+9'") {
         private val diceRegex = Regex(
                 "^(?:(?<times>\\d+)#)?(?<dice>[^+\\-*d\\d])",
                 RegexOption.IGNORE_CASE
@@ -73,7 +73,7 @@ object CocCommand {
         }
     }
 
-    private object CheaterAllOne : SubCommand("dall1", "骰子：打开全1模式") {
+    object CheaterAllOne : SubCommand("dall1", "骰子：打开全1模式") {
         @Handler
         suspend fun CommandSender.invoke() {
             CocService.cheater = !CocService.cheater
@@ -81,7 +81,7 @@ object CocCommand {
         }
     }
 
-    private object StatsMap : SubCommand("dstat", "骰子：查看全部简写") {
+    object StatsMap : SubCommand("dstat", "骰子：查看全部简写") {
         @Handler
         suspend fun CommandSender.invoke() {
             if (TCOCShortKey.all.isEmpty()) {
@@ -95,7 +95,7 @@ object CocCommand {
         }
     }
 
-    private object StatsSet : SubCommand("dset", "骰子：设置简写") {
+    object StatsSet : SubCommand("dset", "骰子：设置简写") {
         @Handler
         suspend fun CommandSender.invoke(@Name("简写") key: String, @Name("全称") value: String) {
             TCOCShortKey.all[key] = value
@@ -103,11 +103,11 @@ object CocCommand {
         }
     }
 
-    private object Dp : SubCommand("dp", "10分钟之内加投骰，只有在上一次.d只有骰子时有效") {
+    object Dp : SubCommand("dp", "10分钟之内加投骰，只有在上一次.d只有骰子时有效") {
 
         @Handler
         suspend fun CommandSender.invoke(@Name("数量") num: Int) {
-            val id = user?.id ?: 0
+            val id = user?.id
             var cacheResult: DiceResult = CocService.cache[id] ?: run {
                 sendMessage("10分钟之内没有投任何骰子")
                 return
@@ -123,7 +123,7 @@ object CocCommand {
         }
     }
 
-    private object SetSpecial : SubCommand("dsp", "骰子：设置特殊骰子") {
+    object SetSpecial : SubCommand("dsp", "骰子：设置特殊骰子") {
         @Handler
         suspend fun CommandSender.invoke(@Name("特殊骰子") special: CocService.Effects) {
             CocService.specialEffects = special

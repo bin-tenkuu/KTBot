@@ -142,9 +142,12 @@ class RoomConfig(
         clients.clear()
     }
 
-    fun history(id: Long): Message.Msgs {
-        val list = dataSource.sequenceOf(THisMsg)
-                .filter { it.id less id }
+    fun history(id: Long?): Message.Msgs {
+        var sequence = dataSource.sequenceOf(THisMsg)
+        if (id != null) {
+            sequence = sequence.filter { it.id less id }
+        }
+        val list = sequence
                 .limit(20)
                 .sortedBy { it.id.desc() }
                 .map {

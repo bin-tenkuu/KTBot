@@ -11,7 +11,7 @@ import my.ktbot.utils.DiceResult
 object CocService {
 
     @JvmStatic
-    val cache = CacheMap<Long, DiceResult>()
+    val cache = CacheMap<Long?, DiceResult>()
 
     @JvmStatic
     var cheater: Boolean = false
@@ -22,7 +22,7 @@ object CocService {
     private val splitDiceRegex = Regex("(?=[+\\-*])")
 
     @JvmStatic
-    fun dice(str: String, qq: Long): String {
+    fun dice(str: String, qq: Long?): String {
         val handles = splitDiceRegex.split(str).map {
             castString(it, this.cheater)
         }

@@ -1,5 +1,6 @@
 package my.ktbot
 
+import net.mamoe.mirai.console.compiler.common.ResolveContext
 import net.mamoe.mirai.console.permission.Permission
 import net.mamoe.mirai.console.permission.PermissionService
 import net.mamoe.mirai.console.permission.PermitteeId
@@ -10,21 +11,28 @@ object PluginPerm {
     val instance: PermissionService<Permission> = PermissionService.INSTANCE as PermissionService<Permission>
 
     @JvmField
+    val map = HashMap<String, Permission>()
+
+    @JvmField
     val root: Permission = instance.rootPermission
 
     @JvmField
-    val main: Permission = PluginMain.parentPermission
-
-    val admin: Permission = instance.register(PluginMain.permissionId("admin"), "管理员权限")
+    val any: Permission = PluginMain.parentPermission
 
     @JvmField
-    val setu: Permission = instance.register(PluginMain.permissionId("setu"), "色图调用权限")
+    val admin: Permission = register("admin", "管理员权限")
 
     @JvmField
-    val coc: Permission = instance.register(PluginMain.permissionId("coc"), "coc调用权限")
+    val setu: Permission = register("setu", "色图调用权限")
 
     @JvmField
-    val map = HashMap<String, Permission>()
+    val coc: Permission = register("coc", "coc调用权限")
+
+    private fun register(@ResolveContext(ResolveContext.Kind.PERMISSION_NAME) name: String, description: String): Permission {
+        val permission = instance.register(PluginMain.permissionId(name), description)
+        map[name] = permission
+        return permission
+    }
 
     operator fun Permission.minusAssign(permitteeId: PermitteeId) {
         if (test(permitteeId, this)) {

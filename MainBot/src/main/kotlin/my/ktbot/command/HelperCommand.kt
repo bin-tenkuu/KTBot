@@ -23,7 +23,7 @@ import net.mamoe.mirai.message.data.toPlainText
 @Suppress("unused")
 object HelperCommand {
     private val owner = PluginMain
-    private val parentPermission = PluginPerm.main
+    private val parentPermission = PluginPerm.any
     private val overrideContext: CommandArgumentContext = EmptyCommandArgumentContext
 
     val all: Array<out Command> by lazy {
@@ -32,7 +32,7 @@ object HelperCommand {
         }.toTypedArray()
     }
 
-    private open class SubCommand(
+    open class SubCommand(
             @ResolveContext(ResolveContext.Kind.COMMAND_NAME) primaryName: String,
             description: String = "no description available",
             @ResolveContext(ResolveContext.Kind.COMMAND_NAME) vararg secondaryNames: String,
@@ -45,14 +45,14 @@ object HelperCommand {
             overrideContext = overrideContext
     )
 
-    private object Ping : SubCommand("ping", "用于测试连通性") {
+    object Ping : SubCommand("ping", "用于测试连通性") {
         @Handler
         suspend fun CommandSender.invoke() {
             sendMessage("pong!")
         }
     }
 
-    private object Developer : SubCommand("data", "开发者信息") {
+    object Developer : SubCommand("data", "开发者信息") {
         @Handler
         suspend fun CommandSender.invoke() {
             sendMessage(
@@ -65,7 +65,7 @@ object HelperCommand {
         }
     }
 
-    private object SendToAdmin : SubCommand("report", "发送消息给管理员") {
+    object SendToAdmin : SubCommand("report", "发送消息给管理员") {
         @Handler
         suspend fun CommandSender.invoke(@Name("消息") vararg msgs: Message) {
             val bot = bot
@@ -86,7 +86,7 @@ object HelperCommand {
         }
     }
 
-    private object Calc : SubCommand("calc", "简易计算器,表达式间不允许出现空格") {
+    object Calc : SubCommand("calc", "简易计算器,表达式间不允许出现空格") {
         @Handler
         suspend fun CommandSender.invoke(@Name("表达式") expr: String) {
             try {

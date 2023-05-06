@@ -3,7 +3,6 @@ package my.ktbot.ktor.vo
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import my.ktbot.ktor.dao.RoleConfig
-import my.ktbot.ktor.dao.Tag
 
 /**
  *  @Date:2023/3/11
@@ -14,6 +13,10 @@ import my.ktbot.ktor.dao.Tag
 sealed class Message {
     var id: Long? = null
     var role: String = ""
+
+    @Serializable
+    @SerialName("default")
+    class Default : Message()
 
     @Serializable
     @SerialName("text")
@@ -41,18 +44,11 @@ sealed class Message {
     @SerialName("roles")
     class Roles(val roles: MutableMap<String, RoleConfig>) : Message()
 
-    @Serializable
-    @SerialName("role")
-    class Role : Message()
-
-    @Serializable
-    @SerialName("his")
-    class History : Message()
 }
 
 @Serializable
 class RoomMessage(
-    val id: String,
-    val name: String,
-    val roles: MutableMap<String, RoleConfig>,
+        val id: String,
+        val name: String,
+        val roles: MutableMap<String, RoleConfig>,
 )

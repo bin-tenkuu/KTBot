@@ -13,7 +13,7 @@ class DiceResult(
 	@JvmField
 	val size: Int = when {
 		size < 1 -> 1
-		size > 99 -> 99
+		size > 999 -> 999
 		else -> size
 	}
 

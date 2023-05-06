@@ -31,7 +31,7 @@ object AdminCommand {
         }.toTypedArray()
     }
 
-    private open class SubCommand(
+    open class SubCommand(
             @ResolveContext(ResolveContext.Kind.COMMAND_NAME) primaryName: String,
             description: String = "no description available",
             @ResolveContext(ResolveContext.Kind.COMMAND_NAME) vararg secondaryNames: String,
@@ -44,7 +44,7 @@ object AdminCommand {
             overrideContext = overrideContext
     )
 
-    private object AdminSend : SubCommand("send", "管理员手动发送消息,普通") {
+    object AdminSend : SubCommand("send", "管理员手动发送消息,普通") {
         @Handler
         suspend fun CommandSender.invoke(@Name("目标") target: String, @Name("消息") vararg msgs: Message) {
             val bot = bot
@@ -74,7 +74,7 @@ object AdminCommand {
         }
     }
 
-    private object SystemInfo : SubCommand("系统信息", "获取系统信息") {
+    object SystemInfo : SubCommand("系统信息", "获取系统信息") {
         @Handler
         suspend fun CommandSender.invoke() {
             sendMessage(SystemInfoUtil())

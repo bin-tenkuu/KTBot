@@ -55,7 +55,7 @@ object PluginMain : MyKotlinPlugin(
         logger.info(Counter.members[2938137849].toString())
 
         arrayOf(
-                CQBotCOC, CQBotCOCSBI, BotProxy,
+                BotProxy,
                 CQBotRepeat,
                 MemberExp,
                 CQBotBan,

@@ -1,13 +1,11 @@
 package my.ktbot.ktor
 
 import io.ktor.http.*
-import io.ktor.http.content.*
 import io.ktor.serialization.kotlinx.*
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.http.content.*
 import io.ktor.server.netty.*
-import io.ktor.server.plugins.cachingheaders.*
 import io.ktor.server.plugins.compression.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.plugins.cors.routing.*
@@ -23,15 +21,19 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.serializer
 import my.ktbot.PluginMain
 import my.ktbot.ktor.dao.RoomConfig
-import my.ktbot.ktor.dao.TRoom
+import my.ktbot.ktor.mirai.ServerCommandSender
 import my.ktbot.ktor.vo.Message
-import my.ktbot.utils.global.databaseGlobal
 import my.ktbot.utils.global.jsonGlobal
 import my.ktbot.utils.toMessage
-import org.ktorm.entity.sequenceOf
+import net.mamoe.mirai.console.command.CommandManager
+import net.mamoe.mirai.console.command.descriptor.ExperimentalCommandDescriptors
+import net.mamoe.mirai.console.util.ConsoleExperimentalApi
+import net.mamoe.mirai.message.data.PlainText
 import java.io.File
 import java.time.Duration
-import kotlin.collections.set
+import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZoneId
 
 /**
  *  @Date:2023/3/11
@@ -50,12 +52,12 @@ fun server(port: Int = 80): ApplicationEngine {
         return regimentServer!!
     }
     val server = embeddedServer(
-        factory = Netty,
-        port = port,
-        host = "0.0.0.0",
-        module = {
-            regimentKtorServer()
-        }
+            factory = Netty,
+            port = port,
+            host = "0.0.0.0",
+            module = {
+                regimentKtorServer()
+            }
     )
     regimentServer = server
     println("Server created...($port)")
@@ -73,19 +75,6 @@ private fun Application.regimentKtorServer() {
     }
     install(Compression)
     install(Routing)
-    install(CachingHeaders) {
-        options { _, content ->
-            val contentType = content.contentType ?: return@options null
-            if (ContentType.Text.Any.match(contentType)) {
-                CachingOptions(
-                    CacheControl.MaxAge(
-                        maxAgeSeconds = 86400,
-                        visibility = CacheControl.Visibility.Public
-                    )
-                )
-            } else null
-        }
-    }
     // install(Resources)
     install(StatusPages) {
         exception<Throwable> { call, cause ->
@@ -104,9 +93,20 @@ private fun Application.regimentKtorServer() {
     }
     install(DataConversion)
     routing {
-        static {
-            files(File("./front/dist/"))
-            default(File("./front/dist/index.html"))
+        staticFiles("/", File("./front/dist/"), "index.html") {
+            enableAutoHeadResponse()
+            cacheControl {
+                listOf(CacheControl.MaxAge(
+                        maxAgeSeconds = Duration.ofDays(1).seconds.toInt(),
+                        visibility = CacheControl.Visibility.Public
+                ))
+            }
+            modify { file, call ->
+                val response = call.response
+                response.lastModified(Instant.ofEpochMilli(file.lastModified()).atZone(ZoneId.systemDefault()))
+                response.header(HttpHeaders.ContentLength, file.length())
+                response.expires(LocalDateTime.now().plusDays(1))
+            }
         }
         route("/api") {
             roomApi()
@@ -131,7 +131,7 @@ private fun Routing.wsChat() {
                     }
                     is Frame.Pong -> continue
                     is Frame.Binary -> continue
-                    is Frame.Text -> jsonGlobal.decodeFromString<Message>(serializer(), frame.readText())
+                    is Frame.Text -> jsonGlobal.decodeFromString(serializer<Message>(), frame.readText())
                 }
                 when (msg) {
                     is Message.Text -> {
@@ -143,13 +143,11 @@ private fun Routing.wsChat() {
                         room.save(msg, role)
                         room.sendAll(msg)
                     }
-                    is Message.Role -> {
+                    is Message.Default -> {
                         role = msg.role
-                        continue
-                    }
-                    is Message.History -> {
-                        val history = room.history(msg.id ?: continue)
+                        val history = room.history(msg.id)
                         sendSerialized(history as Message)
+                        continue
                     }
                     else -> continue
                 }
@@ -191,20 +189,28 @@ suspend fun ApplicationCall.getRoom(): RoomConfig? {
     return room
 }
 
+@OptIn(ExperimentalCommandDescriptors::class, ConsoleExperimentalApi::class)
 private fun handleBot(room: RoomConfig, role: String, msg: String) {
-    GlobalScope.launch {
-        try {
-            for (caller in PluginMain.callers) {
-                val message = caller.invoke(role, msg).toMessage()?.contentToString()
-                if (message.isNullOrBlank()) {
-                    continue
+    if (true) {
+        val sender = ServerCommandSender(room, role)
+        sender.launch {
+            CommandManager.executeCommand(sender, PlainText(msg), true)
+        }
+    } else {
+        GlobalScope.launch {
+            try {
+                for (caller in PluginMain.callers) {
+                    val message = caller.invoke(role, msg).toMessage()?.contentToString()
+                    if (message.isNullOrBlank()) {
+                        continue
+                    }
+                    val text = Message.Text(message)
+                    room.save(text, "bot")
+                    room.sendAll(text)
                 }
-                val text = Message.Text(message)
-                room.save(text, "bot")
-                room.sendAll(text)
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
-        } catch (e: Exception) {
-            e.printStackTrace()
         }
     }
 }
