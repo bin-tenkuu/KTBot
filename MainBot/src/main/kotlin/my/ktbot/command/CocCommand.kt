@@ -46,7 +46,7 @@ object CocCommand {
 
     object D : SubCommand("d", "掷骰子，附带简单计算（+-*），形如 '9#9d9+9'") {
         private val diceRegex = Regex(
-                "^(?:(?<times>\\d+)#)?(?<dice>[^+\\-*d\\d])",
+                """^(?:(?<times>\d+)#)?(?<dice>[+\-*d\d]+)""",
                 RegexOption.IGNORE_CASE
         )
 
@@ -106,7 +106,7 @@ object CocCommand {
     object Dp : SubCommand("dp", "10分钟之内加投骰，只有在上一次.d只有骰子时有效") {
 
         @Handler
-        suspend fun CommandSender.invoke(@Name("数量") num: Int) {
+        suspend fun CommandSender.invoke(@Name("数量") num: Int = 1) {
             val id = user?.id
             var cacheResult: DiceResult = CocService.cache[id] ?: run {
                 sendMessage("10分钟之内没有投任何骰子")
