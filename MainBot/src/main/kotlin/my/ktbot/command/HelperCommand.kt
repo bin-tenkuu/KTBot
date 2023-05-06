@@ -23,7 +23,7 @@ import net.mamoe.mirai.message.data.toPlainText
 @Suppress("unused")
 object HelperCommand {
     private val owner = PluginMain
-    private val parentPermission = PluginPerm.any
+    private val parentPermission = PluginPerm.common
     private val overrideContext: CommandArgumentContext = EmptyCommandArgumentContext
 
     val all: Array<out Command> by lazy {

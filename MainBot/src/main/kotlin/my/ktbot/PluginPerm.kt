@@ -17,7 +17,7 @@ object PluginPerm {
     val root: Permission = instance.rootPermission
 
     @JvmField
-    val any: Permission = PluginMain.parentPermission
+    val common: Permission = register("common", "普通")
 
     @JvmField
     val admin: Permission = register("admin", "管理员权限")

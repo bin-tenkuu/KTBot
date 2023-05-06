@@ -204,11 +204,8 @@ export default {
                     duration: 1000,
                 });
                 this.msgs = []
-                this.send({
-                    type: "default",
-                    id: this.minId,
-                    role: this.role
-                })
+                this.minId = null
+                this.sendHistory()
             }
             /**
              * @param ev {WebSocket.CloseEvent}
