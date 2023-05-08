@@ -18,9 +18,13 @@ sealed class Message {
     @SerialName("default")
     class Default : Message()
 
+    interface Msg {
+        val msg: String
+    }
+
     @Serializable
     @SerialName("text")
-    class Text(val msg: String) : Message() {
+    class Text(override val msg: String) : Message(), Msg {
         constructor(id: Long, msg: String, role: String) : this(msg) {
             this.id = id
             this.role = role
@@ -29,7 +33,16 @@ sealed class Message {
 
     @Serializable
     @SerialName("pic")
-    class Pic(val msg: String) : Message() {
+    class Pic(override val msg: String) : Message(), Msg {
+        constructor(id: Long, msg: String, role: String) : this(msg) {
+            this.id = id
+            this.role = role
+        }
+    }
+
+    @Serializable
+    @SerialName("sys")
+    class Sys(override val msg: String) : Message(), Msg {
         constructor(id: Long, msg: String, role: String) : this(msg) {
             this.id = id
             this.role = role

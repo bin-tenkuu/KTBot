@@ -19,6 +19,8 @@ import org.ktorm.entity.firstOrNull
 import org.ktorm.schema.Column
 import org.ktorm.schema.Table
 import java.time.Duration
+import java.time.LocalDateTime
+import java.time.temporal.ChronoUnit
 
 /**
  * 统计类
@@ -177,7 +179,8 @@ object Counter {
                 if (it.isBaned) {
                     continue
                 }
-                if (System.currentTimeMillis() - it.gmtModified.toEpochMilli() > ttl) {
+                val millis = it.gmtModified.until(LocalDateTime.now(), ChronoUnit.MILLIS)
+                if (millis > ttl) {
                     each.remove()
                 }
             }

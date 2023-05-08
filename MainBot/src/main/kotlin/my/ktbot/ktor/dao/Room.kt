@@ -1,5 +1,6 @@
 package my.ktbot.ktor.dao
 
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.serializer
 import my.ktbot.utils.global.jsonGlobal
 import org.ktorm.entity.Entity
@@ -46,3 +47,10 @@ object RoleSqlType : SqlType<MutableMap<String, RoleConfig>>(Types.VARCHAR, "var
         return jsonGlobal.decodeFromString(serializer, s)
     }
 }
+
+@Serializable
+class RoleConfig(
+        val id: String,
+        var name: String,
+        var color: String = "",
+)

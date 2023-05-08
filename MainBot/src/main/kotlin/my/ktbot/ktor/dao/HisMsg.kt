@@ -20,7 +20,8 @@ interface HisMsg : Entity<HisMsg> {
     companion object : Entity.Factory<HisMsg>()
 }
 
-object THisMsg : Table<HisMsg>(tableName = "HisMsg", entityClass = HisMsg::class) {
+class THisMsg(tableName: String)
+    : Table<HisMsg>(tableName = tableName, entityClass = HisMsg::class, schema = "hismsg") {
     val id: Column<Long> = long("id").bindTo { it.id }.primaryKey()
     val type: Column<String> = varchar("type").bindTo { it.type }
     val msg: Column<String> = varchar("msg").bindTo { it.msg }

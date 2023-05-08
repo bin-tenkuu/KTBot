@@ -15,16 +15,13 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.websocket.*
 import io.ktor.websocket.*
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.channels.ClosedReceiveChannelException
 import kotlinx.coroutines.launch
 import kotlinx.serialization.serializer
-import my.ktbot.PluginMain
 import my.ktbot.ktor.dao.RoomConfig
 import my.ktbot.ktor.mirai.ServerCommandSender
 import my.ktbot.ktor.vo.Message
 import my.ktbot.utils.global.jsonGlobal
-import my.ktbot.utils.toMessage
 import net.mamoe.mirai.console.command.CommandManager
 import net.mamoe.mirai.console.command.descriptor.ExperimentalCommandDescriptors
 import net.mamoe.mirai.console.util.ConsoleExperimentalApi
@@ -61,6 +58,7 @@ fun server(port: Int = 80): ApplicationEngine {
     )
     regimentServer = server
     println("Server created...($port)")
+    RoomConfig
     return server
 }
 
@@ -135,9 +133,15 @@ private fun Routing.wsChat() {
                 }
                 when (msg) {
                     is Message.Text -> {
-                        room.save(msg, role)
-                        handleBot(room, role, msg.msg)
-                        room.sendAll(msg)
+                        if (msg.msg.startsWith("/me")) {
+                            val sysMsg = Message.Sys("*" + role + msg.msg.substring(3))
+                            room.save(sysMsg, role)
+                            room.sendAll(sysMsg)
+                        } else {
+                            room.save(msg, role)
+                            room.sendAll(msg)
+                            handleBot(room, role, msg.msg)
+                        }
                     }
                     is Message.Pic -> {
                         room.save(msg, role)
@@ -191,26 +195,8 @@ suspend fun ApplicationCall.getRoom(): RoomConfig? {
 
 @OptIn(ExperimentalCommandDescriptors::class, ConsoleExperimentalApi::class)
 private fun handleBot(room: RoomConfig, role: String, msg: String) {
-    if (true) {
-        val sender = ServerCommandSender(room, role)
-        sender.launch {
-            CommandManager.executeCommand(sender, PlainText(msg), true)
-        }
-    } else {
-        GlobalScope.launch {
-            try {
-                for (caller in PluginMain.callers) {
-                    val message = caller.invoke(role, msg).toMessage()?.contentToString()
-                    if (message.isNullOrBlank()) {
-                        continue
-                    }
-                    val text = Message.Text(message)
-                    room.save(text, "bot")
-                    room.sendAll(text)
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
+    val sender = ServerCommandSender(room, role)
+    sender.launch {
+        CommandManager.executeCommand(sender, PlainText(msg), true)
     }
 }

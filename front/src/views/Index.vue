@@ -11,6 +11,14 @@
             <br>
             <el-button type="primary" @click="connect">进入房间</el-button>
         </div>
+        <div ref="editBtn" style="display: none">
+            <el-button>
+                <el-icon>
+                    <Edit/>
+                </el-icon>
+            </el-button>
+        </div>
+        <div ref="chatLogs" id="chatLogs"></div>
         <el-table :data="msgs" table-layout="auto" stripe>
             <el-table-column label="角色">
                 <template #default="{row}">
@@ -27,25 +35,6 @@
                             <br>
                         </template>
                     </template>
-                </template>
-            </el-table-column>
-            <el-table-column prop="msg" label="消息">
-                <template #default="{row}">
-                    <template v-if="row.type==='text'">
-                        <span v-html="row.msg"></span>
-                    </template>
-                    <template v-else-if="row.type==='pic'">
-                        <img alt="img" :src="row.msg"/>
-                    </template>
-                </template>
-            </el-table-column>
-            <el-table-column label="操作">
-                <template #default="{row}">
-                    <el-button v-if="row.type==='text'||row.role===role" @click="editMsg(row.id)">
-                        <el-icon>
-                            <Edit/>
-                        </el-icon>
-                    </el-button>
                 </template>
             </el-table-column>
         </el-table>
@@ -118,11 +107,17 @@ export default {
         host: String
     },
     setup() {
-        let textarea = ref()
-        let picture = ref()
         return {
-            textarea,
-            picture
+            textarea: ref(),
+            picture: ref(),
+            /**
+             * @type {HTMLDivElement}
+             */
+            editBtn: ref(),
+            /**
+             * @type {HTMLDivElement}
+             */
+            chatLogs: ref(),
         }
     },
     data() {
@@ -148,7 +143,7 @@ export default {
                 id: "default",
                 name: "default",
                 /**
-                 * @type {Record<string, {id: string, name: string, tags: Array<{name: string, type: string, color: string}>}>}
+                 * @type {Record<string, {id: string, name: string, color: string}>}
                  */
                 roles: {},
             },
@@ -203,6 +198,7 @@ export default {
                     type: 'success',
                     duration: 1000,
                 });
+                this.chatLogs.innerHTML = ""
                 this.msgs = []
                 this.minId = null
                 this.sendHistory()
@@ -238,25 +234,64 @@ export default {
             }
             ws.onmessage = (ev) => {
                 const json = JSON.parse(ev.data);
-                const setMsg = (json) => {
-                    if (json.type === 'msgs') {
-                        for (const msg of Array.from(json.msgs)) {
-                            setMsg(msg)
-                        }
-                    } else {
-                        if (this.minId > json.id) {
-                            this.minId = json.id
-                        }
-                        json.msg = json.msg.replace(/\n/g, "<br/>")
-                        this.msgs[json.id] = json
-                    }
-                }
                 if (json.type === 'roles') {
                     this.room.roles = json["roles"];
                 } else {
-                    setMsg(json)
+                    this.setMsg(json)
                 }
             }
+        },
+        setMsg(json) {
+            if (json.type === 'msgs') {
+                for (const msg of Array.from(json.msgs)) {
+                    this.setMsg(msg)
+                }
+            } else {
+                if (this.minId < json.id) {
+                    for (let i = this.minId; i <= json.id; i++) {
+                        this.chatLogs.appendChild(document.createElement("div"))
+                    }
+                    this.minId = json.id
+                }
+                let element = this.chatLogs.children[json.id];
+                this.setInnerMsg(element, json)
+                this.msgs[json.id] = json
+            }
+        },
+        /**
+         *
+         * @param element {HTMLDivElement}
+         * @param msg
+         */
+        setInnerMsg(element, msg) {
+            const role = this.room.roles[msg.role]
+            let innerHTML = `&lt;${role.name}&gt;: &nbsp;`
+            element.setAttribute("style", `color: ${role.color};`)
+            switch (msg.type) {
+                case "text": {
+                    if (msg.role === this.role) {
+                        let editBtn = this.editBtn.firstChild.cloneNode(true);
+                        editBtn.addEventListener("click", () => {
+                            this.editMsg(msg.id)
+                        })
+                        element.appendChild(editBtn)
+                    }
+                    innerHTML += msg.msg.replace(/\n/g, "<br/>")
+                    break
+                }
+                case "pic": {
+                    innerHTML += `<img alt="img" src="${msg.msg}"/>`
+                    break
+                }
+                case "sys": {
+                    innerHTML = `<i>${msg.msg}</i>`
+                    break
+                }
+                default:
+                    innerHTML += "未知消息类型: " + msg.type
+                    break
+            }
+            element.innerHTML += innerHTML
         },
         disconnect() {
             if (this.ws == null) {
@@ -277,6 +312,8 @@ export default {
             })
         },
         editMsg(id) {
+            //todo: 未知bug
+            console.log("editMsg", id)
             this.id = id
             this.message = this.msgs[id].msg
         },
@@ -340,6 +377,19 @@ export default {
     text-align: left;
     color: #2c3e50;
     margin: 5px;
+}
+
+#chatLogs > div {
+    padding-left: 2em;
+    text-indent: -2em;
+}
+
+#chatLogs > div:hover > button {
+    display: inline;
+}
+
+#chatLogs > div > button {
+    display: none;
 }
 
 img {

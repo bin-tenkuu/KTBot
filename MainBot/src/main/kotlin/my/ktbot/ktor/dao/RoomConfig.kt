@@ -6,16 +6,13 @@ import io.ktor.utils.io.core.*
 import my.ktbot.ktor.vo.Message
 import my.ktbot.utils.Sqlite.limit
 import my.ktbot.utils.global.databaseGlobal
-import org.ktorm.database.Database
 import org.ktorm.dsl.*
 import org.ktorm.entity.filter
 import org.ktorm.entity.map
 import org.ktorm.entity.sequenceOf
 import org.ktorm.entity.sortedBy
-import org.ktorm.support.sqlite.SQLiteDialect
-import org.ktorm.support.sqlite.insertReturning
+import org.ktorm.support.postgresql.insertReturning
 import java.io.ByteArrayInputStream
-import java.io.File
 import java.io.OutputStream
 import java.nio.charset.StandardCharsets
 
@@ -47,24 +44,20 @@ class RoomConfig(
             room.roles = value
         }
     val clients = HashSet<DefaultWebSocketServerSession>()
-    private val dataSource: Database = Database.connect(
-            url = "jdbc:sqlite:./${id}.db",
-            driver = "org.sqlite.JDBC",
-            dialect = SQLiteDialect(),
-            generateSqlInUpperCase = true
-    )
+    private val table = THisMsg(id)
 
     init {
-        dataSource.useConnection { conn ->
+        databaseGlobal.useConnection { conn ->
             conn.createStatement().use {
-                it.executeUpdate("""
-                    CREATE TABLE IF NOT EXISTS HisMsg(
-                    id INTEGER PRIMARY KEY AUTOINCREMENT ,
-                    type TEXT,
-                    msg TEXT,
-                    role TEXT
-                    )
-                """.trimIndent())
+                it.executeUpdate("""create table if not exists hismsg."$id"
+                    (
+                        id        bigserial
+                                primary key,
+                        type      char(4)                                not null,
+                        msg       text                                   not null,
+                        role      varchar                                not null,
+                        send_time timestamp(0) default CURRENT_TIMESTAMP not null
+                    );""".trimIndent())
             }
         }
     }
@@ -79,7 +72,6 @@ class RoomConfig(
                     save(msg.id!!, msg.msg, role)
                 }
             }
-
             is Message.Pic -> {
                 if (msg.id == null) {
                     msg.id = save("pic", msg.msg, role)
@@ -87,13 +79,19 @@ class RoomConfig(
                     save(msg.id!!, msg.msg, role)
                 }
             }
-
+            is Message.Sys -> {
+                if (msg.id == null) {
+                    msg.id = save("sys", msg.msg, role)
+                } else {
+                    save(msg.id!!, msg.msg, role)
+                }
+            }
             else -> return
         }
     }
 
     private fun save(type: String, msg: String, role: String): Long {
-        return dataSource.insertReturning(THisMsg, THisMsg.id) {
+        return databaseGlobal.insertReturning(table, table.id) {
             set(it.type, type)
             set(it.msg, msg)
             set(it.role, role)
@@ -101,7 +99,7 @@ class RoomConfig(
     }
 
     private fun save(id: Long, msg: String, role: String) {
-        dataSource.update(THisMsg) {
+        databaseGlobal.update(table) {
             set(it.msg, msg)
             set(it.role, role)
             where {
@@ -129,7 +127,11 @@ class RoomConfig(
     }
 
     fun delete() {
-        File("${room.id}.db").delete()
+        databaseGlobal.useConnection { conn ->
+            conn.createStatement().use {
+                it.executeUpdate("""drop table if exists hismsg."$id";""".trimIndent())
+            }
+        }
         room.delete()
         close()
     }
@@ -143,7 +145,7 @@ class RoomConfig(
     }
 
     fun history(id: Long?): Message.Msgs {
-        var sequence = dataSource.sequenceOf(THisMsg)
+        var sequence = databaseGlobal.sequenceOf(table)
         if (id != null) {
             sequence = sequence.filter { it.id less id }
         }
@@ -151,9 +153,10 @@ class RoomConfig(
                 .limit(20)
                 .sortedBy { it.id.desc() }
                 .map {
-                    when (it.type) {
+                    when (it.type.trim()) {
                         "pic" -> Message.Pic(it.id, it.msg, it.role)
                         "text" -> Message.Text(it.id, it.msg, it.role)
+                        "sys" -> Message.Sys(it.id, it.msg, it.role)
                         else -> Message.Msgs()
                     }
                 }
@@ -161,21 +164,19 @@ class RoomConfig(
     }
 
     fun historyAll(outputStream: OutputStream) {
+        // TODO: 导出自定义模板
         val builder = StringBuilder()
         val roles: Map<String, RoleConfig> = room.roles
-        for (msg in dataSource.sequenceOf(THisMsg)) {
+        for (msg in databaseGlobal.sequenceOf(table)) {
             val config = roles[msg.role]
             if (config != null) {
-                for (tag in config.tags) {
-                    builder.append("<span>${tag.name}</span>")
-                }
-            } else {
-                builder.append("<span>${msg.role}</span>")
+                builder.append("<span style='color: ${config.color}'>${config.name}</span>")
             }
             builder.append(":")
             when (msg.type) {
                 "text" -> builder.append("<span>${msg.msg}</span>")
                 "pic" -> builder.append("<img src=\"${msg.msg}\"/>")
+                "sys" -> builder.append(msg.msg)
                 else -> {}
             }
             builder.append("<br/>\n")
