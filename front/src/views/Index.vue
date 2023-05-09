@@ -102,7 +102,6 @@ export default {
     data() {
         document.addEventListener("keyup", (e) => {
             if (e.key === "Enter") {
-                console.log(e)
                 if (e.ctrlKey) {
                     if (e.altKey) {
                         this.sendBase64Image()
@@ -132,6 +131,7 @@ export default {
             ws: null,
             role: "a",
             minId: null,
+            maxId: null,
             /**
              * @type {[{type:string,msg:string,role:string}]}
              */
@@ -180,6 +180,7 @@ export default {
                 this.chatLogs.innerHTML = ""
                 this.msgs = []
                 this.minId = null
+                this.maxId = null
                 this.sendHistory()
             }
             /**
@@ -226,10 +227,11 @@ export default {
                     this.setMsg(msg)
                 }
             } else {
-                if (this.chatLogs.childElementCount < json.id) {
-                    for (let i = this.chatLogs.childElementCount; i <= json.id; i++) {
+                if (this.maxId < json.id) {
+                    for (let i = this.maxId; i <= json.id; i++) {
                         this.chatLogs.appendChild(document.createElement("div"))
                     }
+                    this.maxId = json.id
                 }
                 if (this.minId == null || this.minId > json.id) {
                     this.minId = json.id
@@ -251,6 +253,9 @@ export default {
             switch (msg.type) {
                 case "text": {
                     if (msg.role === this.role) {
+                        /**
+                         * @type {HTMLButtonElement}
+                         */
                         let editBtn = this.editBtn.firstChild.cloneNode(true);
                         editBtn.setAttribute("class", "el-icon")
                         element.appendChild(editBtn)

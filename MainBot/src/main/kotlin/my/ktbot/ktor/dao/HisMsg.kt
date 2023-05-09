@@ -21,9 +21,13 @@ interface HisMsg : Entity<HisMsg> {
 }
 
 class THisMsg(tableName: String)
-    : Table<HisMsg>(tableName = tableName, entityClass = HisMsg::class, schema = "hismsg") {
+    : Table<HisMsg>(tableName = tableName, entityClass = HisMsg::class/*, schema = "hismsg"*/) {
     val id: Column<Long> = long("id").bindTo { it.id }.primaryKey()
     val type: Column<String> = varchar("type").bindTo { it.type }
     val msg: Column<String> = varchar("msg").bindTo { it.msg }
     val role: Column<String> = varchar("role").bindTo { it.role }
+
+    companion object {
+        val Instence = THisMsg("HisMsg")
+    }
 }

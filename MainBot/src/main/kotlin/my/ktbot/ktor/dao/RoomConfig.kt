@@ -5,12 +5,15 @@ import io.ktor.utils.io.core.*
 import my.ktbot.ktor.vo.Message
 import my.ktbot.utils.Sqlite.limit
 import my.ktbot.utils.global.databaseGlobal
+import org.ktorm.database.Database
 import org.ktorm.dsl.*
 import org.ktorm.entity.filter
 import org.ktorm.entity.map
 import org.ktorm.entity.sequenceOf
 import org.ktorm.entity.sortedBy
-import org.ktorm.support.postgresql.insertReturning
+import org.ktorm.support.sqlite.SQLiteDialect
+import org.ktorm.support.sqlite.insertReturning
+import java.io.File
 import java.io.OutputStream
 import java.nio.charset.StandardCharsets
 import java.util.zip.ZipEntry
@@ -38,20 +41,25 @@ class RoomConfig(
     val roles: Map<String, RoleConfig>
         get() = room.roles
     val clients = HashSet<DefaultWebSocketServerSession>()
-    private val table = THisMsg(id)
+//    private val table = THisMsg(id)
+    private val dataSource: Database = Database.connect(
+            url = "jdbc:sqlite:./${id}.db",
+            driver = "org.sqlite.JDBC",
+            dialect = SQLiteDialect(),
+            generateSqlInUpperCase = true
+    )
 
     init {
-        databaseGlobal.useConnection { conn ->
+        dataSource.useConnection { conn ->
             conn.createStatement().use {
-                it.executeUpdate("""create table if not exists hismsg."$id"
-                    (
-                        id        bigserial
-                                primary key,
-                        type      char(4)                                not null,
-                        msg       text                                   not null,
-                        role      varchar                                not null,
-                        send_time timestamp(0) default CURRENT_TIMESTAMP not null
-                    );""".trimIndent())
+                it.executeUpdate("""
+                    CREATE TABLE IF NOT EXISTS HisMsg(
+                    id INTEGER PRIMARY KEY AUTOINCREMENT ,
+                    type TEXT,
+                    msg TEXT,
+                    role TEXT
+                    )
+                """.trimIndent())
             }
         }
     }
@@ -85,7 +93,7 @@ class RoomConfig(
     }
 
     private fun save(type: String, msg: String, role: String): Long {
-        return databaseGlobal.insertReturning(table, table.id) {
+        return dataSource.insertReturning(THisMsg.Instence, THisMsg.Instence.id) {
             set(it.type, type)
             set(it.msg, msg)
             set(it.role, role)
@@ -93,7 +101,7 @@ class RoomConfig(
     }
 
     private fun save(id: Long, msg: String, role: String) {
-        databaseGlobal.update(table) {
+        dataSource.update(THisMsg.Instence) {
             set(it.msg, msg)
             set(it.role, role)
             where {
@@ -121,11 +129,12 @@ class RoomConfig(
     }
 
     fun delete() {
-        databaseGlobal.useConnection { conn ->
-            conn.createStatement().use {
-                it.executeUpdate("""drop table if exists hismsg."$id";""".trimIndent())
-            }
-        }
+        File("${room.id}.db").delete()
+//        databaseGlobal.useConnection { conn ->
+//            conn.createStatement().use {
+//                it.executeUpdate("""drop table if exists hismsg."$id";""".trimIndent())
+//            }
+//        }
         room.delete()
         close()
     }
@@ -138,7 +147,7 @@ class RoomConfig(
     }
 
     fun history(id: Long?): Message.Msgs {
-        var sequence = databaseGlobal.sequenceOf(table)
+        var sequence = dataSource.sequenceOf(THisMsg.Instence)
         if (id != null) {
             sequence = sequence.filter { it.id less id }
         }
@@ -160,7 +169,7 @@ class RoomConfig(
         // TODO: 导出自定义模板
         val builder = StringBuilder()
         val roles: Map<String, RoleConfig> = room.roles
-        for (msg in databaseGlobal.sequenceOf(table)) {
+        for (msg in dataSource.sequenceOf(THisMsg.Instence)) {
             val config = roles[msg.role]
             val name = config?.name ?: msg.role
             val color = config?.color ?: "black"

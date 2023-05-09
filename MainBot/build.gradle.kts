@@ -22,9 +22,9 @@ dependencies {
     testImplementation("com.github.ajalt.clikt:clikt:3.5.2")
     // sqlite
     implementation("org.postgresql:postgresql:42.5.4")
-//    implementation("org.xerial:sqlite-jdbc:3.40.1.0")
+    implementation("org.xerial:sqlite-jdbc:3.40.1.0")
     implementation("org.ktorm:ktorm-core:3.6.0")
-//    implementation("org.ktorm:ktorm-support-sqlite:3.6.0")
+    implementation("org.ktorm:ktorm-support-sqlite:3.6.0")
     implementation("org.ktorm:ktorm-support-postgresql:3.6.0")
     // implementation("org.ktorm:ktorm-ksp-api:1.0.0-RC3")
     // ksp("org.ktorm:ktorm-ksp-compiler:1.0.0-RC3")
