@@ -51,10 +51,10 @@ sealed class Message {
 
     @Serializable
     @SerialName("msgs")
-    class Msgs(val msgs: List<Message> = ArrayList(0)) : Message()
+    class Msgs(@Suppress("unused") val msgs: List<Message> = ArrayList(0)) : Message()
 
     @Serializable
     @SerialName("roles")
-    class Roles(val roles: MutableMap<String, RoleConfig>) : Message()
+    class Roles(@Suppress("unused") val roles: Map<String, RoleConfig>) : Message()
 
 }

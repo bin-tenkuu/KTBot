@@ -57,7 +57,7 @@ dependencies {
     // 分词器
     implementation("com.huaban:jieba-analysis:1.0.2")
     // hutool全家桶: https://hutool.cn/docs/#/
-    implementation("cn.hutool:hutool-core:5.8.15")
+//    implementation("cn.hutool:hutool-core:5.8.15")
     // openAI: https://chat.openai.com/chat
     testImplementation("com.theokanning.openai-gpt3-java:client:0.11.1")
     // html 库

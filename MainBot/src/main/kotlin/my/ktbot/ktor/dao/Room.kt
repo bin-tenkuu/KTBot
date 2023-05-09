@@ -20,16 +20,16 @@ import java.sql.Types
 interface Room : Entity<Room> {
     var id: String
     var name: String
-    var roles: MutableMap<String, RoleConfig>
+    var roles: Map<String, RoleConfig>
 
     companion object : Entity.Factory<Room>()
 }
 
 @Serializable
 class RoomMessage(
-        var id: String,
-        var name: String,
-        var roles: MutableMap<String, RoleConfig>,
+        val id: String,
+        val name: String,
+        val roles: Map<String, RoleConfig>,
 ) {
     constructor(room: Room) : this(room.id, room.name, room.roles)
 
@@ -46,10 +46,10 @@ object TRoom : Table<Room>(tableName = "room", entityClass = Room::class) {
     val roles = registerColumn("roles", RoleSqlType).bindTo { it.roles }
 }
 
-object RoleSqlType : SqlType<MutableMap<String, RoleConfig>>(Types.VARCHAR, "varchar") {
-    private val serializer = serializer<MutableMap<String, RoleConfig>>()
+object RoleSqlType : SqlType<Map<String, RoleConfig>>(Types.VARCHAR, "varchar") {
+    private val serializer = serializer<Map<String, RoleConfig>>()
 
-    override fun doSetParameter(ps: PreparedStatement, index: Int, parameter: MutableMap<String, RoleConfig>) {
+    override fun doSetParameter(ps: PreparedStatement, index: Int, parameter: Map<String, RoleConfig>) {
         val s = jsonGlobal.encodeToString(serializer, parameter)
         ps.setObject(index, PGobject().apply {
             type = "json"
@@ -57,7 +57,7 @@ object RoleSqlType : SqlType<MutableMap<String, RoleConfig>>(Types.VARCHAR, "var
         }, Types.OTHER)
     }
 
-    override fun doGetResult(rs: ResultSet, index: Int): MutableMap<String, RoleConfig> {
+    override fun doGetResult(rs: ResultSet, index: Int): Map<String, RoleConfig> {
         val s = rs.getString(index)
         return jsonGlobal.decodeFromString(serializer, s)
     }
@@ -66,6 +66,6 @@ object RoleSqlType : SqlType<MutableMap<String, RoleConfig>>(Types.VARCHAR, "var
 @Serializable
 class RoleConfig(
         val id: String,
-        var name: String,
-        var color: String = "",
+        val name: String,
+        val color: String = "",
 )

@@ -1,6 +1,5 @@
 package my.ktbot.ktor.dao
 
-import cn.hutool.core.compress.ZipWriter
 import io.ktor.server.websocket.*
 import io.ktor.utils.io.core.*
 import my.ktbot.ktor.vo.Message
@@ -12,9 +11,10 @@ import org.ktorm.entity.map
 import org.ktorm.entity.sequenceOf
 import org.ktorm.entity.sortedBy
 import org.ktorm.support.postgresql.insertReturning
-import java.io.ByteArrayInputStream
 import java.io.OutputStream
 import java.nio.charset.StandardCharsets
+import java.util.zip.ZipEntry
+import java.util.zip.ZipOutputStream
 
 /**
  * @author bin
@@ -35,7 +35,7 @@ class RoomConfig(
     val id: String get() = room.id
     val name: String
         get() = room.name
-    val roles: MutableMap<String, RoleConfig>
+    val roles: Map<String, RoleConfig>
         get() = room.roles
     val clients = HashSet<DefaultWebSocketServerSession>()
     private val table = THisMsg(id)
@@ -134,7 +134,6 @@ class RoomConfig(
      * 关闭时清空数据，需要外部发送关闭 clients 消息
      */
     override fun close() {
-        room.roles.clear()
         clients.clear()
     }
 
@@ -163,20 +162,25 @@ class RoomConfig(
         val roles: Map<String, RoleConfig> = room.roles
         for (msg in databaseGlobal.sequenceOf(table)) {
             val config = roles[msg.role]
-            if (config != null) {
-                builder.append("<span style='color: ${config.color}'>${config.name}</span>")
-            }
-            builder.append(":")
+            val name = config?.name ?: msg.role
+            val color = config?.color ?: "black"
+            builder.append("<div style=\">").append(color).append("\">")
+            builder.append("&lt;${name}&gt;: &nbsp;")
             when (msg.type) {
-                "text" -> builder.append("<span>${msg.msg}</span>")
-                "pic" -> builder.append("<img src=\"${msg.msg}\"/>")
-                "sys" -> builder.append(msg.msg)
+                "text" -> builder.append(msg.msg)
+                "pic" -> builder.append("<img alt=\"img\" src=\"${msg.msg}\"/>")
+                "sys" -> builder.append("<i>").append(msg.msg).append("</i>")
                 else -> {}
             }
-            builder.append("<br/>\n")
+            builder.append("</div>\n")
         }
-        ZipWriter.of(outputStream, StandardCharsets.UTF_8).use {
-            it.add("index.html", ByteArrayInputStream(builder.toString().toByteArray()))
+        ZipOutputStream(outputStream, StandardCharsets.UTF_8).use {
+            it.setComment("导出历史记录")
+            it.setLevel(9)
+            it.putNextEntry(ZipEntry("index.html"))
+            it.write(builder.toString().toByteArray())
+            it.closeEntry()
+            it.flush()
         }
     }
 }

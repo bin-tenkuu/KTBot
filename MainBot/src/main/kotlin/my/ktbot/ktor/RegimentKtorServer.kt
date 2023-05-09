@@ -18,6 +18,7 @@ import io.ktor.websocket.*
 import kotlinx.coroutines.channels.ClosedReceiveChannelException
 import kotlinx.coroutines.launch
 import kotlinx.serialization.serializer
+import my.ktbot.ktor.dao.RoleConfig
 import my.ktbot.ktor.dao.RoomConfig
 import my.ktbot.ktor.mirai.ServerCommandSender
 import my.ktbot.ktor.vo.Message
@@ -134,6 +135,15 @@ private fun Routing.wsChat() {
                     is Frame.Pong -> continue
                     is Frame.Binary -> continue
                     is Frame.Text -> jsonGlobal.decodeFromString(serializer<Message>(), frame.readText())
+                }
+                if (msg is Message.Msg && role !in room.roles) {
+                    val color = room.roles["default"]?.color ?: run {
+                        close(CloseReason(CloseReason.Codes.VIOLATED_POLICY, "未设置允许默认角色"))
+                        return@webSocket
+                    }
+                    room.room.roles += role to RoleConfig(role, role, color)
+                    room.save()
+                    room.sendAll(Message.Roles(room.room.roles))
                 }
                 when (msg) {
                     is Message.Text -> {
