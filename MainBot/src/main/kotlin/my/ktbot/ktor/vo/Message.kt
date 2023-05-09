@@ -51,10 +51,21 @@ sealed class Message {
 
     @Serializable
     @SerialName("msgs")
-    class Msgs(@Suppress("unused") val msgs: List<Message> = ArrayList(0)) : Message()
+    @Suppress("unused")
+    class Msgs(val msgs: List<Message> = ArrayList(0)) : Message()
 
     @Serializable
     @SerialName("roles")
-    class Roles(@Suppress("unused") val roles: Map<String, RoleConfig>) : Message()
+    @Suppress("unused")
+    class Roles(val roles: Map<String, RoleConfig>) : Message()
+
+    @Serializable
+    @SerialName("role")
+    @Suppress("unused")
+    class Role(val name: String, val color: String = "") : Message() {
+        constructor(role: RoleConfig) : this(role.name, role.color) {
+            this.role = role.id
+        }
+    }
 
 }

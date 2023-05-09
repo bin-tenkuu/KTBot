@@ -141,7 +141,8 @@ private fun Routing.wsChat() {
                         close(CloseReason(CloseReason.Codes.VIOLATED_POLICY, "未设置允许默认角色"))
                         return@webSocket
                     }
-                    room.room.roles += role to RoleConfig(role, role, color)
+                    val config = RoleConfig(role, role, color)
+                    room.room.roles += role to config
                     room.save()
                     room.sendAll(Message.Roles(room.room.roles))
                 }
