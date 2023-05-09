@@ -12,32 +12,11 @@
             <el-button type="primary" @click="connect">进入房间</el-button>
         </div>
         <div ref="editBtn" style="display: none">
-            <el-button>
-                <el-icon>
-                    <Edit/>
-                </el-icon>
-            </el-button>
+            <el-icon>
+                <Edit/>
+            </el-icon>
         </div>
         <div ref="chatLogs" id="chatLogs"></div>
-        <el-table :data="msgs" table-layout="auto" stripe>
-            <el-table-column label="角色">
-                <template #default="{row}">
-                    {{ role.name }}
-                    <template v-for="(role,index) in getRole(row.role)" :key="index">
-                        <template v-for="(tag,index) in role.tags" :key="index">
-                            <el-tag
-                                    :type="tag.type??''"
-                                    :color="tag.color??''"
-                                    size="large"
-                                    effect="light">
-                                {{ tag.name }}
-                            </el-tag>
-                            <br>
-                        </template>
-                    </template>
-                </template>
-            </el-table-column>
-        </el-table>
         <el-divider>
             <el-icon>
                 <StarFilled/>
@@ -271,10 +250,13 @@ export default {
                 case "text": {
                     if (msg.role === this.role) {
                         let editBtn = this.editBtn.firstChild.cloneNode(true);
-                        editBtn.addEventListener("click", () => {
+                        editBtn.setAttribute("class", "el-icon")
+                        element.appendChild(editBtn)
+                        element.setAttribute("class", "edit")
+                        element.addEventListener("click", () => {
+                            console.log("click", msg.id)
                             this.editMsg(msg.id)
                         })
-                        element.appendChild(editBtn)
                     }
                     innerHTML += msg.msg.replace(/\n/g, "<br/>")
                     break
@@ -312,8 +294,6 @@ export default {
             })
         },
         editMsg(id) {
-            //todo: 未知bug
-            console.log("editMsg", id)
             this.id = id
             this.message = this.msgs[id].msg
         },
@@ -380,15 +360,26 @@ export default {
 }
 
 #chatLogs > div {
-    padding-left: 2em;
+    padding: 0.3em 0 0.5em 2em;
     text-indent: -2em;
 }
 
-#chatLogs > div:hover > button {
-    display: inline;
+#chatLogs > div.edit:hover {
+    border: 1px solid #a0cfff;
+    cursor: pointer;
 }
 
-#chatLogs > div > button {
+#chatLogs > div.edit {
+    border: 0;
+    outline: 0;
+}
+
+#chatLogs > div:hover > .el-icon {
+    display: inline;
+    color: #a0cfff;
+}
+
+#chatLogs > div > .el-icon {
     display: none;
 }
 
