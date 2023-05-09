@@ -226,10 +226,12 @@ export default {
                     this.setMsg(msg)
                 }
             } else {
-                if (this.minId < json.id) {
-                    for (let i = this.minId; i <= json.id; i++) {
+                if (this.chatLogs.childElementCount < json.id) {
+                    for (let i = this.chatLogs.childElementCount; i <= json.id; i++) {
                         this.chatLogs.appendChild(document.createElement("div"))
                     }
+                }
+                if (this.minId == null || this.minId > json.id) {
                     this.minId = json.id
                 }
                 let element = this.chatLogs.children[json.id];
@@ -272,7 +274,7 @@ export default {
                     innerHTML += "未知消息类型: " + msg.type
                     break
             }
-            element.innerHTML += innerHTML
+            element.innerHTML = innerHTML
         },
         disconnect() {
             if (this.ws == null) {
@@ -357,6 +359,10 @@ export default {
     text-align: left;
     color: #2c3e50;
     margin: 5px;
+}
+
+#chatLogs > div:empty {
+    display: none;
 }
 
 #chatLogs > div {
