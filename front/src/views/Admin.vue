@@ -40,8 +40,13 @@
                 <el-color-picker v-model="row.color" show-alpha></el-color-picker>
             </template>
         </el-table-column>
-        <el-table-column fixed="right" label="操作" width="120">
+        <el-table-column fixed="right" label="操作" width="240">
             <template #default="{row}">
+                <el-button
+                        type="info"
+                        @click="editRole(row.id)">
+                    编辑
+                </el-button>
                 <el-button
                         type="danger"
                         @click="deleteRole(row.id)">
@@ -148,15 +153,23 @@ export default {
                 });
             })
         },
+        editRole(id) {
+            let roleDialog = this.roleDialog;
+            roleDialog.id = id;
+            roleDialog.name = this.room.roles[id].name;
+            this.roleDialog.visible = true
+        },
         addRole() {
             let roleDialog = this.roleDialog;
             const {id, name} = roleDialog;
-            this.room.roles[id] = {
-                id: id,
-                name: name,
+            /**@type {{id: string, name: string, color: string}}*/
+            let role = this.room.roles[id] ?? {
+                id: "",
+                name: "",
                 color: "",
             }
-            console.log(this.room.roles[id])
+            role.id = id;
+            role.name = name;
             roleDialog.visible = false
         },
         deleteRole(id) {

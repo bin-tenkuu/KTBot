@@ -44,7 +44,7 @@
                         :disabled="message.length<1"
                         @click="sendMessage"
                 >
-                    发送 <kbd>⌘/Ctrl</kbd>+<kbd>S</kbd>
+                    {{ id ? "修改" : "发送" }}
                 </el-button>
                 <el-button type="primary" @click="sendBase64Image">发送图片</el-button>
             </el-space>
@@ -283,6 +283,7 @@ export default {
             this.ws = null
         },
         clear() {
+            this.id = null
             this.message = "";
             this.image = null
         },
@@ -384,6 +385,10 @@ export default {
 }
 
 img {
+    width: 10%;
+    max-width: 10%;
+    height: 10%;
+    max-height: 10%;
     vertical-align: top;
 }
 
