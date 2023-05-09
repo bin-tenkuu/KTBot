@@ -1,5 +1,5 @@
 <template id="app">
-    <div class="el-main">
+    <div ref="main" class="el-main">
         <div v-if="ws==null">
             <el-input v-model="room.id" style="width: 20em" clearable>
                 <template #prepend>房间：</template>
@@ -97,6 +97,7 @@ export default {
              * @type {HTMLDivElement}
              */
             chatLogs: ref(),
+            main: ref()
         }
     },
     data() {
@@ -172,6 +173,10 @@ export default {
             })
             const ws = this.ws = new WebSocket(`ws://${this.host}/ws/${this.room.id}`);
             ws.onopen = () => {
+                this.main.addEventListener("scroll", () => {
+                    console.log(this.main.scrollTop, this.main.clientHeight);
+                    console.log(this.main.scrollTop / this.main.clientHeight);
+                })
                 ElMessage({
                     message: `连接成功`,
                     type: 'success',
@@ -223,8 +228,12 @@ export default {
         },
         setMsg(json) {
             if (json.type === 'msgs') {
-                for (const msg of Array.from(json.msgs)) {
-                    this.setMsg(msg)
+                try {
+                    for (const msg of Array.from(json.msgs)) {
+                        this.setMsg(msg)
+                    }
+                } catch (e) {
+                    console.error(json, e)
                 }
             } else {
                 if (this.maxId < json.id) {
