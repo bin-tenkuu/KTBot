@@ -6,10 +6,9 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.websocket.*
-import my.ktbot.ktor.dao.Room
 import my.ktbot.ktor.dao.RoomConfig
+import my.ktbot.ktor.dao.RoomMessage
 import my.ktbot.ktor.vo.Message
-import my.ktbot.ktor.vo.RoomMessage
 
 /**
  *  @Date:2023/3/18
@@ -36,19 +35,15 @@ fun Route.roomApi() {
         }
         get r@{
             val room = call.getRoom() ?: return@r
-            val message = RoomMessage(room.room.id, room.room.name, room.room.roles)
+            val message = RoomMessage(room.room)
             call.respond(HttpStatusCode.OK, message)
         }
         post r@{
             val receive = call.receive<RoomMessage>()
             val room = RoomConfig[receive.id]
             if (room == null) {
-                val config = RoomConfig(Room {
-                    id = receive.id
-                    name = receive.name
-                    roles = receive.roles
-                })
-                RoomConfig[receive.id] = config
+                val config = RoomConfig(receive.toRoom())
+                RoomConfig[config.id] = config
                 config.insert()
             } else {
                 room.room.name = receive.name

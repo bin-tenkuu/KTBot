@@ -25,6 +25,21 @@ interface Room : Entity<Room> {
     companion object : Entity.Factory<Room>()
 }
 
+@Serializable
+class RoomMessage(
+        var id: String,
+        var name: String,
+        var roles: MutableMap<String, RoleConfig>,
+) {
+    constructor(room: Room) : this(room.id, room.name, room.roles)
+
+    fun toRoom() = Room {
+        id = this.id
+        name = this.name
+        roles = this.roles
+    }
+}
+
 object TRoom : Table<Room>(tableName = "room", entityClass = Room::class) {
     val id: Column<String> = varchar("id").bindTo { it.id }.primaryKey()
     val name: Column<String> = varchar("name").bindTo { it.name }

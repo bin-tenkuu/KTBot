@@ -58,10 +58,3 @@ sealed class Message {
     class Roles(val roles: MutableMap<String, RoleConfig>) : Message()
 
 }
-
-@Serializable
-class RoomMessage(
-        val id: String,
-        val name: String,
-        val roles: MutableMap<String, RoleConfig>,
-)

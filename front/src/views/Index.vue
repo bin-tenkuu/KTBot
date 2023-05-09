@@ -254,7 +254,6 @@ export default {
                         element.appendChild(editBtn)
                         element.setAttribute("class", "edit")
                         element.addEventListener("click", () => {
-                            console.log("click", msg.id)
                             this.editMsg(msg.id)
                         })
                     }

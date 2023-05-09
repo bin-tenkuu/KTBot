@@ -33,16 +33,10 @@ class RoomConfig(
     }
 
     val id: String get() = room.id
-    var name: String
+    val name: String
         get() = room.name
-        set(value) {
-            room.name = value
-        }
-    var roles: MutableMap<String, RoleConfig>
+    val roles: MutableMap<String, RoleConfig>
         get() = room.roles
-        set(value) {
-            room.roles = value
-        }
     val clients = HashSet<DefaultWebSocketServerSession>()
     private val table = THisMsg(id)
 
