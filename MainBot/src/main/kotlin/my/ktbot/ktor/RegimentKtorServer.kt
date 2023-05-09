@@ -71,7 +71,11 @@ private fun Application.regimentKtorServer() {
         headerPredicates += { true }
         allowNonSimpleContentTypes = true
     }
-    install(Compression)
+    install(Compression) {
+        gzip {
+            minimumSize(10240)
+        }
+    }
     install(Routing)
     // install(Resources)
     install(StatusPages) {
