@@ -130,4 +130,28 @@ object CocCommand {
             sendMessage("进入 ${special.state} 状态")
         }
     }
+
+    object R : SubCommand("r", "标准irc骰子") {
+        private val diceRegex = Regex("""(?<num>\d*)d(?<max>\d*)""", RegexOption.IGNORE_CASE)
+
+        @Handler
+        suspend fun CommandSender.invoke(@Name("骰子") dice: String, @Name("检定") type: String = "") {
+            val matchResult = diceRegex.find(dice) ?: run {
+                sendMessage("骰子格式错误")
+                return
+            }
+            val groups = matchResult.groups
+            val num = groups["num"]!!.value.toIntOrNull() ?: 1
+            val max = groups["max"]!!.value.toIntOrNull() ?: 0
+            val diceResult = DiceResult(num, max)
+            if (!CocService.cheater) diceResult.dice()
+            val pre = (user?.nick ?: "") + "进行" + type + "检定：\n"
+            val msg = if (num == 1) {
+                "${diceResult.origin} = ${diceResult.sum}"
+            } else {
+                "${diceResult.origin} = ${diceResult.list.joinToString("+")} = ${diceResult.sum}"
+            }
+            sendMessage(pre + msg)
+        }
+    }
 }

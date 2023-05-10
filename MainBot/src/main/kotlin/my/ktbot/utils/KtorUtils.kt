@@ -15,7 +15,7 @@ import org.jsoup.Jsoup
 
 object KtorUtils {
 
-    fun HttpRequestBuilder.toStatement() = HttpStatement(this, httpClientGlobal)
+    private fun HttpRequestBuilder.toStatement() = HttpStatement(this, httpClientGlobal)
 
     @JvmStatic
     fun post(urlString: String, body: Any): HttpStatement {
@@ -28,7 +28,7 @@ object KtorUtils {
     }
 
     @JvmStatic
-    fun post(urlString: String, block: HttpRequestBuilder.() -> Unit = {}): HttpStatement {
+    fun post(urlString: String, block: HttpRequestBuilder.() -> Unit): HttpStatement {
         return HttpRequestBuilder().apply {
             method = HttpMethod.Post
             url.takeFrom(urlString)
@@ -46,7 +46,7 @@ object KtorUtils {
     }
 
     @JvmStatic
-    inline fun get(urlString: String, block: HttpRequestBuilder.() -> Unit): HttpStatement {
+    fun get(urlString: String, block: HttpRequestBuilder.() -> Unit): HttpStatement {
         return HttpRequestBuilder().apply {
             method = HttpMethod.Get
             url.takeFrom(urlString)
@@ -151,7 +151,7 @@ object KtorUtils {
 
     suspend fun read60sJson(): EveryDay60s? {
         val everyDay60s = get(
-            "https://www.zhihu.com/api/v4/columns/c_1261258401923026944/items?limit=1"
+                "https://www.zhihu.com/api/v4/columns/c_1261258401923026944/items?limit=1"
         ).body<ZhiHu>()
         val zhihu = everyDay60s.data.firstOrNull() ?: return null
         val content = zhihu.content
@@ -173,11 +173,11 @@ object KtorUtils {
 
     suspend fun openAiCompletion(text: String): String {
         val completionRequest = CompletionRequest(
-            model = "text-davinci-003",
-            prompt = "$text<->",
-            stop = listOf("<->"),
-            maxTokens = 2048,
-            temperature = 0.2,
+                model = "text-davinci-003",
+                prompt = "$text<->",
+                stop = listOf("<->"),
+                maxTokens = 2048,
+                temperature = 0.2,
         )
         return try {
             val body = post("https://api.openai.com/v1/completions") {
