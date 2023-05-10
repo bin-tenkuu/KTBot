@@ -124,7 +124,7 @@ private fun Routing.wsChat() {
         try {
             room.clients += this
             sendSerialized(Message.Roles(room.room.roles) as Message)
-            var role = ""
+            var role = -1
             var roleName: String? = null
             while (true) {
                 val msg = when (val frame = incoming.receive()) {
@@ -138,12 +138,12 @@ private fun Routing.wsChat() {
                     is Frame.Text -> jsonGlobal.decodeFromString(serializer<Message>(), frame.readText())
                 }
                 if (msg is Message.Msg && roleName == null) {
-                    val color = room.roles["default"]?.color ?: run {
+                    val color = room.roles[-1]?.color ?: run {
                         close(CloseReason(CloseReason.Codes.VIOLATED_POLICY, "未设置允许默认角色"))
                         return@webSocket
                     }
-                    roleName = role
-                    val config = RoleConfig(role, role, color)
+                    roleName = "unknown-$role"
+                    val config = RoleConfig(role, roleName, color)
                     room.room.roles += role to config
                     room.save()
                     room.sendAll(Message.Roles(room.room.roles))
@@ -195,15 +195,11 @@ suspend fun DefaultWebSocketServerSession.getRoom(): RoomConfig? {
     return room
 }
 
-private suspend fun ApplicationCall.getOrBad(key: String): String? {
-    return parameters[key] ?: run {
+suspend fun ApplicationCall.getRoom(): RoomConfig? {
+    val roomId = parameters["id"] ?: run {
         respond(HttpStatusCode.BadRequest)
         return null
     }
-}
-
-suspend fun ApplicationCall.getRoom(): RoomConfig? {
-    val roomId = getOrBad("id") ?: return null
     val room = RoomConfig[roomId] ?: run {
         respond(HttpStatusCode.BadRequest)
         return null
@@ -212,8 +208,11 @@ suspend fun ApplicationCall.getRoom(): RoomConfig? {
 }
 
 @OptIn(ExperimentalCommandDescriptors::class, ConsoleExperimentalApi::class)
-private fun handleBot(room: RoomConfig, role: String, msg: String) {
-    val sender = ServerCommandSender(room, role)
+private fun handleBot(room: RoomConfig, role: Int, msg: String) {
+    if (-10 !in room.roles) {
+        return
+    }
+    val sender = ServerCommandSender(room, room.roles[role]!!)
     sender.launch {
         CommandManager.executeCommand(sender, PlainText(msg), true)
     }

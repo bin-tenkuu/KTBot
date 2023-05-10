@@ -49,7 +49,7 @@ fun Route.roomApi() {
                 room.room.name = receive.name
                 room.room.roles = receive.roles
                 room.save()
-                room.sendAll(Message.Roles(room.room.roles))
+                room.sendAll(Message.Roles(room.roles))
             }
             call.respond(HttpStatusCode.OK, true)
         }

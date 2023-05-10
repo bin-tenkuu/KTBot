@@ -20,7 +20,7 @@ import java.sql.Types
 interface Room : Entity<Room> {
     var id: String
     var name: String
-    var roles: Map<String, RoleConfig>
+    var roles: Map<Int, RoleConfig>
 
     companion object : Entity.Factory<Room>()
 }
@@ -29,7 +29,7 @@ interface Room : Entity<Room> {
 class RoomMessage(
         val id: String,
         val name: String,
-        val roles: Map<String, RoleConfig>,
+        val roles: Map<Int, RoleConfig>,
 ) {
     constructor(room: Room) : this(room.id, room.name, room.roles)
 
@@ -46,10 +46,10 @@ object TRoom : Table<Room>(tableName = "room", entityClass = Room::class) {
     val roles = registerColumn("roles", RoleSqlType).bindTo { it.roles }
 }
 
-object RoleSqlType : SqlType<Map<String, RoleConfig>>(Types.VARCHAR, "varchar") {
-    private val serializer = serializer<Map<String, RoleConfig>>()
+object RoleSqlType : SqlType<Map<Int, RoleConfig>>(Types.VARCHAR, "varchar") {
+    private val serializer = serializer<Map<Int, RoleConfig>>()
 
-    override fun doSetParameter(ps: PreparedStatement, index: Int, parameter: Map<String, RoleConfig>) {
+    override fun doSetParameter(ps: PreparedStatement, index: Int, parameter: Map<Int, RoleConfig>) {
         val s = jsonGlobal.encodeToString(serializer, parameter)
         ps.setObject(index, PGobject().apply {
             type = "json"
@@ -57,7 +57,7 @@ object RoleSqlType : SqlType<Map<String, RoleConfig>>(Types.VARCHAR, "varchar") 
         }, Types.OTHER)
     }
 
-    override fun doGetResult(rs: ResultSet, index: Int): Map<String, RoleConfig> {
+    override fun doGetResult(rs: ResultSet, index: Int): Map<Int, RoleConfig> {
         val s = rs.getString(index)
         return jsonGlobal.decodeFromString(serializer, s)
     }
@@ -65,7 +65,7 @@ object RoleSqlType : SqlType<Map<String, RoleConfig>>(Types.VARCHAR, "varchar") 
 
 @Serializable
 class RoleConfig(
-        val id: String,
+        val id: Int,
         val name: String,
         val color: String = "",
 )

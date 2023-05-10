@@ -1,10 +1,7 @@
 package my.ktbot.ktor.dao
 
 import org.ktorm.entity.Entity
-import org.ktorm.schema.Column
-import org.ktorm.schema.Table
-import org.ktorm.schema.long
-import org.ktorm.schema.varchar
+import org.ktorm.schema.*
 
 /**
  *  @Date:2023/3/13
@@ -15,7 +12,7 @@ interface HisMsg : Entity<HisMsg> {
     val id: Long
     val type: String
     val msg: String
-    val role: String
+    val role: Int
 
     companion object : Entity.Factory<HisMsg>()
 }
@@ -25,7 +22,7 @@ class THisMsg(tableName: String)
     val id: Column<Long> = long("id").bindTo { it.id }.primaryKey()
     val type: Column<String> = varchar("type").bindTo { it.type }
     val msg: Column<String> = varchar("msg").bindTo { it.msg }
-    val role: Column<String> = varchar("role").bindTo { it.role }
+    val role: Column<Int> = int("role").bindTo { it.role }
 
     companion object {
         val Instence = THisMsg("HisMsg")

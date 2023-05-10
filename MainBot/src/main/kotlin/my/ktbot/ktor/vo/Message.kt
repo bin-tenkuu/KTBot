@@ -12,7 +12,7 @@ import my.ktbot.ktor.dao.RoleConfig
 @Serializable
 sealed class Message {
     var id: Long? = null
-    var role: String = ""
+    var role: Int = -1
 
     @Serializable
     @SerialName("default")
@@ -25,7 +25,7 @@ sealed class Message {
     @Serializable
     @SerialName("text")
     class Text(override val msg: String) : Message(), Msg {
-        constructor(id: Long, msg: String, role: String) : this(msg) {
+        constructor(id: Long, msg: String, role: Int) : this(msg) {
             this.id = id
             this.role = role
         }
@@ -34,7 +34,7 @@ sealed class Message {
     @Serializable
     @SerialName("pic")
     class Pic(override val msg: String) : Message(), Msg {
-        constructor(id: Long, msg: String, role: String) : this(msg) {
+        constructor(id: Long, msg: String, role: Int) : this(msg) {
             this.id = id
             this.role = role
         }
@@ -43,7 +43,7 @@ sealed class Message {
     @Serializable
     @SerialName("sys")
     class Sys(override val msg: String) : Message(), Msg {
-        constructor(id: Long, msg: String, role: String) : this(msg) {
+        constructor(id: Long, msg: String, role: Int) : this(msg) {
             this.id = id
             this.role = role
         }
@@ -57,7 +57,7 @@ sealed class Message {
     @Serializable
     @SerialName("roles")
     @Suppress("unused")
-    class Roles(val roles: Map<String, RoleConfig>) : Message()
+    class Roles(val roles: Map<Int, RoleConfig>) : Message()
 
     @Serializable
     @SerialName("role")

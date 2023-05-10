@@ -38,7 +38,7 @@ class RoomConfig(
     val id: String get() = room.id
     val name: String
         get() = room.name
-    val roles: Map<String, RoleConfig>
+    val roles: Map<Int, RoleConfig>
         get() = room.roles
     val clients = HashSet<DefaultWebSocketServerSession>()
 
@@ -66,7 +66,7 @@ class RoomConfig(
         }
     }
 
-    fun save(msg: Message, role: String) {
+    fun save(msg: Message, role: Int) {
         msg.role = role
         when (msg) {
             is Message.Text -> {
@@ -94,7 +94,7 @@ class RoomConfig(
         }
     }
 
-    private fun save(type: String, msg: String, role: String): Long {
+    private fun save(type: String, msg: String, role: Int): Long {
         return dataSource.insertReturning(THisMsg.Instence, THisMsg.Instence.id) {
             set(it.type, type)
             set(it.msg, msg)
@@ -102,7 +102,7 @@ class RoomConfig(
         } as Long
     }
 
-    private fun save(id: Long, msg: String, role: String) {
+    private fun save(id: Long, msg: String, role: Int) {
         dataSource.update(THisMsg.Instence) {
             set(it.msg, msg)
             set(it.role, role)
@@ -170,7 +170,7 @@ class RoomConfig(
     fun historyAll(outputStream: OutputStream) {
         // TODO: 导出自定义模板
         val builder = StringBuilder()
-        val roles: Map<String, RoleConfig> = room.roles
+        val roles = room.roles
         for (msg in dataSource.sequenceOf(THisMsg.Instence)) {
             val config = roles[msg.role]
             val name = config?.name ?: msg.role

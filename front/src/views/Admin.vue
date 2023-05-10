@@ -60,11 +60,29 @@
     </el-button>
     <el-dialog v-model="roleDialog.visible">
         <el-form>
-            <el-form-item label="id">
-                <el-input v-model="roleDialog.id"></el-input>
+            <label></label>
+            <el-form-item label="id" required>
+                <el-tooltip
+                        class="box-item"
+                        effect="dark"
+                        placement="bottom-start"
+                >
+                    <template #content>
+                        bot 使用 -10 ，未设置时不接入 bot<br>
+                        默认角色 使用 -1，设置 -1 时未知角色将使用默认角色属性自定创建
+                    </template>
+                    <el-input-number
+                            v-model="roleDialog.id"
+                            :min="-9999"
+                            :max="9999"
+                            :step="1"
+                            :precision="0"
+                            :step-strictly="true"
+                    />
+                </el-tooltip>
             </el-form-item>
-            <el-form-item label="name">
-                <el-input v-model="roleDialog.name"></el-input>
+            <el-form-item label="name" required>
+                <el-input v-model="roleDialog.name"/>
             </el-form-item>
         </el-form>
         <template #footer>
@@ -105,7 +123,7 @@ export default {
             },
             roleDialog: {
                 visible: false,
-                id: "",
+                id: "0",
                 name: "",
             },
             dialogVisible: false,
