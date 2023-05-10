@@ -125,6 +125,7 @@ private fun Routing.wsChat() {
             room.clients += this
             sendSerialized(Message.Roles(room.room.roles) as Message)
             var role = ""
+            var roleName: String? = null
             while (true) {
                 val msg = when (val frame = incoming.receive()) {
                     is Frame.Close -> break
@@ -136,11 +137,12 @@ private fun Routing.wsChat() {
                     is Frame.Binary -> continue
                     is Frame.Text -> jsonGlobal.decodeFromString(serializer<Message>(), frame.readText())
                 }
-                if (msg is Message.Msg && role !in room.roles) {
+                if (msg is Message.Msg && roleName == null) {
                     val color = room.roles["default"]?.color ?: run {
                         close(CloseReason(CloseReason.Codes.VIOLATED_POLICY, "未设置允许默认角色"))
                         return@webSocket
                     }
+                    roleName = role
                     val config = RoleConfig(role, role, color)
                     room.room.roles += role to config
                     room.save()
@@ -149,7 +151,7 @@ private fun Routing.wsChat() {
                 when (msg) {
                     is Message.Text -> {
                         if (msg.msg.startsWith("/me")) {
-                            val sysMsg = Message.Sys("*" + role + msg.msg.substring(3))
+                            val sysMsg = Message.Sys("*" + roleName + msg.msg.substring(3))
                             room.save(sysMsg, role)
                             room.sendAll(sysMsg)
                         } else {
@@ -164,6 +166,7 @@ private fun Routing.wsChat() {
                     }
                     is Message.Default -> {
                         role = msg.role
+                        roleName = room.roles[role]?.name
                         val history = room.history(msg.id)
                         sendSerialized(history as Message)
                         continue

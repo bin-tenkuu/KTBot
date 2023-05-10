@@ -41,7 +41,8 @@ class RoomConfig(
     val roles: Map<String, RoleConfig>
         get() = room.roles
     val clients = HashSet<DefaultWebSocketServerSession>()
-//    private val table = THisMsg(id)
+
+    //    private val table = THisMsg(id)
     private val dataSource: Database = Database.connect(
             url = "jdbc:sqlite:./${id}.db",
             driver = "org.sqlite.JDBC",
@@ -52,6 +53,7 @@ class RoomConfig(
     init {
         dataSource.useConnection { conn ->
             conn.createStatement().use {
+                // language=SQLite
                 it.executeUpdate("""
                     CREATE TABLE IF NOT EXISTS HisMsg(
                     id INTEGER PRIMARY KEY AUTOINCREMENT ,
