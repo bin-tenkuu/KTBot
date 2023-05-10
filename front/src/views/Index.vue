@@ -47,6 +47,14 @@
                     {{ id ? "修改" : "发送" }}
                 </el-button>
                 <el-button type="primary" @click="sendBase64Image">发送图片</el-button>
+                <el-switch
+                        v-model="scrollDown"
+                        size="large"
+                        inline-prompt
+                        active-text="保持底部"
+                        inactive-text="自由滚动"
+                        @change="scroll"
+                />
             </el-space>
             <el-input ref="textarea" type="textarea" class="el-textarea" placeholder="请输入内容"
                       v-model="message"
@@ -54,7 +62,7 @@
             />
             <br>
             <el-button type="info" @click="sendHistory" :disabled="minId<=1">20条历史消息</el-button>
-            <el-button type="info" @click="clear">清空</el-button>
+            <el-button type="info" @click="clear">{{ id ? "取消" : "清空" }}</el-button>
             <el-button type="danger" @click="disconnect">离开房间</el-button>
             <el-upload
                     ref="picture"
@@ -97,6 +105,9 @@ export default {
              * @type {HTMLDivElement}
              */
             chatLogs: ref(),
+            /**
+             * @type {HTMLDivElement}
+             */
             main: ref()
         }
     },
@@ -133,6 +144,7 @@ export default {
             role: "a",
             minId: null,
             maxId: null,
+            scrollDown: true,
             /**
              * @type {[{type:string,msg:string,role:string}]}
              */
@@ -173,10 +185,6 @@ export default {
             })
             const ws = this.ws = new WebSocket(`ws://${this.host}/ws/${this.room.id}`);
             ws.onopen = () => {
-                this.main.addEventListener("scroll", () => {
-                    console.log(this.main.scrollTop, this.main.clientHeight);
-                    console.log(this.main.scrollTop / this.main.clientHeight);
-                })
                 ElMessage({
                     message: `连接成功`,
                     type: 'success',
@@ -240,6 +248,7 @@ export default {
                     for (let i = this.maxId; i <= json.id; i++) {
                         this.chatLogs.appendChild(document.createElement("div"))
                     }
+                    this.scroll()
                     this.maxId = json.id
                 }
                 if (this.minId == null || this.minId > json.id) {
@@ -289,6 +298,11 @@ export default {
                     break
             }
             element.innerHTML = innerHTML
+        },
+        scroll() {
+            if (this.scrollDown) {
+                this.main.scrollTop = this.main.scrollHeight
+            }
         },
         disconnect() {
             if (this.ws == null) {
