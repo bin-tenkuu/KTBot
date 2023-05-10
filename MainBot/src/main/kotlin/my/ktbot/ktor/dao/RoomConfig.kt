@@ -175,11 +175,10 @@ class RoomConfig(
             val config = roles[msg.role]
             val name = config?.name ?: msg.role
             val color = config?.color ?: "black"
-            builder.append("<div style=\">").append(color).append("\">")
-            builder.append("&lt;${name}&gt;: &nbsp;")
+            builder.append("<div style=\"color: ").append(color).append("\">")
             when (msg.type) {
-                "text" -> builder.append(msg.msg)
-                "pic" -> builder.append("<img alt=\"img\" src=\"${msg.msg}\"/>")
+                "text" -> builder.append("&lt;${name}&gt;: &nbsp;").append(msg.msg)
+                "pic" -> builder.append("&lt;${name}&gt;: &nbsp;").append("<img alt=\"img\" src=\"${msg.msg}\"/>")
                 "sys" -> builder.append("<i>").append(msg.msg).append("</i>")
                 else -> {}
             }
