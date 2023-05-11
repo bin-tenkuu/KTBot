@@ -6,7 +6,7 @@ import my.ktbot.command.AdminCommand
 import my.ktbot.command.CocCommand
 import my.ktbot.command.CocSbiCommand
 import my.ktbot.command.HelperCommand
-import my.ktbot.ktor.server
+import my.ktbot.ktor.RegimentKtorServer
 import my.ktbot.plugs.*
 import my.ktbot.utils.Counter
 import my.ktbot.utils.global.Debugger
@@ -47,7 +47,10 @@ object PluginMain : MyKotlinPlugin(
         // ShareCertificateUtil.start(this@PluginMain)
         // Thread {
         // }.start()
-        server(8088).start(false)
+        RegimentKtorServer.server(8088).start(false)
+        Runtime.getRuntime().addShutdownHook(Thread {
+            RegimentKtorServer.regimentServer?.stop()
+        })
     }
 
     override fun onEnable() {

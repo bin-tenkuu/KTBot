@@ -64,3 +64,15 @@ fun Route.roomApi() {
         }
     }
 }
+
+suspend fun ApplicationCall.getRoom(): RoomConfig? {
+    val roomId = parameters["id"] ?: run {
+        respond(HttpStatusCode.BadRequest)
+        return null
+    }
+    val room = RoomConfig[roomId] ?: run {
+        respond(HttpStatusCode.BadRequest)
+        return null
+    }
+    return room
+}
