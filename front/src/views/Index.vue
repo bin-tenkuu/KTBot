@@ -141,7 +141,7 @@ export default {
              * @type {WebSocket}
              */
             ws: null,
-            role: "a",
+            role: 0,
             minId: null,
             maxId: null,
             scrollDown: true,
@@ -268,9 +268,10 @@ export default {
             const role = this.room.roles[msg.role]
             let innerHTML = `&lt;${role.name}&gt;: &nbsp;`
             element.setAttribute("style", `color: ${role.color};`)
+            console.log(role, this.role)
             switch (msg.type) {
                 case "text": {
-                    if (msg.role === this.role) {
+                    if (msg.role === +this.role) {
                         /**
                          * @type {HTMLButtonElement}
                          */
