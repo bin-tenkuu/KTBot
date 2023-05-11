@@ -40,7 +40,6 @@ class ServerCommandSender(
     suspend fun sendMessage(message: String, contect: Contact): Nothing? {
         val text = Text(message)
         room.save(text, -10)
-        room.sendAll(text)
         return null
     }
 

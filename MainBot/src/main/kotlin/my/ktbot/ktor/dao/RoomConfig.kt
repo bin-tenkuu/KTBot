@@ -2,6 +2,11 @@ package my.ktbot.ktor.dao
 
 import io.ktor.server.websocket.*
 import io.ktor.utils.io.core.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import my.ktbot.ktor.vo.Message
 import my.ktbot.utils.Sqlite.limit
 import my.ktbot.utils.global.databaseGlobal
@@ -16,8 +21,11 @@ import org.ktorm.support.sqlite.insertReturning
 import java.io.File
 import java.io.OutputStream
 import java.nio.charset.StandardCharsets
+import java.util.concurrent.ConcurrentLinkedDeque
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
+import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.EmptyCoroutineContext
 
 /**
  * @author bin
@@ -26,7 +34,7 @@ import java.util.zip.ZipOutputStream
  */
 class RoomConfig(
         val room: Room,
-) : Closeable {
+) : Closeable, CoroutineScope {
     companion object : HashMap<String, RoomConfig>() {
         init {
             for (room in databaseGlobal.sequenceOf(TRoom)) {
@@ -34,6 +42,8 @@ class RoomConfig(
             }
         }
     }
+
+    override val coroutineContext: CoroutineContext get() = EmptyCoroutineContext
 
     val id: String get() = room.id
     val name: String get() = room.name
@@ -45,6 +55,7 @@ class RoomConfig(
             dialect = SQLiteDialect(),
             generateSqlInUpperCase = true
     )
+    private val matux = Mutex()
 
     init {
         dataSource.useConnection { conn ->
@@ -63,30 +74,18 @@ class RoomConfig(
     }
 
     fun save(msg: Message, role: Int) {
-        msg.role = role
-        when (msg) {
-            is Message.Text -> {
+        if (msg is Message.Msg) {
+            msg.role = role
+            launch(Dispatchers.Default) {
                 if (msg.id == null) {
-                    msg.id = save("text", msg.msg, role)
+                    matux.withLock(msg) {
+                        msg.id = save(msg.msgType, msg.msg, msg.role)
+                    }
                 } else {
-                    save(msg.id!!, msg.msg, role)
+                    save(msg.id!!, msg.msg, msg.role)
                 }
+                sendAll(msg)
             }
-            is Message.Pic -> {
-                if (msg.id == null) {
-                    msg.id = save("pic", msg.msg, role)
-                } else {
-                    save(msg.id!!, msg.msg, role)
-                }
-            }
-            is Message.Sys -> {
-                if (msg.id == null) {
-                    msg.id = save("sys", msg.msg, role)
-                } else {
-                    save(msg.id!!, msg.msg, role)
-                }
-            }
-            else -> return
         }
     }
 
@@ -149,8 +148,8 @@ class RoomConfig(
                 .sortedBy { it.id.desc() }
                 .map {
                     when (it.type) {
-                        "pic" -> Message.Pic(it.id, it.msg, it.role)
-                        "text" -> Message.Text(it.id, it.msg, it.role)
+                        "pic" -> Message.Pic(it.msg, it.id, it.role)
+                        "text" -> Message.Text(it.msg, it.id, it.role)
                         "sys" -> Message.Sys(it.id, it.msg, it.role)
                         else -> Message.Msgs()
                     }

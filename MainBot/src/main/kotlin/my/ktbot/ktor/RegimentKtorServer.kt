@@ -126,7 +126,7 @@ object RegimentKtorServer {
             try {
                 room.clients += this
                 sendSerialized(Message.Roles(room.room.roles) as Message)
-                var role = -1
+                var role: Int = -1
                 var roleName: String? = null
                 while (true) {
                     val msg = when (val frame = incoming.receive()) {
@@ -152,16 +152,13 @@ object RegimentKtorServer {
                             if (msg.msg.startsWith("/me")) {
                                 val sysMsg = Message.Sys("*" + roleName + msg.msg.substring(3))
                                 room.save(sysMsg, role)
-                                room.sendAll(sysMsg)
                             } else {
                                 room.save(msg, role)
-                                room.sendAll(msg)
                                 handleBot(room, role, msg.msg)
                             }
                         }
                         is Message.Pic -> {
                             room.save(msg, role)
-                            room.sendAll(msg)
                         }
                         is Message.Default -> {
                             role = msg.role

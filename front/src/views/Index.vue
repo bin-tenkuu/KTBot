@@ -419,10 +419,10 @@ export default {
 }
 
 img {
-    width: 10%;
-    max-width: 10%;
-    height: 10%;
-    max-height: 10%;
+    //width: 10%;
+    //max-width: 10%;
+    //height: 10%;
+    //max-height: 10%;
     vertical-align: top;
 }
 
