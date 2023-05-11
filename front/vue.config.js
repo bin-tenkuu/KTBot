@@ -2,6 +2,7 @@ const {defineConfig} = require('@vue/cli-service')
 const CompressionWebpackPlugin = require('compression-webpack-plugin');
 module.exports = defineConfig({
     transpileDependencies: true,
+    productionSourceMap: process.env.NODE_ENV !== 'production',
     configureWebpack: {
         plugins: [
             new CompressionWebpackPlugin({
