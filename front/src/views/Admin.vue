@@ -117,13 +117,13 @@ export default {
                 id: "default",
                 name: "",
                 /**
-                 * @type {Record<string, {id: string, name: string, color: string}>}
+                 * @type {Record<number, {id: number, name: string, color: string}>}
                  */
                 roles: {},
             },
             roleDialog: {
                 visible: false,
-                id: "0",
+                id: 1,
                 name: "",
             },
             dialogVisible: false,
@@ -180,11 +180,14 @@ export default {
         addRole() {
             let roleDialog = this.roleDialog;
             const {id, name} = roleDialog;
-            /**@type {{id: string, name: string, color: string}}*/
-            let role = this.room.roles[id] ?? {
-                id: "",
-                name: "",
-                color: "",
+            /**@type {{id: number, name: string, color: string}}*/
+            let role = this.room.roles[id]
+            if (role == null) {
+                role = this.room.roles[id] = {
+                    id: 1,
+                    name: "",
+                    color: "",
+                }
             }
             role.id = id;
             role.name = name;
