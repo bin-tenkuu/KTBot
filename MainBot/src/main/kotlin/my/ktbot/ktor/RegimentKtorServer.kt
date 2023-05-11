@@ -32,6 +32,7 @@ import java.time.Duration
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
+import java.util.concurrent.CancellationException
 
 /**
  *  @Date:2023/3/11
@@ -138,10 +139,7 @@ private fun Routing.wsChat() {
                     is Frame.Text -> jsonGlobal.decodeFromString(serializer<Message>(), frame.readText())
                 }
                 if (msg is Message.Msg && roleName == null) {
-                    val color = room.roles[-1]?.color ?: run {
-                        close(CloseReason(CloseReason.Codes.VIOLATED_POLICY, "未设置允许默认角色"))
-                        return@webSocket
-                    }
+                    val color = room.roles[-1]?.color ?: continue
                     roleName = "unknown-$role"
                     val config = RoleConfig(role, roleName, color)
                     room.room.roles += role to config
@@ -215,5 +213,15 @@ private fun handleBot(room: RoomConfig, role: Int, msg: String) {
     val sender = ServerCommandSender(room, room.roles[role]!!)
     sender.launch {
         CommandManager.executeCommand(sender, PlainText(msg), true)
+    }.invokeOnCompletion {
+        when (it) {
+            is NotImplementedError -> {
+                sender.logger.warning("未实现的指令: $msg")
+            }
+            is CancellationException -> {}
+            else -> {
+                sender.logger.error(it)
+            }
+        }
     }
 }

@@ -60,7 +60,6 @@
     </el-button>
     <el-dialog v-model="roleDialog.visible">
         <el-form>
-            <label></label>
             <el-form-item label="id" required>
                 <el-tooltip
                         class="box-item"
@@ -68,8 +67,8 @@
                         placement="bottom-start"
                 >
                     <template #content>
-                        bot 使用 -10 ，未设置时不接入 bot<br>
-                        默认角色 使用 -1，设置 -1 时未知角色将使用默认角色属性自定创建
+                        bot 使用 -10，未设置时不接入 bot<br>
+                        默认角色 使用 -1，未设置时丢弃未知角色消息，否则使用-1属性创建角色并发送
                     </template>
                     <el-input-number
                             v-model="roleDialog.id"

@@ -36,13 +36,9 @@ class RoomConfig(
     }
 
     val id: String get() = room.id
-    val name: String
-        get() = room.name
-    val roles: Map<Int, RoleConfig>
-        get() = room.roles
+    val name: String get() = room.name
+    val roles: Map<Int, RoleConfig> get() = room.roles
     val clients = HashSet<DefaultWebSocketServerSession>()
-
-    //    private val table = THisMsg(id)
     private val dataSource: Database = Database.connect(
             url = "jdbc:sqlite:./${id}.db",
             driver = "org.sqlite.JDBC",
@@ -58,8 +54,8 @@ class RoomConfig(
                     CREATE TABLE IF NOT EXISTS HisMsg(
                     id INTEGER PRIMARY KEY AUTOINCREMENT ,
                     type TEXT,
-                    msg TEXT,
-                    role TEXT
+                    role INT,
+                    msg TEXT
                     )
                 """.trimIndent())
             }
@@ -132,11 +128,6 @@ class RoomConfig(
 
     fun delete() {
         File("${room.id}.db").delete()
-//        databaseGlobal.useConnection { conn ->
-//            conn.createStatement().use {
-//                it.executeUpdate("""drop table if exists hismsg."$id";""".trimIndent())
-//            }
-//        }
         room.delete()
         close()
     }
@@ -157,7 +148,7 @@ class RoomConfig(
                 .limit(20)
                 .sortedBy { it.id.desc() }
                 .map {
-                    when (it.type.trim()) {
+                    when (it.type) {
                         "pic" -> Message.Pic(it.id, it.msg, it.role)
                         "text" -> Message.Text(it.id, it.msg, it.role)
                         "sys" -> Message.Sys(it.id, it.msg, it.role)
