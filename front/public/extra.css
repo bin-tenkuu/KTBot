@@ -1,3 +1,4 @@
+/* region tiktok */
 .tiktok {
     animation: tiktok 0.5s linear infinite;
 }
@@ -16,3 +17,104 @@
         text-shadow: -1.5px 1.5px 0 #0ff, -1.5px 1.5px 0 #f00;
     }
 }
+
+/* endregion  */
+
+/* region moveShake*/
+
+.moveShake {
+    --color: black;
+}
+
+.moveShake > * {
+    color: var(--color);
+    -webkit-animation: moveShadow 0.6s linear infinite, shake 0.15s linear infinite;
+    animation: moveShadow 0.6s linear infinite, shake 0.15s linear infinite;
+}
+
+.moveShake > *:nth-child(5n) {
+    -webkit-animation-delay: -0.2s;
+    animation-delay: -0.2s;
+}
+
+.moveShake > *:nth-child(5n+1) {
+    -webkit-animation-delay: -0.4s;
+    animation-delay: -0.4s;
+}
+
+.moveShake > *:nth-child(5n+2) {
+    -webkit-animation-delay: -0.6s;
+    animation-delay: -0.6s;
+}
+
+.moveShake > *:nth-child(5n+3) {
+    -webkit-animation-delay: -0.8s;
+    animation-delay: -0.8s;
+}
+
+.moveShake > *:nth-child(5n+4) {
+    -webkit-animation-delay: -1s;
+    animation-delay: -1s;
+}
+
+@-webkit-keyframes moveShadow {
+    0%, 100% {
+        text-shadow: 2px 2px 0 var(--color);
+    }
+    25% {
+        text-shadow: -1px -1px 0 var(--color);
+    }
+    50% {
+        text-shadow: 1px 2px 0 var(--color);
+    }
+    75% {
+        text-shadow: -2px -1px 0 var(--color);
+    }
+}
+
+@keyframes moveShadow {
+    0%, 100% {
+        text-shadow: 2px 2px 0 var(--color);
+    }
+    25% {
+        text-shadow: -1px -1px 0 var(--color);
+    }
+    50% {
+        text-shadow: 1px 2px 0 var(--color);
+    }
+    75% {
+        text-shadow: -2px -1px 0 var(--color);
+    }
+}
+
+@-webkit-keyframes shake {
+    0%, 50% {
+        -webkit-transform: rotate(1deg) translateY(-1px);
+        transform: rotate(1deg) translateY(-1px);
+    }
+    25% {
+        -webkit-transform: rotate(-1deg) translateY(0px);
+        transform: rotate(-1deg) translateY(0px);
+    }
+    75% {
+        -webkit-transform: rotate(0) translateY(1px);
+        transform: rotate(0) translateY(1px);
+    }
+}
+
+@keyframes shake {
+    0%, 50% {
+        -webkit-transform: rotate(1deg) translateY(-1px);
+        transform: rotate(1deg) translateY(-1px);
+    }
+    25% {
+        -webkit-transform: rotate(-1deg) translateY(0px);
+        transform: rotate(-1deg) translateY(0px);
+    }
+    75% {
+        -webkit-transform: rotate(0) translateY(1px);
+        transform: rotate(0) translateY(1px);
+    }
+}
+
+/* endregion */
