@@ -267,7 +267,7 @@ export default {
         setInnerMsg(element, msg) {
             const role = this.room.roles[msg.role]
             let innerHTML = `&lt;${role.name}&gt;: &nbsp;`
-            element.setAttribute("style", `color: ${role.color};--color: ${role.color};`)
+            element.setAttribute("style", `--color: ${role.color};`)
             console.log(role, this.role)
             switch (msg.type) {
                 case "text": {
@@ -395,6 +395,7 @@ export default {
 }
 
 #chatLogs > div {
+    color: var(--color);
     padding: 0.3em 0 0.5em 2em;
     text-indent: -2em;
 }
