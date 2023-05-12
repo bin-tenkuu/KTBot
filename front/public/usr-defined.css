@@ -1,3 +1,4 @@
+/* region tiktok */
 .usr-tiktok {
     animation: usr-tiktok 0.5s linear infinite;
 }
@@ -17,65 +18,73 @@
     }
 }
 
+/* endregion  */
 
-.usr-shake span {
+/* region moveShake*/
+
+.usr-shake {
+    --color: black;
+}
+
+.usr-shake > * {
     display: inline-block;
+    color: var(--color);
     -webkit-animation: moveShadow 0.6s linear infinite, shake 0.15s linear infinite;
     animation: moveShadow 0.6s linear infinite, shake 0.15s linear infinite;
 }
 
-.usr-shake span:nth-child(5n) {
+.usr-shake > :nth-child(5n) {
     -webkit-animation-delay: -0.2s;
     animation-delay: -0.2s;
 }
 
-.usr-shake span:nth-child(5n+1) {
+.usr-shake > :nth-child(5n+1) {
     -webkit-animation-delay: -0.4s;
     animation-delay: -0.4s;
 }
 
-.usr-shake span:nth-child(5n+2) {
+.usr-shake > :nth-child(5n+2) {
     -webkit-animation-delay: -0.6s;
     animation-delay: -0.6s;
 }
 
-.usr-shake span:nth-child(5n+3) {
+.usr-shake > :nth-child(5n+3) {
     -webkit-animation-delay: -0.8s;
     animation-delay: -0.8s;
 }
 
-.usr-shake span:nth-child(5n+4) {
+.usr-shake > :nth-child(5n+4) {
     -webkit-animation-delay: -1s;
     animation-delay: -1s;
 }
 
 @-webkit-keyframes moveShadow {
     0% {
-        text-shadow: 2px 2px 0 white;
+        text-shadow: 2px 2px 0 var(--color);
     }
     25% {
-        text-shadow: -1px -1px 0 white;
+        text-shadow: -1px -1px 0 var(--color);
     }
     50% {
-        text-shadow: 1px 2px 0 white;
+        text-shadow: 1px 2px 0 var(--color);
     }
     75% {
-        text-shadow: -2px -1px 0 white;
+        text-shadow: -2px -1px 0 var(--color);
     }
 }
 
 @keyframes moveShadow {
     0% {
-        text-shadow: 2px 2px 0 white;
+        text-shadow: 2px 2px 0 var(--color);
     }
     25% {
-        text-shadow: -1px -1px 0 white;
+        text-shadow: -1px -1px 0 var(--color);
     }
     50% {
-        text-shadow: 1px 2px 0 white;
+        text-shadow: 1px 2px 0 var(--color);
     }
     75% {
-        text-shadow: -2px -1px 0 white;
+        text-shadow: -2px -1px 0 var(--color);
     }
 }
 
@@ -116,3 +125,5 @@
         transform: rotate(0) translateY(1px);
     }
 }
+
+/* endregion */

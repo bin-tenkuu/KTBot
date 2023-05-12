@@ -201,13 +201,9 @@ object RegimentKtorServer {
             CommandManager.executeCommand(sender, PlainText(msg), true)
         }.invokeOnCompletion {
             when (it) {
-                is NotImplementedError -> {
-                    sender.logger.warning("未实现的指令: $msg")
-                }
-                is CancellationException -> {}
-                else -> {
-                    sender.logger.error(it)
-                }
+                null, is CancellationException -> {}
+                is NotImplementedError -> sender.logger.warning("未实现的指令: $msg")
+                else -> sender.logger.error(it)
             }
         }
     }
