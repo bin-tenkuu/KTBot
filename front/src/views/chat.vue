@@ -90,9 +90,6 @@ import {ref} from "vue";
 
 export default {
     name: 'Index-page',
-    props: {
-        host: String
-    },
     setup() {
         return {
             textarea: ref(),
@@ -125,6 +122,7 @@ export default {
             }
         })
         return {
+            host: process.env.NODE_ENV === 'development' ? "127.0.0.1:8088" : location.host,
             edit: {
                 inputVisible: false,
                 inputValue: "",
@@ -176,6 +174,7 @@ export default {
                 }
             }).then((res) => {
                 this.room = res.data
+                document.title = `${this.room.name} - ${this.role}`
             }).catch(() => {
                 ElMessage({
                     message: `获取房间信息失败`,
@@ -372,13 +371,6 @@ export default {
     }
 }
 </script>
-<style scoped>
-.avatar-uploader .avatar {
-    width: 170px;
-    height: 85px;
-    display: block;
-}
-</style>
 <!--suppress CssUnusedSymbol -->
 <style>
 #app {
@@ -426,9 +418,15 @@ export default {
 img {
     //width: 10%;
     //height: 10%;
-    max-width: 60%;
-    max-height: 60%;
+    max-width: 70%;
+    max-height: 70%;
     vertical-align: top;
+}
+
+.avatar-uploader .avatar {
+    width: 170px;
+    height: 85px;
+    display: block;
 }
 
 .avatar-uploader .el-upload {

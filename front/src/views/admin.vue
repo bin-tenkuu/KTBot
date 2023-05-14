@@ -99,14 +99,12 @@ import {ElNotification} from "element-plus";
 
 export default {
     name: 'Admin-page',
-    props: {
-        host: String
-    },
     data() {
         axios.get(`http://${this.host}/api/rooms`).then(res => {
             this.rooms = res.data
         })
         return {
+            host: process.env.NODE_ENV === 'development' ? "127.0.0.1:8088" : location.host,
             /**
              * @type {Array<{id: string, name: string}>}
              */
