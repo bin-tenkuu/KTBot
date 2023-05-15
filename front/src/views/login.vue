@@ -13,8 +13,9 @@ export default {
 
     },
     data() {
+        let host = process.env.NODE_ENV === 'development' ? "127.0.0.1:8088" : location.host
         return {
-            host: process.env.NODE_ENV === 'development' ? "127.0.0.1:8088" : location.host,
+            host: host,
         }
     },
     methods: {

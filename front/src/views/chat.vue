@@ -109,6 +109,7 @@ export default {
         }
     },
     data() {
+        let host = process.env.NODE_ENV === 'development' ? "127.0.0.1:8088" : location.host
         document.addEventListener("keyup", (e) => {
             if (e.key === "Enter") {
                 if (e.ctrlKey) {
@@ -122,7 +123,7 @@ export default {
             }
         })
         return {
-            host: process.env.NODE_ENV === 'development' ? "127.0.0.1:8088" : location.host,
+            host: host,
             edit: {
                 inputVisible: false,
                 inputValue: "",
@@ -267,7 +268,6 @@ export default {
             const role = this.room.roles[msg.role]
             let innerHTML = `&lt;${role.name}&gt;: &nbsp;`
             element.setAttribute("style", `--color: ${role.color};`)
-            console.log(role, this.role)
             switch (msg.type) {
                 case "text": {
                     if (msg.role === +this.role) {
@@ -310,6 +310,7 @@ export default {
             }
             this.ws.close()
             this.ws = null
+            this.role = ''
         },
         clear() {
             this.id = null
@@ -416,8 +417,8 @@ export default {
 }
 
 img {
-    //width: 10%;
-    //height: 10%;
+    /*width: 10%;
+    height: 10%;*/
     max-width: 70%;
     max-height: 70%;
     vertical-align: top;
