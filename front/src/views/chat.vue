@@ -90,9 +90,6 @@ import {ref} from "vue";
 
 export default {
     name: 'Index-page',
-    props: {
-        host: String
-    },
     setup() {
         return {
             textarea: ref(),
@@ -112,6 +109,7 @@ export default {
         }
     },
     data() {
+        let host = process.env.NODE_ENV === 'development' ? "127.0.0.1:8088" : location.host
         document.addEventListener("keyup", (e) => {
             if (e.key === "Enter") {
                 if (e.ctrlKey) {
@@ -125,6 +123,7 @@ export default {
             }
         })
         return {
+            host: host,
             edit: {
                 inputVisible: false,
                 inputValue: "",
@@ -176,6 +175,7 @@ export default {
                 }
             }).then((res) => {
                 this.room = res.data
+                document.title = `${this.room.name} - ${this.role}`
             }).catch(() => {
                 ElMessage({
                     message: `获取房间信息失败`,
@@ -267,8 +267,7 @@ export default {
         setInnerMsg(element, msg) {
             const role = this.room.roles[msg.role]
             let innerHTML = `&lt;${role.name}&gt;: &nbsp;`
-            element.setAttribute("style", `color: ${role.color};`)
-            console.log(role, this.role)
+            element.setAttribute("style", `--color: ${role.color};`)
             switch (msg.type) {
                 case "text": {
                     if (msg.role === +this.role) {
@@ -311,6 +310,7 @@ export default {
             }
             this.ws.close()
             this.ws = null
+            this.role = ''
         },
         clear() {
             this.id = null
@@ -372,13 +372,6 @@ export default {
     }
 }
 </script>
-<style scoped>
-.avatar-uploader .avatar {
-    width: 170px;
-    height: 85px;
-    display: block;
-}
-</style>
 <!--suppress CssUnusedSymbol -->
 <style>
 #app {
@@ -395,8 +388,13 @@ export default {
 }
 
 #chatLogs > div {
+    color: var(--color);
     padding: 0.3em 0 0.5em 2em;
     text-indent: -2em;
+}
+
+#chatLogs > div > * {
+    text-indent: 0;
 }
 
 #chatLogs > div.edit:hover {
@@ -419,11 +417,17 @@ export default {
 }
 
 img {
-    //width: 10%;
-    //height: 10%;
-    max-width: 60%;
-    max-height: 60%;
+    /*width: 10%;
+    height: 10%;*/
+    max-width: 70%;
+    max-height: 70%;
     vertical-align: top;
+}
+
+.avatar-uploader .avatar {
+    width: 170px;
+    height: 85px;
+    display: block;
 }
 
 .avatar-uploader .el-upload {

@@ -1,9 +1,9 @@
 /* region tiktok */
-.tiktok {
-    animation: tiktok 0.5s linear infinite;
+.usr-tiktok {
+    animation: usr-tiktok 0.5s linear infinite;
 }
 
-@keyframes tiktok {
+@keyframes usr-tiktok {
     0%, 100% {
         text-shadow: -1.5px -1.5px 0 #0ff, 1.5px 1.5px 0 #f00;
     }
@@ -22,43 +22,44 @@
 
 /* region moveShake*/
 
-.moveShake {
+.usr-shake {
     --color: black;
 }
 
-.moveShake > * {
+.usr-shake > * {
+    display: inline-block;
     color: var(--color);
     -webkit-animation: moveShadow 0.6s linear infinite, shake 0.15s linear infinite;
     animation: moveShadow 0.6s linear infinite, shake 0.15s linear infinite;
 }
 
-.moveShake > *:nth-child(5n) {
+.usr-shake > :nth-child(5n) {
     -webkit-animation-delay: -0.2s;
     animation-delay: -0.2s;
 }
 
-.moveShake > *:nth-child(5n+1) {
+.usr-shake > :nth-child(5n+1) {
     -webkit-animation-delay: -0.4s;
     animation-delay: -0.4s;
 }
 
-.moveShake > *:nth-child(5n+2) {
+.usr-shake > :nth-child(5n+2) {
     -webkit-animation-delay: -0.6s;
     animation-delay: -0.6s;
 }
 
-.moveShake > *:nth-child(5n+3) {
+.usr-shake > :nth-child(5n+3) {
     -webkit-animation-delay: -0.8s;
     animation-delay: -0.8s;
 }
 
-.moveShake > *:nth-child(5n+4) {
+.usr-shake > :nth-child(5n+4) {
     -webkit-animation-delay: -1s;
     animation-delay: -1s;
 }
 
 @-webkit-keyframes moveShadow {
-    0%, 100% {
+    0% {
         text-shadow: 2px 2px 0 var(--color);
     }
     25% {
@@ -73,7 +74,7 @@
 }
 
 @keyframes moveShadow {
-    0%, 100% {
+    0% {
         text-shadow: 2px 2px 0 var(--color);
     }
     25% {
@@ -88,13 +89,17 @@
 }
 
 @-webkit-keyframes shake {
-    0%, 50% {
+    0% {
         -webkit-transform: rotate(1deg) translateY(-1px);
         transform: rotate(1deg) translateY(-1px);
     }
     25% {
         -webkit-transform: rotate(-1deg) translateY(0px);
         transform: rotate(-1deg) translateY(0px);
+    }
+    50% {
+        -webkit-transform: rotate(1deg) translateY(-1px);
+        transform: rotate(1deg) translateY(-1px);
     }
     75% {
         -webkit-transform: rotate(0) translateY(1px);
@@ -103,13 +108,17 @@
 }
 
 @keyframes shake {
-    0%, 50% {
+    0% {
         -webkit-transform: rotate(1deg) translateY(-1px);
         transform: rotate(1deg) translateY(-1px);
     }
     25% {
         -webkit-transform: rotate(-1deg) translateY(0px);
         transform: rotate(-1deg) translateY(0px);
+    }
+    50% {
+        -webkit-transform: rotate(1deg) translateY(-1px);
+        transform: rotate(1deg) translateY(-1px);
     }
     75% {
         -webkit-transform: rotate(0) translateY(1px);
