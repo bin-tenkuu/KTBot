@@ -4,12 +4,7 @@ import my.ktbot.PluginMain
 import my.ktbot.PluginPerm
 import my.ktbot.utils.SystemInfoUtil
 import my.ktbot.utils.toMessage
-import net.mamoe.mirai.console.command.Command
 import net.mamoe.mirai.console.command.CommandSender
-import net.mamoe.mirai.console.command.SimpleCommand
-import net.mamoe.mirai.console.command.descriptor.CommandArgumentContext
-import net.mamoe.mirai.console.command.descriptor.EmptyCommandArgumentContext
-import net.mamoe.mirai.console.compiler.common.ResolveContext
 import net.mamoe.mirai.console.util.ConsoleExperimentalApi
 import net.mamoe.mirai.contact.Contact
 import net.mamoe.mirai.message.data.Message
@@ -20,29 +15,7 @@ import net.mamoe.mirai.message.data.Message
  */
 @OptIn(ConsoleExperimentalApi::class)
 @Suppress("unused")
-object AdminCommand {
-    private val owner = PluginMain
-    private val parentPermission = PluginPerm.admin
-    private val overrideContext: CommandArgumentContext = EmptyCommandArgumentContext
-
-    val all: Array<out Command> by lazy {
-        this::class.nestedClasses.mapNotNull {
-            it.objectInstance as? Command
-        }.toTypedArray()
-    }
-
-    open class SubCommand(
-            @ResolveContext(ResolveContext.Kind.COMMAND_NAME) primaryName: String,
-            description: String = "no description available",
-            @ResolveContext(ResolveContext.Kind.COMMAND_NAME) vararg secondaryNames: String,
-    ) : SimpleCommand(
-            owner = owner,
-            parentPermission = parentPermission,
-            primaryName = primaryName,
-            secondaryNames = secondaryNames,
-            description = description,
-            overrideContext = overrideContext
-    )
+object AdminCommand : BaseCommandList(PluginMain, PluginPerm.admin) {
 
     object AdminSend : SubCommand("send", "管理员手动发送消息,普通") {
         @Handler
@@ -51,25 +24,27 @@ object AdminCommand {
             val msg = msgs.toMessage()
             if (bot == null) {
                 println(msg.toString())
-            } else if (msg == null) {
+                return
+            }
+            if (msg == null) {
                 sendMessage("消息不能为空")
+                return
+            }
+            val contact: Contact? = if (target.startsWith('g', true)) {
+                bot.getGroup(target.substring(1).toLong())
             } else {
-                val contact: Contact? = if (target.startsWith('g', true)) {
-                    bot.getGroup(target.substring(1).toLong())
-                } else {
-                    bot.getFriend(target.toLong())
-                }
-                if (contact == null) {
-                    sendMessage("目标 '$target' 不存在")
-                } else {
-                    runCatching {
-                        contact.sendMessage(msg)
-                    }.onSuccess {
-                        sendMessage("已发送")
-                    }.onFailure {
-                        sendMessage("发送失败")
-                    }
-                }
+                bot.getFriend(target.toLong())
+            }
+            if (contact == null) {
+                sendMessage("目标 '$target' 不存在")
+                return
+            }
+            runCatching {
+                contact.sendMessage(msg)
+            }.onSuccess {
+                sendMessage("已发送")
+            }.onFailure {
+                sendMessage("发送失败")
             }
         }
     }
@@ -81,4 +56,21 @@ object AdminCommand {
         }
     }
 
+    object BotList : SubCompositeCommand("botlist", "获取bot列表") {
+        @SubCommand("all")
+        @Description("查看bot内列表")
+        suspend fun CommandSender.all() {
+            val bot = bot
+            if (bot == null) {
+                sendMessage("控制台无指定bot")
+                return
+            }
+            val msg = buildString {
+                append("总共 ${bot.groups.size} 个群聊:\n")
+                append("总共 ${bot.friends.size} 个好友:\n")
+                append("总共 ${bot.strangers.size} 个陌生人:\n")
+            }
+            sendMessage(msg)
+        }
+    }
 }

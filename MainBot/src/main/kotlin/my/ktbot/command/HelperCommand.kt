@@ -5,15 +5,17 @@ import my.ktbot.PluginMain
 import my.ktbot.PluginPerm
 import my.ktbot.utils.calculator.Calculator
 import my.ktbot.utils.toMessage
+import net.mamoe.mirai.console.command.BuiltInCommands
 import net.mamoe.mirai.console.command.Command
+import net.mamoe.mirai.console.command.Command.Companion.allNames
+import net.mamoe.mirai.console.command.CommandManager
 import net.mamoe.mirai.console.command.CommandSender
-import net.mamoe.mirai.console.command.SimpleCommand
-import net.mamoe.mirai.console.command.descriptor.CommandArgumentContext
-import net.mamoe.mirai.console.command.descriptor.EmptyCommandArgumentContext
-import net.mamoe.mirai.console.compiler.common.ResolveContext
+import net.mamoe.mirai.console.command.descriptor.AbstractCommandValueParameter
+import net.mamoe.mirai.console.command.descriptor.ExperimentalCommandDescriptors
 import net.mamoe.mirai.console.util.ConsoleExperimentalApi
 import net.mamoe.mirai.message.data.Message
 import net.mamoe.mirai.message.data.toPlainText
+import kotlin.reflect.KClass
 
 /**
  * @author bin
@@ -21,29 +23,7 @@ import net.mamoe.mirai.message.data.toPlainText
  */
 @OptIn(ConsoleExperimentalApi::class)
 @Suppress("unused")
-object HelperCommand {
-    private val owner = PluginMain
-    private val parentPermission = PluginPerm.common
-    private val overrideContext: CommandArgumentContext = EmptyCommandArgumentContext
-
-    val all: Array<out Command> by lazy {
-        this::class.nestedClasses.mapNotNull {
-            it.objectInstance as? Command
-        }.toTypedArray()
-    }
-
-    open class SubCommand(
-            @ResolveContext(ResolveContext.Kind.COMMAND_NAME) primaryName: String,
-            description: String = "no description available",
-            @ResolveContext(ResolveContext.Kind.COMMAND_NAME) vararg secondaryNames: String,
-    ) : SimpleCommand(
-            owner = owner,
-            parentPermission = parentPermission,
-            primaryName = primaryName,
-            secondaryNames = secondaryNames,
-            description = description,
-            overrideContext = overrideContext
-    )
+object HelperCommand : BaseCommandList(PluginMain, PluginPerm.common) {
 
     object Ping : SubCommand("ping", "用于测试连通性") {
         @Handler
@@ -96,4 +76,76 @@ object HelperCommand {
             }
         }
     }
+
+    object HelpCommand : SubCommand("?", "筛选指令并显示略微详细的帮助") {
+
+        @Handler
+        suspend fun CommandSender.handle(@Name("指令关键词") keyword: String = "") {
+            val message: String
+            if (keyword.isBlank()) {
+                message = BuiltInCommands.HelpCommand.generateDefaultHelp(permitteeId)
+                sendMessage(message)
+                return
+            }
+            val permitteeId = this.permitteeId
+            val filter = ArrayList<Command>()
+            for (command in CommandManager.allRegisteredCommands) {
+                if (!PluginPerm.test(permitteeId, command.permission)) {
+                    continue
+                }
+                if (command.allNames.any { it.equals(keyword, true) }) {
+                    filter.clear()
+                    filter.add(command)
+                    break
+                }
+                if (command.allNames.any { it.contains(keyword, true) }) {
+                    filter.add(command)
+                }
+            }
+            if (filter.isEmpty()) {
+                sendMessage("无匹配的指令")
+                return
+            }
+            if (filter.size == 1) {
+                val command = filter[0]
+                @OptIn(ExperimentalCommandDescriptors::class)
+                message = buildString {
+                    append(command.usage)
+                    appendLine()
+                    val secondaryNames = command.secondaryNames
+                    if (secondaryNames.isNotEmpty()) {
+                        append("别名：")
+                        secondaryNames.joinTo(this, ", ")
+                        appendLine()
+                    }
+                }
+                sendMessage(message)
+                return
+            }
+            message = filter
+                    .joinToString("\n\n") { command ->
+                        val lines = command.usage.lines()
+                        if (lines.isEmpty()) "/${command.primaryName} ${command.description}"
+                        else
+                            "◆ " + lines.first() + "\n" + lines.drop(1).joinToString("\n") { "  $it" }
+                    }.lines().filterNot(String::isBlank).joinToString("\n")
+            sendMessage(message)
+        }
+
+        @ExperimentalCommandDescriptors
+        private fun <T> AbstractCommandValueParameter<T>.render(): String {
+            return when (this) {
+                is AbstractCommandValueParameter.Extended,
+                is AbstractCommandValueParameter.UserDefinedType<*>,
+                -> {
+                    val nameToRender = this.name ?: (this.type as KClass<*>).simpleName
+                    if (isOptional) "[$nameToRender]" else "<$nameToRender>"
+                }
+                is AbstractCommandValueParameter.StringConstant -> {
+                    this.expectingValue
+                }
+            }
+        }
+    }
+
 }

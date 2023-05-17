@@ -1,6 +1,5 @@
 package my.ktbot
 
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import net.mamoe.mirai.Bot
 import net.mamoe.mirai.console.data.AutoSavePluginConfig
@@ -17,7 +16,6 @@ object PlugConfig : AutoSavePluginConfig("config") {
     val nginxLogPath: String by value("./logs")
     val juheApi: Map<String, String> by value(HashMap())
     val openAiToken: String by value("")
-    val mihoyo: Mihoyo by value(Mihoyo())
     val dataSource: DataSource by value(DataSource())
 
     fun getAdmin(bot: Bot): Friend {
@@ -28,8 +26,9 @@ object PlugConfig : AutoSavePluginConfig("config") {
         return bot.getGroupOrFail(adminGroup)
     }
 
-    fun isAdmin(e: MessageEvent): Boolean =
-        if (e is GroupEvent && e.group.id == adminGroup) true else e.sender.id == adminId
+    fun isAdmin(e: MessageEvent): Boolean {
+        return e is GroupEvent && e.group.id == adminGroup || e.sender.id == adminId
+    }
 
     @Serializable
     class Proxy {
@@ -39,32 +38,10 @@ object PlugConfig : AutoSavePluginConfig("config") {
     }
 
     @Serializable
-    class DataSource(
-        var url: String = "",
-        var username: String = "",
-        var password: String = "",
-    )
-
-    @Serializable
-    class Mihoyo(
-        var enable: Boolean = false,
-        var cookie: String = "",
-        @SerialName("login_ticket")
-        var loginTicket: String = "",
-        var stuid: String = "",
-        var stoken: String = "",
-        val games: MutableMap<String, Boolean> = HashMap(),
-    ) {
-        fun clear_cookies() {
-            enable = false
-            loginTicket = ""
-            stuid = ""
-            stoken = ""
-            cookie = "CookieError"
-        }
-
-        fun clear_cookie_game(game_id: String) {
-            games[game_id] = false
-        }
+    class DataSource {
+        var url = ""
+        var username = ""
+        var password = ""
     }
+
 }

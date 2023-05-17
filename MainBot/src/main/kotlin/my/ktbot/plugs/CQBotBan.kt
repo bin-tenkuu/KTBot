@@ -32,7 +32,7 @@ object CQBotBan {
 		/**true为ban，false为unban*/
 		val type = groups["type"] === null
 		val ids = (groups["other"] ?: return null).value.split(empty).mapNotNull { it.toLongOrNull() }
-		buildMessageChain {
+		return buildMessageChain {
 			+"已"
 			if (type) +"un"
 			+"ban"
@@ -40,7 +40,6 @@ object CQBotBan {
 			+"：\n"
 			ids.joinTo(this, "\n") { toString() }
 		}
-		return null
 	}
 
 	@JvmStatic

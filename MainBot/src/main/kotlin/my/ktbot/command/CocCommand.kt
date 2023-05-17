@@ -5,12 +5,7 @@ import my.ktbot.PluginPerm
 import my.ktbot.database.TCOCShortKey
 import my.ktbot.service.CocService
 import my.ktbot.utils.DiceResult
-import net.mamoe.mirai.console.command.Command
 import net.mamoe.mirai.console.command.CommandSender
-import net.mamoe.mirai.console.command.SimpleCommand
-import net.mamoe.mirai.console.command.descriptor.CommandArgumentContext
-import net.mamoe.mirai.console.command.descriptor.EmptyCommandArgumentContext
-import net.mamoe.mirai.console.compiler.common.ResolveContext
 import net.mamoe.mirai.console.util.ConsoleExperimentalApi
 
 /**
@@ -20,29 +15,7 @@ import net.mamoe.mirai.console.util.ConsoleExperimentalApi
  */
 @OptIn(ConsoleExperimentalApi::class)
 @Suppress("unused")
-object CocCommand {
-    private val owner = PluginMain
-    private val parentPermission = PluginPerm.coc
-    private val overrideContext: CommandArgumentContext = EmptyCommandArgumentContext
-
-    val all: Array<out Command> by lazy {
-        this::class.nestedClasses.mapNotNull {
-            it.objectInstance as? Command
-        }.toTypedArray()
-    }
-
-    open class SubCommand(
-            @ResolveContext(ResolveContext.Kind.COMMAND_NAME) primaryName: String,
-            description: String = "no description available",
-            @ResolveContext(ResolveContext.Kind.COMMAND_NAME) vararg secondaryNames: String,
-    ) : SimpleCommand(
-            owner = owner,
-            parentPermission = parentPermission,
-            primaryName = primaryName,
-            secondaryNames = secondaryNames,
-            description = description,
-            overrideContext = overrideContext
-    )
+object CocCommand : BaseCommandList(PluginMain, PluginPerm.coc) {
 
     object D : SubCommand("d", "掷骰子，附带简单计算（+-*），形如 '9#9d9+9'") {
         private val diceRegex = Regex(

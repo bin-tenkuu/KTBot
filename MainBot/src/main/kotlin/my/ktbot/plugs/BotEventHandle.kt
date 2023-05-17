@@ -1,8 +1,5 @@
 package my.ktbot.plugs
 
-import kotlinx.coroutines.*
-import my.ktbot.PlugConfig
-import my.ktbot.PluginMain
 import my.ktbot.annotation.Helper
 import my.ktbot.annotation.SendAdmin
 import my.ktbot.annotation.SendGroup
@@ -10,11 +7,8 @@ import my.ktbot.database.Gmt.Companion.update
 import my.ktbot.utils.Counter
 import my.ktbot.utils.createLogger
 import my.miraiplus.annotation.MiraiEventHandle
-import net.mamoe.mirai.Bot
 import net.mamoe.mirai.contact.nameCardOrNick
 import net.mamoe.mirai.event.events.*
-import net.mamoe.mirai.message.data.ForwardMessage
-import java.time.Duration
 
 /**
  *  @Date:2022/5/31
@@ -23,10 +17,6 @@ import java.time.Duration
  */
 object BotEventHandle {
 	private val logger = createLogger<BotEventHandle>()
-
-	init {
-		startCounter()
-	}
 
 	@MiraiEventHandle("Bot 上线事件")
 	private fun BotOnlineEvent.run() {
@@ -174,27 +164,4 @@ object BotEventHandle {
 		Counter.groups[groupId].update { isBaned = false }
 	}
 
-	@JvmStatic
-	private fun startCounter() {
-		PluginMain.launch(PluginMain.coroutineContext, start = CoroutineStart.UNDISPATCHED) {
-			while (true) {
-				delay(1000)
-				val bot = Bot.instances.firstOrNull() ?: continue
-				var sizelimit = 12
-				while (bot.isOnline) {
-					val group = PlugConfig.getAdminGroup(bot)
-					val state = Counter.state(group)
-					if (state is ForwardMessage && state.nodeList.size > sizelimit) {
-						group.sendMessage(state)
-						Counter.clear()
-						sizelimit = 12
-					}
-					else if (sizelimit > 1) sizelimit--
-					delay(Duration.ofHours(1).toMillis())
-				}
-			}
-		}.invokeOnCompletion {
-			logger.error("计数器携程退出")
-		}
-	}
 }

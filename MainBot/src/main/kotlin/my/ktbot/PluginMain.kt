@@ -65,7 +65,6 @@ object PluginMain : MyKotlinPlugin(
                 // CQBotPicture, CQBotPixiv,
                 CQBotPerm,
                 CQBotHelper,
-                CQBotListGet,
                 CQBotMemeAI,
                 // CQBotWhoAtMe,
                 CQNginxLogHandle,
