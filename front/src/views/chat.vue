@@ -102,6 +102,8 @@ export default {
              * @type {HTMLDivElement}
              */
             chatLogs: ref(),
+            // 使用文档碎片节点优化性能
+            // chatLogs2: document.createDocumentFragment(),
             /**
              * @type {HTMLDivElement}
              */
@@ -190,7 +192,7 @@ export default {
                     type: 'success',
                     duration: 1000,
                 });
-                this.chatLogs.innerHTML = ""
+                this.chatLogs.textContent = ""
                 this.msgs = []
                 this.minId = null
                 this.maxId = null
