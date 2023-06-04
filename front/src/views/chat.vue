@@ -1,84 +1,66 @@
 <template id="app">
-    <div ref="main" class="el-main">
-        <div v-if="ws==null">
-            <el-input v-model="room.id" style="width: 20em" clearable>
-                <template #prepend>房间：</template>
-            </el-input>
-            <br>
-            <el-input v-model="role" style="width: 20em;" clearable>
-                <template #prepend>角色：</template>
-            </el-input>
-            <br>
-            <el-button type="primary" @click="connect">进入房间</el-button>
-        </div>
-        <div ref="editBtn" style="display: none">
-            <el-icon>
-                <Edit/>
-            </el-icon>
-        </div>
-        <div ref="chatLogs" id="chatLogs"></div>
-        <el-divider>
-            <el-icon>
-                <StarFilled/>
-            </el-icon>
-        </el-divider>
+    <div v-if="ws==null">
+        <el-input v-model="room.id" style="width: 20em" clearable>
+            <template #prepend>房间：</template>
+        </el-input>
+        <br>
+        <el-input v-model="role" style="width: 20em;" clearable>
+            <template #prepend>角色：</template>
+        </el-input>
+        <br>
+        <el-button type="primary" @click="connect">进入房间</el-button>
     </div>
-    <div class="el-footer">
-        <div v-if="ws">
-            <el-space>
-                <template v-for="(role,index) in getRole(role)" :key="index">
-                    {{ role?.name }}
-                    <el-tag
-                            v-for="(tag,index) in role?.tags??[]" :key="index"
-                            :type="tag.type??''"
-                            :color="tag.color??''"
-                            size="large"
-                            effect="light">
-                        {{ tag.name }}
-                    </el-tag>
-                </template>
-                <br>
-                <label>输入框：</label>
-                <el-button
-                        type="primary"
-                        :disabled="message.length<1"
-                        @click="sendMessage"
-                >
-                    {{ id ? "修改" : "发送" }}
-                </el-button>
-                <el-button type="primary" @click="sendBase64Image">发送图片</el-button>
-                <el-switch
-                        v-model="scrollDown"
+    <div ref="chatLogs" id="chatLogs"></div>
+    <el-divider>
+        <el-icon>
+            <StarFilled/>
+        </el-icon>
+    </el-divider>
+    <div v-if="ws">
+        <el-space>
+            <template v-for="(role,index) in getRole(role)" :key="index">
+                {{ role?.name }}
+                <el-tag
+                        v-for="(tag,index) in role?.tags??[]" :key="index"
+                        :type="tag.type??''"
+                        :color="tag.color??''"
                         size="large"
-                        inline-prompt
-                        active-text="保持底部"
-                        inactive-text="自由滚动"
-                        @change="scroll"
-                />
-            </el-space>
-            <el-input ref="textarea" type="textarea" class="el-textarea" placeholder="请输入内容"
-                      v-model="message"
-                      :autosize="{ minRows: 2, maxRows: 10 }"
-            />
+                        effect="light">
+                    {{ tag.name }}
+                </el-tag>
+            </template>
             <br>
-            <el-button type="info" @click="sendHistory" :disabled="minId<=1">20条历史消息</el-button>
-            <el-button type="info" @click="clear">{{ id ? "取消" : "清空" }}</el-button>
-            <el-button type="danger" @click="disconnect">离开房间</el-button>
-            <el-upload
-                    ref="picture"
-                    class="avatar-uploader"
-                    accept="image"
-                    list-type="picture"
-                    :show-file-list="false"
-                    :auto-upload="false"
-                    action="#"
-                    :on-change="handlePictureChange">
-                <img v-if="image" :src="image.url" class="avatar" alt="img"/>
-                <el-icon v-else class="avatar-uploader-icon">
-                    <Plus/>
-                </el-icon>
-            </el-upload>
-        </div>
+            <label>输入框：</label>
+            <el-button
+                    type="primary"
+                    :disabled="hasmessage"
+                    @click="sendMessage"
+            >
+                {{ id ? "修改" : "发送" }}
+            </el-button>
+            <el-switch
+                    v-model="scrollDown"
+                    size="large"
+                    inline-prompt
+                    active-text="保持底部"
+                    inactive-text="自由滚动"
+                    @change="scroll"
+            />
+        </el-space>
+        <quill-editor
+                v-model:content="message"
+                content-type="html"
+                :options="editorOptions"
+                placeholder="请输入内容"
+                class="editor"
+                @ready="editorReady"
+                @update:content="updateContent"
+        >
+        </quill-editor>
+        <br>
+        <el-button type="info" @click="sendHistory" :disabled="minId<=1">20条历史消息</el-button>
+        <el-button type="info" @click="clear">{{ id ? "取消" : "清空" }}</el-button>
+        <el-button type="danger" @click="disconnect">离开房间</el-button>
     </div>
 </template>
 
@@ -87,27 +69,62 @@ import {Edit, Key, Plus, StarFilled} from '@element-plus/icons-vue'
 import axios from "axios";
 import {ElMessage} from "element-plus";
 import {ref} from "vue";
+import {Quill, QuillEditor} from '@vueup/vue-quill';
+import htmlEditButton from "quill-html-edit-button";
+import '@vueup/vue-quill/dist/vue-quill.snow.css';
 
 export default {
     name: 'Index-page',
+    components: {Key, Edit, Plus, StarFilled, QuillEditor},
     setup() {
+        Quill.register({
+            "modules/htmlEditButton": htmlEditButton,
+        })
+        const Inline = Quill.import('blots/inline');
+        const Embed = Quill.import('blots/embed');
+
+        class UsrTiktok extends Inline {
+            static blotName = "tiktok"
+            static tagName = "span"
+            static className = "usr-tiktok"
+
+            static formats() {
+                return true;
+            }
+        }
+
+        class UsrShake extends Embed {
+            static blotName = "shake"
+            static tagName = "span"
+            static className = "usr-shake"
+
+            static create(value) {
+                let node = super.create();
+                if (typeof value === 'string') {
+                    node.innerHTML = value.replace(/(.) */g, "<span>$1</span>");
+                }
+                return node;
+            }
+
+            static formats() {
+                return true;
+            }
+
+            static value(domNode) {
+                return domNode.innerText.replace(/<\/?span[^>]*>/g, "");
+            }
+
+        }
+
+        Quill.register(UsrTiktok);
+        Quill.register(UsrShake);
         return {
-            textarea: ref(),
-            picture: ref(),
-            /**
-             * @type {HTMLDivElement}
-             */
-            editBtn: ref(),
             /**
              * @type {HTMLDivElement}
              */
             chatLogs: ref(),
             // 使用文档碎片节点优化性能
             // chatLogs2: document.createDocumentFragment(),
-            /**
-             * @type {HTMLDivElement}
-             */
-            main: ref()
         }
     },
     data() {
@@ -115,11 +132,7 @@ export default {
         document.addEventListener("keyup", (e) => {
             if (e.key === "Enter") {
                 if (e.ctrlKey) {
-                    if (e.altKey) {
-                        this.sendBase64Image()
-                    } else {
-                        this.sendMessage()
-                    }
+                    this.sendMessage()
                 }
                 e.preventDefault()
             }
@@ -151,22 +164,46 @@ export default {
              */
             msgs: [],
             id: null,
-            message: "",
-            /**
-             * @type {UploadFile}
-             */
-            image: null,
+            message: "<p><br></p>",
+            hasmessage: true,
+            editorOptions: {
+                modules: {
+                    toolbar: {
+                        container: [
+                            // 加粗 斜体 下划线 删除线
+                            ['bold', 'italic', 'underline', 'strike'],
+                            // 引用 代码块 有序、无序列表
+                            ['blockquote', 'code-block', {list: 'ordered'}, {list: 'bullet'}],
+                            // 标题
+                            [{header: [1, 2, 3, 4, 5, 6, false]}],
+                            // 上标/下标
+                            [{script: 'sub'}, {script: 'super'}],
+                            // 缩进 对齐方式 文本方向
+                            [{indent: '-1'}, {indent: '+1'}, {align: []}, {direction: 'rtl'}],
+                            // 字体颜色、字体背景颜色
+                            [{color: []}, {background: []}],
+                            // 字体大小 字体种类
+                            [{'size': []}, {'font': []}],
+                            // 清除文本格式-----['clean']
+                            ['clean'],
+                            // 链接、图片、视频-----['link', 'image', 'video']
+                            ['image'],
+                            ['tiktok', 'shake'],
+                        ]
+                    },
+                    htmlEditButton: {
+                        // debug: true,
+                        buttonHTML: "&lt;&gt;",
+                        buttonTitle: "以HTML编辑",
+                        msg: "在此处编辑HTML，当您单击“确定”时，编辑器的内容将被替换",
+                        okText: "确定",
+                        cancelText: "取消"
+                    }
+                }
+            }
         }
     },
     methods: {
-        /**
-         * @param uploadFile {UploadFile}
-         */
-        handlePictureChange(uploadFile) {
-            if (uploadFile.raw.type.startsWith("image")) {
-                this.image = uploadFile
-            }
-        },
         connect() {
             if (this.ws != null) {
                 return
@@ -268,23 +305,17 @@ export default {
          */
         setInnerMsg(element, msg) {
             const role = this.room.roles[msg.role]
-            let innerHTML = `&lt;${role.name}&gt;: &nbsp;`
+            let innerHTML = `<span>&lt;${role.name}&gt;:</span>`
             element.setAttribute("style", `--color: ${role.color};`)
             switch (msg.type) {
                 case "text": {
                     if (msg.role === +this.role) {
-                        /**
-                         * @type {HTMLButtonElement}
-                         */
-                        let editBtn = this.editBtn.firstChild.cloneNode(true);
-                        editBtn.setAttribute("class", "el-icon")
-                        element.appendChild(editBtn)
                         element.setAttribute("class", "edit")
                         element.addEventListener("click", () => {
                             this.editMsg(msg.id)
                         })
                     }
-                    innerHTML += msg.msg.replace(/\n/g, "<br/>")
+                    innerHTML += "<span>" + msg.msg.replace(/\n/g, "<br/>") + "</span>"
                     break
                 }
                 case "pic": {
@@ -296,14 +327,14 @@ export default {
                     break
                 }
                 default:
-                    innerHTML += "未知消息类型: " + msg.type
+                    innerHTML += "<span>未知消息类型: " + msg.type + "</span>"
                     break
             }
             element.innerHTML = innerHTML
         },
         scroll() {
             if (this.scrollDown) {
-                this.main.scrollTop = this.main.scrollHeight
+                window.scrollTo(0, document.documentElement.scrollHeight)
             }
         },
         disconnect() {
@@ -316,8 +347,7 @@ export default {
         },
         clear() {
             this.id = null
-            this.message = "";
-            this.image = null
+            this.quill.setText("", 'api')
         },
         sendHistory() {
             this.send({
@@ -325,6 +355,7 @@ export default {
                 id: this.minId,
                 role: this.role
             })
+            this.clear()
         },
         editMsg(id) {
             this.id = id
@@ -338,25 +369,8 @@ export default {
                     type: "text",
                     msg: trim,
                 })
-                this.message = ""
             }
-            this.id = null
-            this.textarea?.focus()
-        },
-        sendBase64Image() {
-            if (this.image != null) {
-                let reader = new FileReader();
-                reader.onloadend = () => {
-                    this.send({
-                        type: "pic",
-                        msg: reader.result,
-                    })
-                    this.image = null
-                };
-                reader.readAsDataURL(this.image.raw);
-            } else {
-                console.log(this.picture);
-            }
+            this.clear()
         },
         send(json) {
             this.ws.send(JSON.stringify(json))
@@ -365,24 +379,46 @@ export default {
             let role = this.room.roles[roleId];
             return role ? [role] : []
         },
-    },
-    components: {
-        Key,
-        Edit,
-        Plus,
-        StarFilled
+        editorReady(quill) {
+            this.quill = quill
+            document.querySelector('.ql-tiktok').innerText = "tiktok";
+            document.querySelector('.ql-shake').innerText = "shake";
+        },
+        updateContent() {
+            this.hasmessage = this.quill.getLength() < 2
+        },
     }
 }
 </script>
 <!--suppress CssUnusedSymbol -->
 <style>
+html, body {
+    --color: black;
+    height: 99%;
+    margin: 0;
+    padding: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+}
+
+p {
+    margin: 0;
+}
+
 #app {
     font-family: Avenir, Helvetica, Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-align: left;
     color: #2c3e50;
-    margin: 5px;
+    width: 100%;
+}
+
+#chatLogs {
+    display: flex;
+    flex-direction: column;
 }
 
 #chatLogs > div:empty {
@@ -391,12 +427,9 @@ export default {
 
 #chatLogs > div {
     color: var(--color);
-    padding: 0.3em 0 0.5em 2em;
-    text-indent: -2em;
-}
-
-#chatLogs > div > * {
-    text-indent: 0;
+    padding: 0;
+    display: flex;
+    margin: 1px;
 }
 
 #chatLogs > div.edit:hover {
@@ -409,6 +442,10 @@ export default {
     outline: 0;
 }
 
+#chatLogs > div > * {
+    flex-shrink: 0; /* 防止名字元素被压缩 */
+}
+
 #chatLogs > div:hover > .el-icon {
     display: inline;
     color: #a0cfff;
@@ -416,6 +453,12 @@ export default {
 
 #chatLogs > div > .el-icon {
     display: none;
+}
+
+#chatLogs > div > :nth-child(1) {
+    flex-shrink: 0; /* 防止名字元素被压缩 */
+    font-weight: bold;
+    margin-right: 5px;
 }
 
 img {
@@ -426,47 +469,15 @@ img {
     vertical-align: top;
 }
 
-.avatar-uploader .avatar {
-    width: 170px;
-    height: 85px;
-    display: block;
+.ql-tiktok {
+    min-width: 50px;
+    border: 1px solid #ccc !important;
+    border-radius: 5px;
 }
 
-.avatar-uploader .el-upload {
-    border: 1px dashed var(--el-border-color);
-    border-radius: 6px;
-    cursor: pointer;
-    position: relative;
-    overflow: hidden;
-    transition: var(--el-transition-duration-fast);
-}
-
-.avatar-uploader .el-upload:hover {
-    border-color: var(--el-color-primary);
-}
-
-.el-icon.avatar-uploader-icon {
-    font-size: 28px;
-    color: #8c939d;
-    width: 170px;
-    height: 85px;
-    text-align: center;
-}
-
-.el-main {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 210px;
-    overflow-y: scroll;
-}
-
-.el-footer {
-    position: absolute;
-    height: 210px;
-    width: 100%;
-    bottom: 0;
-    overflow-y: scroll;
+.ql-shake {
+    min-width: 50px;
+    border: 1px solid #ccc !important;
+    border-radius: 5px;
 }
 </style>

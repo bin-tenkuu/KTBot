@@ -1,23 +1,27 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <link rel="icon" href="/favicon.ico">
-  <title><%= htmlWebpackPlugin.options.title %></title>
-  <!-- Import style -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/element-plus/dist/index.css"/>
-  <link rel="stylesheet" href="./usr-defined.css">
-  <!-- Import Vue 3 -->
-  <script src="https://cdn.jsdelivr.net/npm/vue@3"></script>
-  <!-- Import component library -->
-  <script src="https://cdn.jsdelivr.net/npm/element-plus@2.2.36/dist/index.full.min.js"></script>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <link rel="icon" href="/favicon.ico">
+    <title><%= htmlWebpackPlugin.options.title %></title>
+    <!-- Import style -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/element-plus/dist/index.css"/>
+    <link rel="stylesheet" href="./usr-defined.css">
+    <!-- Import Vue 3 -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@3"></script>
+    <!-- Import component library -->
+    <script src="https://cdn.jsdelivr.net/npm/element-plus@2.2.36/dist/index.full.min.js"></script>
+    <!-- use the latest VueQuill release -->
+    <script src="https://unpkg.com/@vueup/vue-quill@latest"></script>
+    <link rel="stylesheet" href="https://unpkg.com/@vueup/vue-quill@latest/dist/vue-quill.snow.prod.css">
+    <script src="https://unpkg.com/quill-html-edit-button@2.2.7/dist/quill.htmlEditButton.min.js"></script>
 </head>
 <body>
 <noscript>
-  <strong>We're sorry but <%= htmlWebpackPlugin.options.title %> doesn't work properly without JavaScript enabled.
-    Please enable it to continue.</strong>
+    <strong>We're sorry but <%= htmlWebpackPlugin.options.title %> doesn't work properly without JavaScript enabled.
+        Please enable it to continue.</strong>
 </noscript>
 <div id="app"></div>
 <!-- built files will be auto injected -->
