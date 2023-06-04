@@ -73,51 +73,54 @@ import {Quill, QuillEditor} from '@vueup/vue-quill';
 import htmlEditButton from "quill-html-edit-button";
 import '@vueup/vue-quill/dist/vue-quill.snow.css';
 
+Quill.register({
+    "modules/htmlEditButton": htmlEditButton,
+})
+const Inline = Quill.import('blots/inline');
+const Embed = Quill.import('blots/embed');
+
+class UsrTiktok extends Inline {
+    static blotName = "tiktok"
+    static tagName = "span"
+    static className = "usr-tiktok"
+
+    static formats() {
+        return true;
+    }
+}
+
+class UsrShake extends Embed {
+    static blotName = "shake"
+    static tagName = "span"
+    static className = "usr-shake"
+
+    static create(value) {
+        let node = super.create();
+        if (typeof value === 'string') {
+            node.innerHTML = value.replace(/(.) */g, "<span>$1</span>");
+        }
+        return node;
+    }
+
+    static formats() {
+        return true;
+    }
+
+    static value(domNode) {
+        return domNode.innerText.replace(/<\/?span[^>]*>/g, "");
+    }
+
+}
+
+Quill.register(UsrTiktok);
+Quill.register(UsrShake);
+let whitelist = ['0.8em', false, '2em', '4em', '8em', '16em', '32em'];
+Quill.imports['attributors/style/size'].whitelist = whitelist;
+Quill.register(Quill.imports['attributors/style/size']);
 export default {
     name: 'Index-page',
     components: {Key, Edit, Plus, StarFilled, QuillEditor},
     setup() {
-        Quill.register({
-            "modules/htmlEditButton": htmlEditButton,
-        })
-        const Inline = Quill.import('blots/inline');
-        const Embed = Quill.import('blots/embed');
-
-        class UsrTiktok extends Inline {
-            static blotName = "tiktok"
-            static tagName = "span"
-            static className = "usr-tiktok"
-
-            static formats() {
-                return true;
-            }
-        }
-
-        class UsrShake extends Embed {
-            static blotName = "shake"
-            static tagName = "span"
-            static className = "usr-shake"
-
-            static create(value) {
-                let node = super.create();
-                if (typeof value === 'string') {
-                    node.innerHTML = value.replace(/(.) */g, "<span>$1</span>");
-                }
-                return node;
-            }
-
-            static formats() {
-                return true;
-            }
-
-            static value(domNode) {
-                return domNode.innerText.replace(/<\/?span[^>]*>/g, "");
-            }
-
-        }
-
-        Quill.register(UsrTiktok);
-        Quill.register(UsrShake);
         return {
             /**
              * @type {HTMLDivElement}
@@ -174,19 +177,17 @@ export default {
                             ['bold', 'italic', 'underline', 'strike'],
                             // 引用 代码块 有序、无序列表
                             ['blockquote', 'code-block', {list: 'ordered'}, {list: 'bullet'}],
-                            // 标题
-                            [{header: [1, 2, 3, 4, 5, 6, false]}],
-                            // 上标/下标
-                            [{script: 'sub'}, {script: 'super'}],
-                            // 缩进 对齐方式 文本方向
-                            [{indent: '-1'}, {indent: '+1'}, {align: []}, {direction: 'rtl'}],
+                            // 字体大小 字体种类
+                            [{'size': whitelist}, {'font': []}],
                             // 字体颜色、字体背景颜色
                             [{color: []}, {background: []}],
-                            // 字体大小 字体种类
-                            [{'size': []}, {'font': []}],
-                            // 清除文本格式-----['clean']
+                            // 上标/下标
+                            [{script: 'sub'}, {script: 'super'}],
+                            // 缩进 对齐方式
+                            [{indent: '-1'}, {indent: '+1'}, {align: []}],
+                            // 清除文本格式
                             ['clean'],
-                            // 链接、图片、视频-----['link', 'image', 'video']
+                            // 链接、图片、视频
                             ['image'],
                             ['tiktok', 'shake'],
                         ]
@@ -395,6 +396,7 @@ export default {
 html, body {
     --color: black;
     height: 99%;
+    width: 100%;
     margin: 0;
     padding: 0;
     top: 0;
@@ -414,11 +416,6 @@ p {
     text-align: left;
     color: #2c3e50;
     width: 100%;
-}
-
-#chatLogs {
-    display: flex;
-    flex-direction: column;
 }
 
 #chatLogs > div:empty {
@@ -442,10 +439,6 @@ p {
     outline: 0;
 }
 
-#chatLogs > div > * {
-    flex-shrink: 0; /* 防止名字元素被压缩 */
-}
-
 #chatLogs > div:hover > .el-icon {
     display: inline;
     color: #a0cfff;
@@ -456,28 +449,70 @@ p {
 }
 
 #chatLogs > div > :nth-child(1) {
-    flex-shrink: 0; /* 防止名字元素被压缩 */
     font-weight: bold;
-    margin-right: 5px;
+    margin-right: 10px;
+}
+
+#chatLogs > div > :nth-child(2) {
+    white-space: normal;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
 }
 
 img {
-    /*width: 10%;
-    height: 10%;*/
     max-width: 70%;
     max-height: 70%;
     vertical-align: top;
 }
 
-.ql-tiktok {
+.ql-snow button.ql-tiktok {
     min-width: 50px;
     border: 1px solid #ccc !important;
     border-radius: 5px;
 }
 
-.ql-shake {
+.ql-snow button.ql-shake {
     min-width: 50px;
     border: 1px solid #ccc !important;
     border-radius: 5px;
 }
+
+.ql-container {
+    font-size: 1em;
+}
+
+.ql-snow button.ql-picker.ql-size {
+    width: 70px;
+}
+
+.ql-snow .ql-picker.ql-size .ql-picker-label[data-value='0.8em']::before,
+.ql-snow .ql-picker.ql-size .ql-picker-item[data-value='0.8em']::before {
+    content: '0.8em';
+}
+
+.ql-snow .ql-picker.ql-size .ql-picker-label[data-value='2em']::before,
+.ql-snow .ql-picker.ql-size .ql-picker-item[data-value='2em']::before {
+    content: '2em';
+}
+
+.ql-snow .ql-picker.ql-size .ql-picker-label[data-value='4em']::before,
+.ql-snow .ql-picker.ql-size .ql-picker-item[data-value='4em']::before {
+    content: '4em';
+}
+
+.ql-snow .ql-picker.ql-size .ql-picker-label[data-value='8em']::before,
+.ql-snow .ql-picker.ql-size .ql-picker-item[data-value='8em']::before {
+    content: '8em';
+}
+
+.ql-snow .ql-picker.ql-size .ql-picker-label[data-value='16em']::before,
+.ql-snow .ql-picker.ql-size .ql-picker-item[data-value='16em']::before {
+    content: '16em';
+}
+
+.ql-snow .ql-picker.ql-size .ql-picker-label[data-value='32em']::before,
+.ql-snow .ql-picker.ql-size .ql-picker-item[data-value='32em']::before {
+    content: '32em';
+}
+
 </style>
