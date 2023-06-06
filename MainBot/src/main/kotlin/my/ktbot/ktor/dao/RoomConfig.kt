@@ -149,7 +149,7 @@ class RoomConfig(
                     when (it.type) {
                         "pic" -> Message.Pic(it.msg, it.id, it.role)
                         "text" -> Message.Text(it.msg, it.id, it.role)
-                        "sys" -> Message.Sys(it.id, it.msg, it.role)
+                        "sys" -> Message.Sys(it.msg, it.id, it.role)
                         else -> Message.Msgs()
                     }
                 }
@@ -157,20 +157,12 @@ class RoomConfig(
     }
 
     fun historyAll(outputStream: OutputStream) {
-        // TODO: 导出自定义模板
         val builder = StringBuilder()
-        val roles = room.roles
         for (msg in dataSource.sequenceOf(THisMsg.Instence)) {
-            val config = roles[msg.role]
-            val name = config?.name ?: msg.role
-            val color = config?.color ?: "black"
+            val role = msg.role.role
+            val color = role.color
             builder.append("<div style=\"color: ").append(color).append("\">")
-            when (msg.type) {
-                "text" -> builder.append("&lt;${name}&gt;: &nbsp;").append(msg.msg)
-                "pic" -> builder.append("&lt;${name}&gt;: &nbsp;").append("<img alt=\"img\" src=\"${msg.msg}\"/>")
-                "sys" -> builder.append("<i>").append(msg.msg).append("</i>")
-                else -> {}
-            }
+            toHtml(msg.type, msg.msg, role, builder)
             builder.append("</div>\n")
         }
         ZipOutputStream(outputStream, StandardCharsets.UTF_8).use {
@@ -180,6 +172,25 @@ class RoomConfig(
             it.write(builder.toString().toByteArray())
             it.closeEntry()
             it.flush()
+        }
+    }
+
+    private val Int.role: RoleConfig get() = room.roles[this] ?: RoleConfig(this, this.toString(), "black")
+
+    private fun toHtml(type: String, msg: String, role: RoleConfig, builder: StringBuilder) {
+        val name = role.name
+        val user = "<span>&lt;${name}&gt;:</span>"
+        when (type) {
+            Message.textType -> builder.append(user).append("<span>").append(msg).append("</span>")
+            Message.picType -> builder.append(user).append("<img alt='img' src='").append(msg).append("'/>")
+            Message.sysType -> builder.append("<i>").append(msg).append("</i>")
+            else -> {}
+        }
+    }
+
+    private fun toHtml(type: String, msg: String, role: RoleConfig): String {
+        return buildString {
+            toHtml(type, msg, role, this)
         }
     }
 }

@@ -135,6 +135,7 @@ object RegimentKtorServer {
                             send(Frame.Pong(frame.data))
                             continue
                         }
+
                         is Frame.Pong -> continue
                         is Frame.Binary -> continue
                         is Frame.Text -> jsonGlobal.decodeFromString(serializer<Message>(), frame.readText())
@@ -153,13 +154,16 @@ object RegimentKtorServer {
                                 val sysMsg = Message.Sys("*" + roleName + msg.msg.substring(3))
                                 room.save(sysMsg, role)
                             } else {
+                                val b = msg.id == null
                                 room.save(msg, role)
-                                handleBot(room, role, msg.msg)
+                                if (b) handleBot(room, role, msg.msg)
                             }
                         }
-                        is Message.Pic -> {
+
+                        is Message.Pic, is Message.Sys -> {
                             room.save(msg, role)
                         }
+
                         is Message.Default -> {
                             role = msg.role
                             roleName = room.roles[role]?.name
@@ -167,6 +171,7 @@ object RegimentKtorServer {
                             sendSerialized(history as Message)
                             continue
                         }
+
                         else -> continue
                     }
                 }

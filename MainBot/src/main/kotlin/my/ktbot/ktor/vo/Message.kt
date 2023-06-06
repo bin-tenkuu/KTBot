@@ -59,31 +59,15 @@ sealed class Message {
             override var id: Long? = null,
             override var role: Int = -1
     ) : Msg, Message() {
-        constructor(id: Long, msg: String, role: Int) : this(msg) {
-            this.id = id
-            this.role = role
-        }
-
         override val msgType: String get() = sysType
     }
 
     @Serializable
     @SerialName("msgs")
-    @Suppress("unused")
-    class Msgs(val msgs: List<Message> = ArrayList(0)) : Message() {
-    }
+    class Msgs(val msgs: List<Message> = ArrayList(0)) : Message()
 
     @Serializable
     @SerialName("roles")
-    @Suppress("unused")
-    class Roles(val roles: Map<Int, RoleConfig>) : Message() {
-    }
-
-    @Serializable
-    @SerialName("role")
-    @Suppress("unused")
-    class Role(val role: Int, val name: String, val color: String = "") : Message() {
-        constructor(role: RoleConfig) : this(role.id, role.name, role.color)
-    }
+    class Roles(val roles: Map<Int, RoleConfig>) : Message()
 
 }
