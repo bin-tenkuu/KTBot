@@ -65,51 +65,19 @@ import {ref} from "vue";
 import {Quill, QuillEditor} from '@vueup/vue-quill';
 import htmlEditButton from "quill-html-edit-button";
 import '@vueup/vue-quill/dist/vue-quill.snow.css';
+import {UsrTiktok} from "@/formats/UsrTiktok";
+import {UsrShake} from "@/formats/UsrShake";
+import {Ruby} from "@/formats/ruby";
 
 Quill.register({
   "modules/htmlEditButton": htmlEditButton,
-})
-const Inline = Quill.import('blots/inline');
-const Embed = Quill.import('blots/embed');
-
-class UsrTiktok extends Inline {
-  static blotName = "tiktok"
-  static tagName = "span"
-  static className = "usr-tiktok"
-
-  static formats() {
-    return true;
-  }
-}
-
-class UsrShake extends Embed {
-  static blotName = "shake"
-  static tagName = "span"
-  static className = "usr-shake"
-
-  static create(value) {
-    let node = super.create();
-    if (typeof value === 'string') {
-      node.innerHTML = value.replace(/(.) */g, "<span>$1</span>");
-    }
-    return node;
-  }
-
-  static formats() {
-    return true;
-  }
-
-  static value(domNode) {
-    return domNode.innerText.replace(/<\/?span[^>]*>/g, "");
-  }
-
-}
-
-Quill.register(UsrTiktok);
-Quill.register(UsrShake);
+  'blots/tiktok': UsrTiktok,
+  'blots/shake': UsrShake,
+  'blots/ruby': Ruby,
+});
 let whitelist = ['0.8em', false, '2em', '4em', '8em', '16em', '32em'];
 Quill.imports['attributors/style/size'].whitelist = whitelist;
-Quill.register(Quill.imports['attributors/style/size']);
+
 export default {
   name: 'Index-page',
   components: {Key, Edit, Plus, StarFilled, QuillEditor},
@@ -186,8 +154,27 @@ export default {
               ['clean'],
               // 链接、图片、视频
               ['image'],
-              ['tiktok', 'shake'],
-            ]
+              ['tiktok', 'shake', 'ruby'],
+            ],
+            handlers: {
+              shake() {
+                let index = this.quill.getSelection().index || 0;
+                this.quill.insertText(index, " ", "api");
+                this.quill.insertEmbed(index + 1, 'shake', prompt("输入 shake 的字"), "api")
+                this.quill.insertText(index + 2, " ", "api");
+              },
+              ruby() {
+                let index = this.quill.getSelection().index || 0;
+                this.quill.insertText(index, " ", "api");
+                this.quill.insertEmbed(index + 1, 'ruby', [
+                  {
+                    k: prompt("输入 本体 ", "本体"),
+                    v: prompt("输入 注解 ", "注解")
+                  }
+                ], "api")
+                this.quill.insertText(index + 2, " ", "api");
+              }
+            }
           },
           htmlEditButton: {
             // debug: true,
@@ -408,6 +395,7 @@ export default {
       this.quill = quill
       document.querySelector('.ql-tiktok').innerText = "tiktok";
       document.querySelector('.ql-shake').innerText = "shake";
+      document.querySelector('.ql-ruby').innerText = "ruby";
     },
     updateContent() {
       this.hasmessage = this.quill.getLength() < 2
@@ -450,7 +438,7 @@ p {
   color: var(--color);
   padding: 0;
   display: flex;
-  margin: 1px;
+  margin: 5px;
 }
 
 #chatLogs > div.edit:hover {
@@ -496,6 +484,12 @@ img {
 }
 
 .ql-snow button.ql-shake {
+  min-width: 50px;
+  border: 1px solid #ccc !important;
+  border-radius: 5px;
+}
+
+.ql-snow button.ql-ruby {
   min-width: 50px;
   border: 1px solid #ccc !important;
   border-radius: 5px;
