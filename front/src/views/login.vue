@@ -1,36 +1,46 @@
 <template>
-    <el-button @click="getLoginUrl" size="large" type="primary">
-        登录
-    </el-button>
+  <el-button @click="getLoginUrl" size="large" type="primary">
+    登录
+  </el-button>
 </template>
 <script>
 import axios from "axios";
+import {ElMessage} from "element-plus";
 
 export default {
-    name: "login-page",
-    props: {},
-    setup() {
+  name: "login-page",
+  props: {},
+  setup() {
 
-    },
-    data() {
-        let host = process.env.NODE_ENV === 'development' ? "127.0.0.1:8088" : location.host
-        return {
-            host: host,
+  },
+  data() {
+    let host = process.env.NODE_ENV === 'development' ? "127.0.0.1:8088" : location.host
+    return {
+      host: host,
+    }
+  },
+  methods: {
+    getLoginUrl() {
+      axios.get(`http://${this.host}/api/qqUrl`).then(res => {
+        let data = res.data;
+        console.log(data)
+        if (data.url) {
+          window.open(
+              data.url,
+              '_self'
+          );
+        } else {
+          ElMessage({
+            message: `获取qq登陆链接失败`,
+            type: 'error',
+            showClose: true
+          });
         }
-    },
-    methods: {
-        getLoginUrl() {
-            axios.get(`https://uniqueker.top/connect.php`, {
-                params: {
-                    act: "login",
-                    appid: "1637",
-                    appkey: "90c563c89c08c8ac4fea54c1e8bd9c0c",
-                    type: "qq",
-                    redirect_uri: "v.binsrc.club"
-                }
-            })
-        }
-    },
+      }).catch(err => {
+        console.log(err)
+      })
+    }
+  },
 }
 </script>
 

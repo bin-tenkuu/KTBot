@@ -9,6 +9,7 @@ import io.ktor.websocket.*
 import my.ktbot.ktor.dao.RoomConfig
 import my.ktbot.ktor.dao.RoomMessage
 import my.ktbot.ktor.vo.Message
+import my.ktbot.retrofit.UniquekerApi
 
 /**
  *  @Date:2023/3/18
@@ -16,6 +17,10 @@ import my.ktbot.ktor.vo.Message
  *  @version 1.0.0
  */
 fun Route.roomApi() {
+    get("/qqUrl") {
+        val message = UniquekerApi.login().string()
+        call.respond(message)
+    }
     get("/rooms") {
         val name = call.parameters["name"] ?: ""
         call.respond(RoomConfig.values.filter {

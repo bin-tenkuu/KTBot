@@ -62,6 +62,8 @@ dependencies {
     testImplementation("com.theokanning.openai-gpt3-java:client:0.11.1")
     // html 库
     implementation("org.jsoup:jsoup:1.15.4")
+    // http
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
 }
 // ksp 加入编译
 kotlin {
@@ -69,8 +71,12 @@ kotlin {
         languageVersion.set(JavaLanguageVersion.of(17))
     }
     sourceSets {
-        main { kotlin.srcDir("build/generated/ksp/main/kotlin") }
-        test { kotlin.srcDir("build/generated/ksp/test/kotlin") }
+        main {
+            kotlin.srcDir("build/generated/ksp/main/kotlin")
+        }
+        test {
+            kotlin.srcDir("build/generated/ksp/test/kotlin")
+        }
     }
 }
 
@@ -101,7 +107,9 @@ tasks {
                 val bakFile = File("$name.bak")
                 if (bakFile.isFile) {
                     println("Delete backup File: $name.bak")
-                    if (!bakFile.delete()) error("Cannot Delete File: $name")
+                    if (!bakFile.delete()) {
+                        error("Cannot Delete File: $name")
+                    }
                 }
                 val file = File(name)
                 if (file.isFile) {
