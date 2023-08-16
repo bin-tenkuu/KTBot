@@ -32,7 +32,7 @@ import kotlin.coroutines.EmptyCoroutineContext
  * @Date:2023/3/12
  */
 class RoomConfig(
-        val room: Room,
+    val room: Room,
 ) : Closeable, CoroutineScope {
     companion object : HashMap<String, RoomConfig>() {
         init {
@@ -49,10 +49,10 @@ class RoomConfig(
     val roles: Map<Int, RoleConfig> get() = room.roles
     val clients = HashSet<DefaultWebSocketServerSession>()
     private val dataSource: Database = Database.connect(
-            url = "jdbc:sqlite:./${id}.db",
-            driver = "org.sqlite.JDBC",
-            dialect = SQLiteDialect(),
-            generateSqlInUpperCase = true
+        url = "jdbc:sqlite:./${id}.db",
+        driver = "org.sqlite.JDBC",
+        dialect = SQLiteDialect(),
+        generateSqlInUpperCase = true
     )
     private val matux = Mutex()
 
@@ -60,14 +60,16 @@ class RoomConfig(
         dataSource.useConnection { conn ->
             conn.createStatement().use {
                 // language=SQLite
-                it.executeUpdate("""
+                it.executeUpdate(
+                    """
                     CREATE TABLE IF NOT EXISTS HisMsg(
                     id INTEGER PRIMARY KEY AUTOINCREMENT ,
                     type TEXT,
                     role INT,
                     msg TEXT
                     )
-                """.trimIndent())
+                """.trimIndent()
+                )
             }
         }
     }
@@ -143,33 +145,33 @@ class RoomConfig(
             sequence = sequence.filter { it.id less id }
         }
         val list = sequence
-                .limit(20)
-                .sortedBy { it.id.desc() }
-                .map {
-                    when (it.type) {
-                        "pic" -> Message.Pic(it.msg, it.id, it.role)
-                        "text" -> Message.Text(it.msg, it.id, it.role)
-                        "sys" -> Message.Sys(it.msg, it.id, it.role)
-                        else -> Message.Msgs()
-                    }
+            .limit(20)
+            .sortedBy { it.id.desc() }
+            .map {
+                when (it.type) {
+                    "pic" -> Message.Pic(it.msg, it.id, it.role)
+                    "text" -> Message.Text(it.msg, it.id, it.role)
+                    "sys" -> Message.Sys(it.msg, it.id, it.role)
+                    else -> Message.Msgs()
                 }
+            }
         return Message.Msgs(list)
     }
 
     fun historyAll(outputStream: OutputStream) {
-        val builder = StringBuilder()
-        for (msg in dataSource.sequenceOf(THisMsg.Instence)) {
-            val role = msg.role.role
-            val color = role.color
-            builder.append("<div style=\"color: ").append(color).append("\">")
-            toHtml(msg.type, msg.msg, role, builder)
-            builder.append("</div>\n")
-        }
         ZipOutputStream(outputStream, StandardCharsets.UTF_8).use {
             it.setComment("导出历史记录")
             it.setLevel(9)
             it.putNextEntry(ZipEntry("index.html"))
-            it.write(builder.toString().toByteArray())
+            val writer = it.bufferedWriter()
+            for (msg in dataSource.sequenceOf(THisMsg.Instence)) {
+                val role = msg.role.role
+                val color = role.color
+                writer.append("<div style=\"color: ").append(color).append("\">")
+                writer.append(toHtml(msg.type, msg.msg, role))
+                writer.append("</div>\n")
+                writer.flush()
+            }
             it.closeEntry()
             it.flush()
         }
@@ -177,20 +179,16 @@ class RoomConfig(
 
     private val Int.role: RoleConfig get() = room.roles[this] ?: RoleConfig(this, this.toString(), "black")
 
-    private fun toHtml(type: String, msg: String, role: RoleConfig, builder: StringBuilder) {
-        val name = role.name
-        val user = "<span>&lt;${name}&gt;:</span>"
-        when (type) {
-            Message.textType -> builder.append(user).append("<span>").append(msg).append("</span>")
-            Message.picType -> builder.append(user).append("<img alt='img' src='").append(msg).append("'/>")
-            Message.sysType -> builder.append("<i>").append(msg).append("</i>")
-            else -> {}
-        }
-    }
-
     private fun toHtml(type: String, msg: String, role: RoleConfig): String {
         return buildString {
-            toHtml(type, msg, role, this)
+            val name1 = role.name
+            val user = "<span>&lt;${name1}&gt;:</span>"
+            when (type) {
+                Message.textType -> this.append(user).append("<span>").append(msg).append("</span>")
+                Message.picType -> this.append(user).append("<img alt='img' src='").append(msg).append("'/>")
+                Message.sysType -> this.append("<i>").append(msg).append("</i>")
+                else -> {}
+            }
         }
     }
 }
